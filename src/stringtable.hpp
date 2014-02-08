@@ -173,20 +173,6 @@ namespace dota {
             inline void update(CSVCMsg_UpdateStringTable* table) const {
                 update(table->num_changed_entries(), table->string_data());
             }
-            
-            /** 
-             * Print the full table to the console, only works when DOTA_DEBUG is defined.
-             * 
-             * As each table contains binary, this function is intended to be used by developers
-             * only.
-             */
-            inline void dump() const {
-                #if DOTA_DEBUG
-                for (auto &it : db) {
-                    std::cout << "Key: " << it.key << "\tIndex: " << it.index << std::endl;
-                }
-                #endif
-            }
         private:
             /** Name of this stringtable */
             const std::string name;

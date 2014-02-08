@@ -22,7 +22,7 @@ OPTION (BUILD_ADDON "Build addon library (optional but useful)" OFF)
 OPTION (BUILD_DOCUMENTATION "Generate API documentation" OFF) 
 
 # Build examples
-OPTION (BUILD_EXAMPLES "Build example code" OFF) 
+OPTION (BUILD_EXAMPLE "Build example code" OFF) 
 
 # Build unit tests
 OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF) 
@@ -120,6 +120,7 @@ ELSE ( UNIX )
         find_package ( Boost REQUIRED )
     ENDIF ( BUILD_TEST )
     
+    include_directories( ${Boost_INCLUDE_DIRS} )
 ENDIF ( UNIX )
 
 include_directories( ${CMAKE_SOURCE_DIR}/src )

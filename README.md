@@ -72,3 +72,14 @@ and snappy but you need to build protobuf. If you have done so, let cmake genera
 those should allow you to build the whole project in MSVC.
 
 Binary releases for Windows might be made available in the future when I find a good place to store them.
+
+Using Alice
+-----------
+
+The example folder contains a very basic usage example. More applications / examples will follow.
+
+Thanks
+------
+
+Thanks to [edith](https://github.com/dschleck/edith) and [skadistats](https://github.com/skadistats/)! 
+Come join us over in #dota2replay on QuakeNet.

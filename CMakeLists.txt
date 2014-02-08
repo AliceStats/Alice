@@ -110,9 +110,9 @@ ELSE ( UNIX )
     ENDIF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/ )
     
     # Boost headers / librarys 
-    IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/boost )
-        SET ( BOOST_ROOT ${CMAKE_SOURCE_DIR}/deps/boost )
-    ENDIF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/boost )
+    IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
+        SET ( BOOST_ROOT ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
+    ENDIF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
     
     IF ( BUILD_TEST )
         find_package (Boost COMPONENTS system unit_test_framework REQUIRED)

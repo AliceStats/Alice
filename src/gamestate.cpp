@@ -36,7 +36,7 @@ namespace dota {
        
         for (int32_t i = 0; i < m->classes_size(); ++i) {
             const CDemoClassInfo::class_t &c = m->classes(i);
-            clist.set(c.class_id(), {c.class_id(), c.table_name(), c.network_name()});
+            clist.set(c.class_id(), entity_description{c.class_id(), c.table_name(), c.network_name()});
         }
         
         flattenSendtables();

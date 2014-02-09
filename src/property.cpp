@@ -278,26 +278,28 @@ namespace dota {
 
     int64_t property::readInt64(bitstream &stream, sendprop* prop) {
         if (prop->getFlags() & SPROP_ENCODED_AGAINST_TICKCOUNT) {
-            BOOST_THROW_EXCEPTION( propertyInvalidInt64Type() );
+            // let's hope this doesn't really want a 64 bit int or something
+            // will throw an exception anyway so let's see what happens in the long run
+            int64_t ret = stream.readVarUInt();
+            
+            if (prop->getFlags() & SPROP_UNSIGNED)
+                return ret;
+            else
+                return (-(ret & 1)) ^ (ret >> 1);
         } else {
             bool negate = false;
             std::size_t sbits = prop->getBits() - 32; // extra bits above 32
 
             if (!(SPROP_UNSIGNED & prop->getFlags())) {
                 --sbits;
-
-                if (stream.read(1))
-                    negate = true;
+                negate = stream.read(1);
             }
 
             int64_t a = stream.read(32);
             int64_t b = stream.read(sbits);
             int64_t val = (a << 32) | b;
 
-            if (negate)
-                val *= -1;
-
-            return val;
+            return negate ? -val : val;
         }
     }
 

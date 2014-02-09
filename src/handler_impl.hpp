@@ -123,14 +123,14 @@ bool handler<T1, Rest...>::hasCallback(const Id& i, std::true_type) {
     if (T1::id == Type) {
         return subhandler.hasCallback(i);
     } else {
-        return child.hasCallback<Type, Id>(i);
+        return child.template hasCallback<Type, Id>(i);
     }
 }
 
 template <typename T1, typename... Rest>
 template <uint32_t Type, typename Id>
 bool handler<T1, Rest...>::hasCallback(const Id& i, std::false_type) {
-    return child.hasCallback<Type, Id>(i);
+    return child.template hasCallback<Type, Id>(i);
 }
 
 template <typename T1, typename... Rest>
@@ -139,14 +139,14 @@ void handler<T1, Rest...>::registerCallback(const Id& i, Delegate&& d, bool pref
     if (T1::id == Type) {
         subhandler.registerCallback(i, std::move(d), prefix);
     } else {
-        child.registerCallback<Type>(i, std::move(d), prefix);
+        child.template registerCallback<Type>(i, std::move(d), prefix);
     }
 }
 
 template <typename T1, typename... Rest>
 template<uint32_t Type, typename Id, typename Delegate>
 void handler<T1, Rest...>::registerCallback(const Id& i, Delegate&& d, bool prefix, std::false_type) {
-    child.registerCallback<Type>(i, std::move(d), prefix);
+    child.template registerCallback<Type>(i, std::move(d), prefix);
 }
 
 template <typename T1, typename... Rest>
@@ -155,14 +155,14 @@ void handler<T1, Rest...>::removeCallback(const Id& i, Delegate&& d, bool prefix
     if (T1::id == Type) {
         subhandler.removeCallback(i, std::move(d), prefix);
     } else {
-        child.removeCallback<Type>(i, std::move(d), prefix);
+        child.template removeCallback<Type>(i, std::move(d), prefix);
     }
 }
 
 template <typename T1, typename... Rest>
 template<uint32_t Type, typename Id, typename Delegate>
 void handler<T1, Rest...>::removeCallback(const Id& i, Delegate&& d, bool prefix, std::false_type) {
-    child.removeCallback<Type>(i, std::move(d), prefix);
+    child.template removeCallback<Type>(i, std::move(d), prefix);
 }
 
 template <typename T1, typename... Rest>
@@ -171,14 +171,14 @@ void handler<T1, Rest...>::registerObject(const Id& i, std::true_type) {
     if (T1::id == Type) {
         subhandler.template registerObject<T>(i);
     } else {
-        child.registerObject<Type, T>(i);
+        child.template registerObject<Type, T>(i);
     }
 }
 
 template <typename T1, typename... Rest>
 template<uint32_t Type, typename T, typename Id>
 void handler<T1, Rest...>::registerObject(const Id& i, std::false_type) {
-    child.registerObject<Type, T>(i);
+    child.template registerObject<Type, T>(i);
 }
 
 template <typename T1, typename... Rest>
@@ -187,12 +187,12 @@ void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::true_typ
     if (T1::id == Type) {
         subhandler.forward(std::move(i), std::move(data), std::move(tick));
     } else {
-        child.forward<Type>(std::move(i), std::move(data), std::move(tick));
+        child.template forward<Type>(std::move(i), std::move(data), std::move(tick));
     }
 }
 
 template <typename T1, typename... Rest>
 template <uint32_t Type, typename Id, typename Data>
 void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::false_type) {
-	child.forward<Type>(std::move(i), std::move(data), std::move(tick));
+	child.template forward<Type>(std::move(i), std::move(data), std::move(tick));
 }

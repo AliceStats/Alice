@@ -10,7 +10,7 @@
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@
  *    limitations under the License.
  *
  * @par Info
- *    This file is not activly used in Alice. It is provided as a convinience 
+ *    This file is not activly used in Alice. It is provided as a convinience
  *    for people building applications with it.
  */
 
@@ -32,7 +32,7 @@ namespace dota {
     keyvalue::keyvalue(std::string s, bool isPath) : src(""), path(""), col(0), row(0), kv("", "") {
         if (isPath) {
             path = std::move(s);
-            
+
             // read the file
             std::ifstream in(path.c_str(), std::ios::in);
             if (in) {
@@ -44,7 +44,7 @@ namespace dota {
             } else {
                 BOOST_THROW_EXCEPTION(kvFileError()
                     << EArg<1>::info(s)
-                );  
+                );
             }
         } else {
             src = std::move(s);
@@ -57,10 +57,10 @@ namespace dota {
         bool waitNl = false;                // whether we are waiting for the next line to continue parsing
         state s = state::EXPECT_KEY_START;  // current parsing state
         value_type* t = &kv;                // tree where we will store our results
-        
+
         // allowed characters when between keys / values / objects
         static std::set<char> allowed = {'\r', '\n', ' ', '\t'};
-        
+
         for (std::string::size_type i = 0; i < src.size(); ++i) {
             // skip the rest of lines that contain a comment
             if (waitNl) {
@@ -69,12 +69,12 @@ namespace dota {
                     ++row;
                     col = 0;
                 }
-                    
+
                 continue;
             }
-            
+
             ++col; // increment column
-            
+
             // do stuff depending on the parser state and current character
             switch ( src[i] ) {
                 case '\n':
@@ -103,7 +103,7 @@ namespace dota {
                                 << EArg<1>::info(path)
                                 << EArgT<2, uint32_t>::info(row)
                                 << EArgT<3, uint32_t>::info(col)
-                            )); 
+                            ));
                             break;
                     } break;
                 case '{':
@@ -124,10 +124,10 @@ namespace dota {
                                 << EArg<1>::info(path)
                                 << EArgT<2, uint32_t>::info(row)
                                 << EArgT<3, uint32_t>::info(col)
-                            )); 
+                            ));
                             break;
                     } break;
-                case '}': 
+                case '}':
                     switch (s) {
                         case state::EXPECT_KEY_START:
                             t = t->parent();
@@ -140,41 +140,41 @@ namespace dota {
                                 << EArg<1>::info(path)
                                 << EArgT<2, uint32_t>::info(row)
                                 << EArgT<3, uint32_t>::info(col)
-                            )); 
+                            ));
                             break;
                     } break;
-                    
-                case '/': 
+
+                case '/':
                     // check if we are between steps
                     if (s != state::EXPECT_TYPE && s != state::EXPECT_KEY_START)
                         continue;
-                        
+
                     if ((i+1) < src.size() && src[i+1] == '/')
                         waitNl = true; // found a comment
-                        
+
                     break;
                 default: {
                     if (s == state::EXPECT_KEY_VALUE) {
                         key += src[i];
-                        continue;   
+                        continue;
                     }
-                        
+
                     if (s == state::EXPECT_VALUE_VALUE) {
                         value += src[i];
-                        continue;   
+                        continue;
                     }
-                    
+
                     if (!allowed.count(src[i]))
                         BOOST_THROW_EXCEPTION((kvUnexpectedCharacter()
                             << EArg<1>::info(path)
                             << EArgT<2, char>::info(src[i])
                             << EArgT<3, uint32_t>::info(row)
                             << EArgT<4, uint32_t>::info(col)
-                        )); 
+                        ));
                 } break;
             }
         }
-        
+
         // delete stuff
         src.clear();
         return kv;

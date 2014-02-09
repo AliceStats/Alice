@@ -10,7 +10,7 @@
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,9 @@
  *    limitations under the License.
  *
  * @par Info
- *    This file is not activly used in Alice. It is provided as a convinience 
+ *    This file is not activly used in Alice. It is provided as a convinience
  *    for people building applications with it.
- * 
+ *
  * @par Thanks
  *    Some of the values were taken from Tarrasque. Thanks!
  */
@@ -35,14 +35,14 @@
 namespace dota {
     /// @defgroup ADDON Addon
     /// @{
-    
+
     /** The team a player is on, including spectators. */
     enum team {
         TEAM_RADIANT   = 2,
         TEAM_DIRE      = 3,
         TEAM_SPECTATOR = 5
     };
-    
+
     /** Describes the life state of a player / npc entity. */
     enum life_state {
         STATE_ALIVE = 0,
@@ -51,7 +51,7 @@ namespace dota {
         STATE_RESPAWNABLE,
         STATE_DISCARDBODY
     };
-    
+
     /** State / progress of the current game. */
     enum game_state {
         GAME_LOADING = 1,   // loading screen
@@ -62,7 +62,7 @@ namespace dota {
         GAME_POST,          // one ancient died
         GAME_DISCONNECT     // not used yet, problably forces disconnects in clients
     };
-    
+
     /** Gamemode being played. */
     enum game_mode {
         MODE_NONE = 0,      // invalid
@@ -90,7 +90,7 @@ namespace dota {
         CLE_MODDEL,     // modifier removed
         CLE_DEATH       // death
     };
-    
+
     /// @}
 }
 

@@ -10,7 +10,7 @@
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,12 +19,12 @@
  *    limitations under the License.
  *
  * @par Info
- *    This file is not activly used in Alice. It is provided as a convinience 
+ *    This file is not activly used in Alice. It is provided as a convinience
  *    for people building applications with it. It's also required by the monitor
  *    pattern, providing a thread-safe building block for the worker queue
- * 
+ *
  */
- 
+
 #ifndef _DOTA_QUEUE_HPP_
 #define _DOTA_QUEUE_HPP_
 
@@ -36,7 +36,7 @@
 namespace dota {
     /// @defgroup ADDON Addon
     /// @{
-    
+
     /** Thread safe blocking queue */
     template <typename T>
     class queue {
@@ -47,7 +47,7 @@ namespace dota {
                 while (q.empty()) {
                     cond.wait(mlock);
                 }
-                
+
                 auto item = q.front();
                 q.pop();
                 return item;
@@ -60,11 +60,11 @@ namespace dota {
                 mlock.unlock();
                 cond.notify_one();
             }
- 
+
             /** Returns the current number of entries */
             typename std::queue<T>::size_type size() {
                 return q.size();
-            } 
+            }
         private:
             /** Underlying non-thread safe queue */
             std::queue<T> q;
@@ -72,8 +72,8 @@ namespace dota {
             std::mutex mutex;
             /** Condition variable for blocking pop */
             std::condition_variable cond;
-    };   
-    
+    };
+
     /// @}
 }
 #endif /* _DOTA_QUEUE_HPP_ */

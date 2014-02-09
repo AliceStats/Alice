@@ -10,21 +10,21 @@
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- * 
+ *
  * @par Info
- *    This file is not activly used in Alice. It is provided as a convinience 
+ *    This file is not activly used in Alice. It is provided as a convinience
  *    for people building applications with it. It's actively used in the development
  *    process to get quick measurements.
- * 
+ *
  */
- 
+
 #ifndef _DOTA_TIMER_HPP_
 #define _DOTA_TIMER_HPP_
 
@@ -42,13 +42,13 @@
 namespace dota {
     /// @defgroup ADDON Addon
     /// @{
-    
+
     /** Type representing the format for a usec */
     typedef uint64_t ztime_t;
-    
-    /** 
+
+    /**
      * Returns high resolution time for performance counters.
-     * 
+     *
      * The actual values returned by this function may differ depending
      * on the operating system.
      */
@@ -63,7 +63,7 @@ namespace dota {
             return ((ztime_t) tv.tv_sec * TIME_USEC_PER_SEC) + tv.tv_usec;
         #endif /* WIN32 */
     }
-    
+
     /// @}
 }
 

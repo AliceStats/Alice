@@ -110,7 +110,7 @@ namespace dota {
                 
                 if (length > STRINGTABLE_MAX_VALUE_SIZE) 
                     BOOST_THROW_EXCEPTION( stringtableValueOverflow()
-                        << (EArgT<1, uint32_t>::info(valsize))
+                        << (EArgT<1, uint32_t>::info(length))
                     );
                 
                 bstream.readBits((char*)&value, valsize);

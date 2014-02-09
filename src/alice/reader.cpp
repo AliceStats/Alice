@@ -21,12 +21,12 @@
  */
 #include <snappy.h>
 
-#include "demo.pb.h"
-#include "netmessages.pb.h"
-#include "usermessages.pb.h"
-#include "dota_usermessages.pb.h"
+#include <alice/demo.pb.h>
+#include <alice/netmessages.pb.h>
+#include <alice/usermessages.pb.h>
+#include <alice/dota_usermessages.pb.h>
 
-#include "reader.hpp"
+#include <alice/reader.hpp>
 
 namespace dota {
     int32_t reader::readVarInt(std::ifstream &stream, const std::string& file) {

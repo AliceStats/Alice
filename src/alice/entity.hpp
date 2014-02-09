@@ -30,11 +30,11 @@
 
 #include <boost/functional/hash.hpp>
 
-#include "netmessages.pb.h"
-#include "bitstream.hpp"
-#include "exception.hpp"
-#include "sendtable.hpp"
-#include "property.hpp"
+#include <alice/netmessages.pb.h>
+#include <alice/bitstream.hpp>
+#include <alice/exception.hpp>
+#include <alice/sendtable.hpp>
+#include <alice/property.hpp>
 
 /// Defines the maximum number of concurrent entities
 #define DOTA_MAX_ENTITIES 0x3FFF // 16383

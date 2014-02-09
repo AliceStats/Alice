@@ -1,6 +1,6 @@
 build/*
 deps/*
 doc/*
-src/config.hpp
-src/*.pb.*
+src/alice/config.hpp
+src/alice/*.pb.*
 Doxyfile

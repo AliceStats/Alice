@@ -31,7 +31,7 @@
 #include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/member.hpp>
 
-#include "exception.hpp"
+#include <alice/exception.hpp>
 
 namespace dota {
     // omit unnessecary typing

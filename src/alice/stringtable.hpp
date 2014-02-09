@@ -26,10 +26,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "netmessages.pb.h"
-#include "bitstream.hpp"
-#include "exception.hpp"
-#include "multiindex.hpp"
+#include <alice/netmessages.pb.h>
+#include <alice/bitstream.hpp>
+#include <alice/exception.hpp>
+#include <alice/multiindex.hpp>
 
 /// Defines the maximum number of keys to keep a history of
 ///

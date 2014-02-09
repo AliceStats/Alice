@@ -22,7 +22,7 @@
 #include <cstring>
 #include <cstdio>
 
-#include "bitstream.hpp"
+#include <alice/bitstream.hpp>
 
 namespace dota {
     bitstream::bitstream(const std::string &dat) : pos(0), size( dat.size()*8 ) {

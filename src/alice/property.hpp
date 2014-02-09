@@ -31,9 +31,9 @@
 
 #include <boost/variant.hpp>
 
-#include "exception.hpp"
-#include "sendprop.hpp"
-#include "bitstream.hpp"
+#include <alice/exception.hpp>
+#include <alice/sendprop.hpp>
+#include <alice/bitstream.hpp>
 
 /// Specifies the maximum length of a string
 #define PROPERTY_MAX_STRING_LENGTH 0x200

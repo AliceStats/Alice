@@ -28,10 +28,10 @@
 #include <utility>
 #include <type_traits>
 
-#include "exception.hpp"
-#include "handler.hpp"
-#include "gamestate.hpp"
-#include "config.hpp"
+#include <alice/exception.hpp>
+#include <alice/handler.hpp>
+#include <alice/gamestate.hpp>
+#include <alice/config.hpp>
 
 /// Defines the first 7 bytes to check as the header ID
 #define DOTA_DEMHEADERID "PBUFDEM"

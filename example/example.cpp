@@ -1,10 +1,10 @@
 #include <iostream>
 #include <exception>
 
-#include "exception.hpp"
-#include "handler.hpp"
-#include "gamestate.hpp"
-#include "reader.hpp"
+#include <alice/exception.hpp>
+#include <alice/handler.hpp>
+#include <alice/gamestate.hpp>
+#include <alice/reader.hpp>
 
 using namespace dota;
 

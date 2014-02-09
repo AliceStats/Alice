@@ -27,8 +27,8 @@
 #define _DOTA_KEYVALUE_HPP_
 
 #include <string>
-#include "exception.hpp"
-#include "tree.hpp"
+#include <alice/exception.hpp>
+#include <alice/tree.hpp>
 
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions

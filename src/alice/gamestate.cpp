@@ -22,7 +22,7 @@
 
 #include <utility>
 
-#include "gamestate.hpp"
+#include <alice/gamestate.hpp>
 
 namespace dota {
     void gamestate::handleServerInfo(handlerCbType(msgNet) msg) {

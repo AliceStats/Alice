@@ -28,14 +28,14 @@
 #include <vector>
 #include <set>
 
-#include "demo.pb.h"
-#include "netmessages.pb.h"
-#include "multiindex.hpp"
-#include "stringtable.hpp"
-#include "sendtable.hpp"
-#include "entity.hpp"
-#include "handler.hpp"
-#include "exception.hpp"
+#include <alice/demo.pb.h>
+#include <alice/netmessages.pb.h>
+#include <alice/multiindex.hpp>
+#include <alice/stringtable.hpp>
+#include <alice/sendtable.hpp>
+#include <alice/entity.hpp>
+#include <alice/handler.hpp>
+#include <alice/exception.hpp>
 
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions

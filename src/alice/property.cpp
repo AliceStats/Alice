@@ -23,7 +23,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "property.hpp"
+#include <alice/property.hpp>
 
 namespace dota {
     void property::update(bitstream &stream) {

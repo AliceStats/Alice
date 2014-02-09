@@ -34,7 +34,7 @@
 
 #include <boost/utility.hpp>
 
-#include "exception.hpp"
+#include <alice/exception.hpp>
 
 namespace dota {
     /// @defgroup ADDON Addon

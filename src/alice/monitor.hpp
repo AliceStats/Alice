@@ -32,7 +32,7 @@
 #include <thread>
 #include <cstdlib>
 
-#include "queue.hpp"
+#include <alice/queue.hpp>
 
 namespace dota {
     /// @defgroup ADDON Addon

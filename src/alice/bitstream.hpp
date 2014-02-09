@@ -25,8 +25,8 @@
 #include <string>
 #include <vector>
 
-#include "exception.hpp"
-#include "config.hpp"
+#include <alice/exception.hpp>
+#include <alice/config.hpp>
 
 /// Defines the maximum possible size of a bitstream
 ///

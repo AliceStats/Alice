@@ -60,8 +60,8 @@ endif()
 
 MESSAGE ( STATUS "Generating src/config.hpp" )
 CONFIGURE_FILE (
-    ${CMAKE_SOURCE_DIR}/src/config.hpp.in
-    ${CMAKE_SOURCE_DIR}/src/config.hpp
+    ${CMAKE_SOURCE_DIR}/src/alice/config.hpp.in
+    ${CMAKE_SOURCE_DIR}/src/alice/config.hpp
 )
 
 #------------------------------------------------------------
@@ -132,7 +132,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/src )
 FILE( GLOB ProtoFiles ${CMAKE_SOURCE_DIR}/proto/*.proto )
 EXECUTE_PROCESS ( COMMAND ${PROTOC}
     ${ProtoFiles}
-    --cpp_out=${CMAKE_SOURCE_DIR}/src
+    --cpp_out=${CMAKE_SOURCE_DIR}/src/alice
     --proto_path=${CMAKE_SOURCE_DIR}/proto
 )
 
@@ -141,27 +141,27 @@ EXECUTE_PROCESS ( COMMAND ${PROTOC}
 #------------------------------------------------------------
 
 SET ( PROTO_SOURCES
-    src/ai_activity.pb.cc
-    src/demo.pb.cc
-    src/dota_commonmessages.pb.cc
-    src/dota_modifiers.pb.cc
-    src/dota_usermessages.pb.cc
-    src/netmessages.pb.cc
-    src/networkbasetypes.pb.cc
-    src/usermessages.pb.cc
+    src/alice/ai_activity.pb.cc
+    src/alice/demo.pb.cc
+    src/alice/dota_commonmessages.pb.cc
+    src/alice/dota_modifiers.pb.cc
+    src/alice/dota_usermessages.pb.cc
+    src/alice/netmessages.pb.cc
+    src/alice/networkbasetypes.pb.cc
+    src/alice/usermessages.pb.cc
 )
 
 SET ( ALICE_CORE_SOURCES
-    src/bitstream.cpp
-    src/entity.cpp
-    src/gamestate.cpp
-    src/property.cpp
-    src/reader.cpp
-    src/stringtable.cpp
+    src/alice/bitstream.cpp
+    src/alice/entity.cpp
+    src/alice/gamestate.cpp
+    src/alice/property.cpp
+    src/alice/reader.cpp
+    src/alice/stringtable.cpp
 )
 
 SET ( ALICE_ADDON_SOURCES
-    src/keyvalue.cpp
+    src/alice/keyvalue.cpp
 )
 
 # alice-core
@@ -187,40 +187,41 @@ ENDIF ( BUILD_ADDON )
 #------------------------------------------------------------
 
 SET ( PROTO_HEADERS
-    src/ai_activity.pb.h
-    src/demo.pb.h
-    src/dota_commonmessages.pb.h
-    src/dota_modifiers.pb.h
-    src/dota_usermessages.pb.h
-    src/netmessages.pb.h
-    src/networkbasetypes.pb.h
-    src/usermessages.pb.h
+    src/alice/ai_activity.pb.h
+    src/alice/demo.pb.h
+    src/alice/dota_commonmessages.pb.h
+    src/alice/dota_modifiers.pb.h
+    src/alice/dota_usermessages.pb.h
+    src/alice/netmessages.pb.h
+    src/alice/networkbasetypes.pb.h
+    src/alice/usermessages.pb.h
 )
 
 SET ( ALICE_CORE_HEADERS
-    src/bitstream.hpp
-    src/delegate.hpp
-    src/entity.hpp
-    src/exception.hpp
-    src/gamestate.hpp
-    src/handler.hpp
-    src/handler_detail.hpp
-    src/handler_impl.hpp
-    src/multiindex.hpp
-    src/property.hpp
-    src/reader.hpp
-    src/sendprop.hpp
-    src/sendtable.hpp
-    src/stringtable.hpp
+    src/alice/bitstream.hpp
+    src/alice/config.hpp
+    src/alice/delegate.hpp
+    src/alice/entity.hpp
+    src/alice/exception.hpp
+    src/alice/gamestate.hpp
+    src/alice/handler.hpp
+    src/alice/handler_detail.hpp
+    src/alice/handler_impl.hpp
+    src/alice/multiindex.hpp
+    src/alice/property.hpp
+    src/alice/reader.hpp
+    src/alice/sendprop.hpp
+    src/alice/sendtable.hpp
+    src/alice/stringtable.hpp
 )
 
 SET ( ALICE_ADDON_HEADERS
-    src/defs.hpp
-    src/keyvalue.hpp
-    src/monitor.hpp
-    src/queue.hpp
-    src/timer.hpp
-    src/tree.hpp
+    src/alice/defs.hpp
+    src/alice/keyvalue.hpp
+    src/alice/monitor.hpp
+    src/alice/queue.hpp
+    src/alice/timer.hpp
+    src/alice/tree.hpp
 )
 
 INSTALL( FILES ${PROTO_HEADERS} ${ALICE_CORE_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/alice/ )

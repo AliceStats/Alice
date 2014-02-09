@@ -28,9 +28,9 @@
 #include <utility>
 #include <vector>
 
-#include "multiindex.hpp"
-#include "exception.hpp"
-#include "sendprop.hpp"
+#include <alice/multiindex.hpp>
+#include <alice/exception.hpp>
+#include <alice/sendprop.hpp>
 
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions

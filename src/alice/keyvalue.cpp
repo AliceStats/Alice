@@ -26,7 +26,7 @@
 #include <set>
 #include <fstream>
 
-#include "keyvalue.hpp"
+#include <alice/keyvalue.hpp>
 
 namespace dota {
     keyvalue::keyvalue(std::string s, bool isPath) : src(""), path(""), col(0), row(0), kv("", "") {

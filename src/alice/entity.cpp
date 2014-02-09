@@ -20,7 +20,7 @@
  *
  */
 
-#include "entity.hpp"
+#include <alice/entity.hpp>
 
 namespace dota {
     void entity::updateFromBitstream(bitstream& bstream) {

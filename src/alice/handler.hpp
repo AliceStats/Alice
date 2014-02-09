@@ -31,9 +31,9 @@
 
 #include <google/protobuf/message.h>
 
-#include "entity.hpp"
-#include "exception.hpp"
-#include "delegate.hpp"
+#include <alice/entity.hpp>
+#include <alice/exception.hpp>
+#include <alice/delegate.hpp>
 
 /// Registers and object with the handler.
 ///

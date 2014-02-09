@@ -69,8 +69,8 @@
 #include <memory>
 #include <utility>
 
-#include "netmessages.pb.h"
-#include "exception.hpp"
+#include <alice/netmessages.pb.h>
+#include <alice/exception.hpp>
 
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions

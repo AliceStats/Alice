@@ -20,9 +20,8 @@
  *
  */
 
-#include "stringtable.hpp"
-
 #include <cmath>
+#include <alice/stringtable.hpp>
 
 namespace dota {
     stringtable::stringtable(CSVCMsg_CreateStringTable* table) :

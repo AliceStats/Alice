@@ -45,9 +45,9 @@ ENDIF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 #------------------------------------------------------------
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  ADD_DEFINITIONS ( "-O3 --std=c++0x -stdlib=libc++ -fPIC" )
+  SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable --stdlib=libc++" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  ADD_DEFINITIONS ( "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
+  SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   MESSAGE ( STATUS "Intel Compiler not tested yet, falling back to default compiler flags" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")

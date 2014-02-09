@@ -403,7 +403,7 @@ namespace dota {
                 if (T1::id == Type) {
                     subhandler.clear();
                 } else {
-                    child.clear<Type>();
+                    child.template clear<Type>();
                 }
             }
         private:

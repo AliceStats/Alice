@@ -262,5 +262,12 @@ ENDIF ( BUILD_EXAMPLE )
 #------------------------------------------------------------
 
 IF ( BUILD_DOCUMENTATION )
-    EXECUTE_PROCESS ( COMMAND doxygen Doxyfile )
+    MESSAGE ( STATUS "Generating Doxyfile" )
+    CONFIGURE_FILE (
+        ${CMAKE_SOURCE_DIR}/Doxyfile.in
+        ${CMAKE_SOURCE_DIR}/Doxyfile
+    )
+
+    EXECUTE_PROCESS ( COMMAND doxygen ${CMAKE_SOURCE_DIR}/Doxyfile )
+    INSTALL ( DIRECTORY doc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/alice/ )
 ENDIF ( BUILD_DOCUMENTATION )

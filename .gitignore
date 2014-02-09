@@ -3,3 +3,4 @@ deps/*
 doc/*
 src/config.hpp
 src/*.pb.*
+Doxyfile

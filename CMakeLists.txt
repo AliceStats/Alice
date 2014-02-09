@@ -16,16 +16,16 @@ MESSAGE ( STATUS "Host system is " ${CMAKE_HOST_SYSTEM} " with processor " ${CMA
 MESSAGE ( STATUS "Target system is " ${CMAKE_SYSTEM} " with processor " ${CMAKE_SYSTEM_PROCESSOR} )
 
 # Whether to build alice-addon
-OPTION (BUILD_ADDON "Build addon library (optional but useful)" OFF) 
+OPTION (BUILD_ADDON "Build addon library (optional but useful)" OFF)
 
 # Build documentation
-OPTION (BUILD_DOCUMENTATION "Generate API documentation" OFF) 
+OPTION (BUILD_DOCUMENTATION "Generate API documentation" OFF)
 
 # Build examples
-OPTION (BUILD_EXAMPLE "Build example code" OFF) 
+OPTION (BUILD_EXAMPLE "Build example code" OFF)
 
 # Build unit tests
-OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF) 
+OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF)
 
 #------------------------------------------------------------
 # Version Info
@@ -45,7 +45,7 @@ ENDIF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 #------------------------------------------------------------
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  ADD_DEFINITIONS ( "-O3 --std=c++0x --stdlib=c++ -fPIC" )
+  ADD_DEFINITIONS ( "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   ADD_DEFINITIONS ( "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -72,21 +72,21 @@ IF ( UNIX )
     # Protocol Buffers
     find_package( Protobuf REQUIRED )
     include_directories( ${PROTOBUF_INCLUDE_DIR} )
-    SET ( PROTOC "protoc" ) 
-    
+    SET ( PROTOC "protoc" )
+
     # Snappy
     include ( FindSnappy )
     find_package ( Snappy REQUIRED )
     include_directories( ${SNAPPY_INCLUDE_DIR} )
     SET ( SNAPPY_SOURCES "" )
-    
-    # Boost headers / librarys 
+
+    # Boost headers / librarys
     IF ( BUILD_TEST )
         find_package (Boost COMPONENTS system unit_test_framework REQUIRED)
     ELSE ( BUILD_TEST )
         find_package ( Boost REQUIRED )
     ENDIF ( BUILD_TEST )
-    
+
     include_directories( ${Boost_INCLUDE_DIRS} )
 ELSE ( UNIX )
     # Protobuf
@@ -95,10 +95,10 @@ ELSE ( UNIX )
         SET ( CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/vsprojects/Release )
         SET ( PROTOC ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/vsprojects/Release/protoc.exe )
     ENDIF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/vsprojects/Release )
-    
+
     find_package( Protobuf REQUIRED )
     include_directories( ${PROTOBUF_INCLUDE_DIR} )
-    
+
     # Snappy
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/ )
 		# just build snappy with the project on windows
@@ -108,18 +108,18 @@ ELSE ( UNIX )
 	ELSE ( EXISTS ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/ )
 		MESSAGE ( error "Can't find snappy" )
     ENDIF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/ )
-    
-    # Boost headers / librarys 
+
+    # Boost headers / librarys
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
         SET ( BOOST_ROOT ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
     ENDIF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
-    
+
     IF ( BUILD_TEST )
         find_package (Boost COMPONENTS system unit_test_framework REQUIRED)
     ELSE ( BUILD_TEST )
         find_package ( Boost REQUIRED )
     ENDIF ( BUILD_TEST )
-    
+
     include_directories( ${Boost_INCLUDE_DIRS} )
 ENDIF ( UNIX )
 
@@ -130,7 +130,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/src )
 #------------------------------------------------------------
 
 FILE( GLOB ProtoFiles ${CMAKE_SOURCE_DIR}/proto/*.proto )
-EXECUTE_PROCESS ( COMMAND ${PROTOC} 
+EXECUTE_PROCESS ( COMMAND ${PROTOC}
     ${ProtoFiles}
     --cpp_out=${CMAKE_SOURCE_DIR}/src
     --proto_path=${CMAKE_SOURCE_DIR}/proto
@@ -151,9 +151,9 @@ SET ( PROTO_SOURCES
     src/usermessages.pb.cc
 )
 
-SET ( ALICE_CORE_SOURCES 
-    src/bitstream.cpp 
-    src/entity.cpp 
+SET ( ALICE_CORE_SOURCES
+    src/bitstream.cpp
+    src/entity.cpp
     src/gamestate.cpp
     src/property.cpp
     src/reader.cpp
@@ -246,14 +246,14 @@ IF ( BUILD_EXAMPLE )
     ADD_EXECUTABLE ( alice-example
         example/example.cpp
     )
-    
+
     TARGET_LINK_LIBRARIES ( alice-example
         alice-core-static
         ${PROTOBUF_LIBRARY}
     	${SNAPPY_LIBRARIES}
     	${Boost_LIBRARIES}
     )
-    
+
     INSTALL( TARGETS alice-example RUNTIME DESTINATION bin )
 ENDIF ( BUILD_EXAMPLE )
 

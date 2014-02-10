@@ -63,14 +63,45 @@ namespace dota {
         public:
             /** Type used to keep track of the stream position */
             typedef std::size_t size_type;
+            
+            /** Creates an empty bitstream */
+            bitstream() : data{}, pos{0}, size{0} { }
+            
+            /** Creates a bitstream from a std::string */
+            bitstream(const std::string &str) : data{}, pos{0}, size{str.size()*8} {
+                if (str.size() > DOTA_BITSTREAM_MAX_SIZE)
+                    BOOST_THROW_EXCEPTION( bitstreamDataSize() << (EArgT<1, std::size_t>::info(str.size())) );
 
-            /** Creates a bitstream from a std: */
-            bitstream(const std::string &data_);
-            /** Deleted copy-constructor to prevent copying. */
-            bitstream(const bitstream&) = delete;
-            /** Default destructor. */
+                // Reserve the memory in beforehand so we can just memcpy everything
+                data.resize((str.size() + 3) / 4 + 1);
+                memcpy(&data[0], str.c_str(), str.size());
+            }
+            
+            /** Copy-Constructor */
+            bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} { }
+            
+            /** Move-Constructor */
+            bitstream(bitstream&& b) : data{std::move(b.data)}, pos{b.pos}, size{b.size} {
+                b.data.clear();
+                b.pos = 0;
+                b.size = 0;
+            }
+
+            /** Destructor */
             ~bitstream() = default;
-
+            
+            /** Assignment operator */
+            bitstream& operator= (bitstream t) {
+                swap(t);
+                return *this;
+            }
+            
+            /** Swap this bitstream with given one */
+            void swap(bitstream& b) {
+                std::swap(data, b.data);
+                std::swap(pos, b.pos);
+                std::swap(size, b.size);
+            }
 
             /** Checked whether there is still data left to be read. */
             inline bool good() const {
@@ -82,7 +113,7 @@ namespace dota {
                 return size;
             }
 
-            /** Returns the current position of the steam in bits. */
+            /** Returns the current position of the stream in bits. */
             inline size_type position() const {
                 return pos;
             }
@@ -101,7 +132,7 @@ namespace dota {
             /** Current position in the vector in bits */
             size_type pos;
             /** Overall size of the data in bits */
-            const size_type size;
+            size_type size;
     };
 
     /// @}

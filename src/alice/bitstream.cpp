@@ -25,17 +25,6 @@
 #include <alice/bitstream.hpp>
 
 namespace dota {
-    bitstream::bitstream(const std::string &dat) : pos(0), size( dat.size()*8 ) {
-        if (dat.size() > DOTA_BITSTREAM_MAX_SIZE)
-            BOOST_THROW_EXCEPTION( bitstreamDataSize()
-                << (EArgT<1, std::size_t>::info(dat.size()))
-            );
-
-        // Reserve the memory in beforehand so we can just memcpy everything
-        data.resize((dat.size() + 3) / 4 + 1);
-        memcpy(&data[0], dat.c_str(), dat.size());
-    }
-
     uint32_t bitstream::read(bitstream::size_type n) {
         // make sure the data read fits the return type
         if (n > size-pos) // cant read more than what is left over

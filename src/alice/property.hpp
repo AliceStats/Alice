@@ -205,6 +205,11 @@ namespace dota {
                 return ret;
             }
 
+            /** Returns definition for this property */
+            sendprop* getSendprop() {
+                return prop;
+            }
+
             /** Updates this property from a bitstream */
             void update(bitstream &stream);
 

@@ -31,12 +31,20 @@
 #include <map>
 #include <sstream>
 #include <utility>
+#include <type_traits>
 
 #include <boost/utility.hpp>
 
 #include <alice/exception.hpp>
 
 namespace dota {
+    /// @defgroup EXCEPTIONS Exceptions
+    /// @{
+
+    /// Thrown when trying to access an unkown child by it's key
+    CREATE_EXCEPTION( treeUnkownKey, "Trying to access child via invalid key." )
+    
+    /// @}
     /// @defgroup ADDON Addon
     /// @{
 
@@ -46,9 +54,6 @@ namespace dota {
      * Nodes and values can be added and modified but not removed at this time.
      * There is also no way to load a tree from it's json representation. This
      * structure was specifically written to be used with keyvalue.
-     *
-     * Due to non-const references being returned it cannot be used to store
-     * pointers.
      */
     template <typename Key, typename Value>
     class tree {
@@ -56,7 +61,7 @@ namespace dota {
             /** Type for this nodes key */
             typedef Key key_type;
             /** Type for this nodes value */
-            typedef Value value_type;
+            typedef typename std::remove_pointer<Value>::type value_type;
             /** Own type to instanciate child nodes */
             typedef tree<Key, Value> node_type;
             /** Type for a list of this node's children, unordered_map wants to re-hash so we have to settle on a standard map */
@@ -66,20 +71,64 @@ namespace dota {
             /** Iterator type */
             typedef typename childlist_type::iterator iterator;
 
-            /** Empty constructor to make it hashable, should not be invoked directly. */
-            tree() {}
+            /** Constructor */
+            tree() : k{}, v{}, children{}, p{nullptr} {}
 
-            /** Constuctor, sets key and value */
-            tree(key_type k, value_type v) : k{k}, v{v}, children{}, p(nullptr) {
-
+            /** Constuctor takes key and value */
+            tree(key_type k, value_type v) : k{k}, v{v}, children{}, p{nullptr} { }
+            
+            /** Constuctor takes value */
+            tree(value_type v) : k{}, v{v}, children{}, p{nullptr} { }
+            
+            /** Copy-Constructor */
+            tree(const tree& t) : k{t.k}, v{t.v}, children{t.children}, p{t.p} { }
+            
+            /** Move-Constructor */
+            tree (tree&& t) 
+                : k{std::move(t.k)}, v{std::move(t.v)}, children{std::move(t.children)}, p(t.p) 
+            {
+                t.children.clear();
+                t.p = nullptr;
+            }
+            
+            /** Destructor */
+            ~tree() {
+                // set the parent of all children to null
+                for (auto &it : children) {
+                    it.second.setParent(nullptr);
+                }
+            }
+            
+            /** Assignment operator */
+            tree& operator= (tree t) {
+                swap(t);
+                return *this;
+            }
+            
+            /** Swap this tree with a provided one */
+            void swap(tree& t) {
+                std::swap(k, t.k);
+                std::swap(v, t.v);
+                std::swap(children, t.children);
+                std::swap(p, t.p);
+            }
+            
+            /** Sets key of this node */
+            void setKey(key_type k) {
+                k = std::move(k);
             }
 
-            /** Returns this nodes key */
+            /** Return this nodes key */
             const key_type& key() {
                 return k;
             }
+            
+            /** Sets value */
+            void set(Value v) {
+                this->v = std::move(v);
+            }
 
-            /** Returns reference to the value of this node */
+            /** Returns reference to object */
             value_type& value() {
                 return v;
             }
@@ -88,12 +137,27 @@ namespace dota {
             size_type size() {
                 return children.size();
             }
+            
+            /** Returns iterator pointing to the beginning of the child list */
+            iterator begin() {
+                return children.begin();
+            }
+
+            /** Returns iterator pointing to the end of the child list */
+            iterator end() {
+                return children.end();
+            }
+
+            /** Looks up a child by key */
+            iterator find(key_type k) {
+                return children.find(k);
+            }
 
             /** Returns a child by key */
             node_type& child(const key_type& k) {
                 auto it = children.find(k);
                 if (it == children.end()) {
-                    // throw
+                    BOOST_THROW_EXCEPTION( treeUnkownKey() << EArg<1>::info(k) );
                 }
 
                 return it->second;
@@ -108,30 +172,10 @@ namespace dota {
                 return p;
             }
 
-            /** Sets value */
-            void set(value_type v) {
-                this->v = std::move(v);
-            }
-
             /** Adds a new child */
             void add(key_type k, node_type&& n) {
                 n.setParent(this);
                 children[k] = std::forward<node_type&&>(n);
-            }
-
-            /** Returns iterator pointing to the beginning of the child list */
-            iterator begin() {
-                return children.begin();
-            }
-
-            /** Returns iterator pointing to the end of the child list */
-            iterator end() {
-                return children.end();
-            }
-
-            /** Looks up a child by key */
-            iterator find(key_type k) {
-                return children.find(k);
             }
 
             /** Converts this tree to a json string */
@@ -148,7 +192,7 @@ namespace dota {
                 std::string tabs = nestTabs(depth);
 
                 // this is pretty ugly but on the other hand it's also pretty simple
-                // why implement a json object when you don't really require it
+                // why implement a json object when you don't really need it
                 std::stringstream ret("");
 
                 if (children.empty()) {
@@ -173,7 +217,7 @@ namespace dota {
             /** Key of this node, always filled  */
             key_type k;
             /** Value of this node, maybe empty */
-            value_type v;
+            Value v;
             /** List of children, may also be empty */
             childlist_type children;
             /** Pointer to parrent, may be NULL for the root element */

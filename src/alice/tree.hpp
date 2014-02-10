@@ -129,7 +129,16 @@ namespace dota {
             }
 
             /** Returns reference to object */
-            value_type& value() {
+            template<class T = Value>
+            typename std::enable_if<std::is_pointer<T>::value, value_type&>::type
+            value() {
+                return *v;
+            }
+            
+            /** Returns reference to object */
+            template<class T = Value>
+            typename std::enable_if<!std::is_pointer<T>::value, value_type&>::type
+            value() {
                 return v;
             }
 

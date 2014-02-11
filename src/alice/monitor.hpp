@@ -54,9 +54,19 @@ namespace dota {
     /** Monitor pattern, providing concurrent access to non-concurrent structures */
     template <typename T>
     class monitor {
+        private:
+            /** Distinct object we take care of */
+            mutable T t;
+            /** Queue working for entries */
+            mutable queue<std::function<void()>> q;
+            /** Worker thread */
+            std::thread worker;
+            /** Whether the worker is finished */
+            bool finish;
+
         public:
             /** Constructor, takes ownership of T */
-            monitor(T _t) : t{std::move(_t)}, worker([=]{ while (!finish) { q.pop()(); } }), finish(false) {}
+            monitor(T _t) : t(std::move(_t)), worker([=]{ while (!finish) { q.pop()(); } }), finish(false) {}
 
             /** Prevent copying */
             monitor(const monitor&) = delete;
@@ -86,15 +96,6 @@ namespace dota {
 
                 return ret;
             }
-        private:
-            /** Distinct object we take care of */
-            mutable T t;
-            /** Queue working for entries */
-            mutable queue<std::function<void()>> q;
-            /** Worker thread */
-            std::thread worker;
-            /** Whether the worker is finished */
-            bool finish;
     };
 
     /// @}

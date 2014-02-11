@@ -76,8 +76,8 @@ namespace dota {
                     fstream.close();
 
                 delete h;
-                delete buffer;
-                delete bufferCmp;
+                delete[] buffer;
+                delete[] bufferCmp;
             }
 
             /** Returns pointer to handler */

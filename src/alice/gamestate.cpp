@@ -43,7 +43,7 @@ namespace dota {
     }
 
     void gamestate::handleSendTable(handlerCbType(msgNet) msg) {
-        static int32_t stableId = -1;
+        int32_t stableId = ++sendtableId;
         CSVCMsg_SendTable* m = msg->get<CSVCMsg_SendTable>();
 
         sendtable tbl(m->net_table_name(), m->needs_decoder());
@@ -58,8 +58,7 @@ namespace dota {
         CSVCMsg_CreateStringTable* m = msg->get<CSVCMsg_CreateStringTable>();
 
         // global unique id for ordered indexes
-        static int32_t tableid = -1;
-        ++tableid;
+        int32_t tableid = ++stringtableId;
 
         if (m->user_data_size_bits() & 2) {
             return;

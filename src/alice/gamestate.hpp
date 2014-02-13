@@ -74,7 +74,8 @@ namespace dota {
 
             /** Constructor, sets default values and registers the callbacks nessecary. */
             gamestate(handler_t* h)
-                : h(h), clist{}, stringtables{}, sendtables{}, flattables{}, entities{}, entityClassBits(0)
+                : h(h), clist{}, stringtables{}, sendtables{}, flattables{}, entities{}, entityClassBits(0),
+                  sendtableId(-1), stringtableId(-1)
             {
                 // handle messages nessecary to update gamestate
                 handlerRegisterCallback(h, msgDem, DEM_ClassInfo, gamestate, handleClassInfo)
@@ -182,6 +183,10 @@ namespace dota {
 
             /** The number of bits to read for each entitie's class. */
             uint32_t entityClassBits;
+            /** ID of the next sendtable to add */
+            int32_t sendtableId;
+            /** ID of the next stringtable to add */
+            int32_t stringtableId;
 
             /** Prevent copying of this class. */
             gamestate(const gamestate&) = delete;

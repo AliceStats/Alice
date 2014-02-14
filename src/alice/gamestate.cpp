@@ -111,18 +111,15 @@ namespace dota {
                     const entity_list::value_type &eClass = clist.get(classId);
                     const flatsendtable &f = getFlattable(eClass.name);
 
-                    entity* ent;
-
-                    auto it = entities.find(eId);
-                    if (it != entities.end()) {
-                        // entity already exists, update it as overwritten
-                        ent = it->second;
-                        ent->update(eId, eClass, f);
-                        ent->setState(entity::state_overwritten);
-                    } else {
+                    entity* ent = entities[eId];
+                    if (ent == nullptr) {
                         // create the entity
                         ent = new entity(eId, eClass, f);
                         entities[eId] = ent;
+                    } else {
+                        // entity already exists, update it as overwritten
+                        ent->update(eId, eClass, f);
+                        ent->setState(entity::state_overwritten);
                     }
 
                     // read updates from baseline and current data
@@ -140,9 +137,8 @@ namespace dota {
                             << (EArgT<1, uint32_t>::info(eId))
                         );
 
-                    auto it = entities.find(eId);
-                    if (it != entities.end()) {
-                        entity* ent = it->second;
+                    entity* ent = entities[eId];
+                    if (ent != nullptr) {
                         ent->updateFromBitstream(stream);
                         ent->setState(entity::state_updated);
                         h->forward<msgEntity>(ent->getClassId(), ent, 0);
@@ -159,13 +155,12 @@ namespace dota {
                             << (EArgT<1, uint32_t>::info(eId))
                         );
 
-                    auto it = entities.find(eId);
-                    if (it != entities.end()) {
-                        entity* ent = it->second;
+                    entity* ent = entities[eId];
+                    if (ent != nullptr) {
                         ent->setState(entity::state_deleted);
                         h->forward<msgEntity>(ent->getClassId(), ent, 0);
-                        delete it->second;
-                        entities.erase(it);
+                        delete ent;
+                        entities[eId] = nullptr;
                     } else {
                         BOOST_THROW_EXCEPTION( gamestateInvalidId()
                             << (EArgT<1, uint32_t>::info(eId))
@@ -183,13 +178,12 @@ namespace dota {
             while (stream.read(1)) {
                 eId = stream.read(11);
 
-                auto it = entities.find(eId);
-                if (it != entities.end()) {
-                    entity* ent = it->second;
+                entity* ent = entities[eId];
+                if (ent != nullptr) {
                     ent->setState(entity::state_deleted);
                     h->forward<msgEntity>(ent->getClassId(), ent, 0);
-                    delete it->second;
-                    entities.erase(it);
+                    delete ent;
+                    entities[eId] = nullptr;
                 }
             }
         }

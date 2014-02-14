@@ -73,7 +73,7 @@ namespace dota {
             /** Type for a map of flattables. */
             typedef std::unordered_map<std::string, flatsendtable> flatMap;
             /** Type for a list of entities. */
-            typedef std::unordered_map<uint32_t, entity*> entityMap;
+            typedef std::vector<entity*> entityMap;
 
             /** Constructor, sets default values and registers the callbacks nessecary. */
             gamestate(handler_t* h)
@@ -82,12 +82,15 @@ namespace dota {
             {
                 // handle messages nessecary to update gamestate
                 handlerRegisterCallback(h, msgDem, DEM_ClassInfo, gamestate, handleClassInfo)
+
+                // allocate memory for entities
+                entities.resize(DOTA_MAX_ENTITIES, nullptr);
             }
 
             /** Destructor, frees all entities that have not been explicitly deleted. */
             ~gamestate() {
                 for (auto &e : entities) {
-                    delete e.second;
+                    delete e;
                 }
 
                 for (auto &s : sendtables) {

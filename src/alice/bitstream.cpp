@@ -38,12 +38,12 @@ namespace dota {
                 << (EArgT<1, size_type>::info(n))
                 << (EArgT<2, size_type>::info(32))
             );
-            
+
         uint32_t start = pos / 32;
         uint32_t end = (pos + n - 1) / 32;
         uint32_t s = (pos % 32);
         uint32_t ret;
-        
+
         if (start == end) {
             ret = (data[start] >> shift[s]) & masks[n];
         } else { // wrap around

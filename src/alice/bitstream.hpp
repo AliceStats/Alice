@@ -63,12 +63,12 @@ namespace dota {
         public:
             /** Type used to keep track of the stream position */
             typedef std::size_t size_type;
-            
+
             /** Creates an empty bitstream */
-            bitstream() : data{}, pos{0}, size{0} { 
+            bitstream() : data{}, pos{0}, size{0} {
                 generateMasks();
             }
-            
+
             /** Creates a bitstream from a std::string */
             bitstream(const std::string &str) : data{}, pos{0}, size{str.size()*8} {
                 if (str.size() > DOTA_BITSTREAM_MAX_SIZE)
@@ -77,16 +77,16 @@ namespace dota {
                 // Reserve the memory in beforehand so we can just memcpy everything
                 data.resize((str.size() + 3) / 4 + 1);
                 memcpy(&data[0], str.c_str(), str.size());
-                
+
                 // Generate bitmasks used
-                generateMasks(); 
+                generateMasks();
             }
-            
+
             /** Copy-Constructor */
             bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} {
                 generateMasks();
             }
-            
+
             /** Move-Constructor */
             bitstream(bitstream&& b) : data{std::move(b.data)}, pos{b.pos}, size{b.size} {
                 b.data.clear();
@@ -97,13 +97,13 @@ namespace dota {
 
             /** Destructor */
             ~bitstream() = default;
-            
+
             /** Assignment operator */
             bitstream& operator= (bitstream t) {
                 swap(t);
                 return *this;
             }
-            
+
             /** Swap this bitstream with given one */
             void swap(bitstream& b) {
                 std::swap(data, b.data);
@@ -142,19 +142,19 @@ namespace dota {
             size_type pos;
             /** Overall size of the data in bits */
             size_type size;
-            
+
             /** Bitmask for reading  */
             uint32_t masks[33];
             /** Shift amount for reading */
             uint32_t shift[33];
-            
+
             /** Pre-Generate used bitmasks to speed up performance */
             void generateMasks() {
                 for (uint32_t i = 0; i < 33; ++i) {
                     masks[i] = static_cast<uint32_t>( (static_cast<uint64_t>(1) << i) - 1);
                     shift[i] = i & 31;
                 }
-                
+
             }
     };
 

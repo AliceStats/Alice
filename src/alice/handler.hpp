@@ -397,7 +397,7 @@ namespace dota {
         handlersub< ::google::protobuf::Message*, uint32_t, stringWrapper, msgDem >,
         handlersub< ::google::protobuf::Message*, uint32_t, stringWrapper, msgUser >,
         handlersub< ::google::protobuf::Message*, uint32_t, stringWrapper, msgNet >,
-        handlersub< entity*, std::string, entity*, msgEntity >
+        handlersub< entity*, uint32_t, entity*, msgEntity >
     > handler_t;
 
     /// @}

@@ -93,7 +93,6 @@ namespace dota {
                     }
                 }
 
-
                 stringtables.clear();
                 sendtables.clear();
                 flattables.clear();

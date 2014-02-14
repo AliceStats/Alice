@@ -60,9 +60,8 @@ namespace dota {
         // global unique id for ordered indexes
         int32_t tableid = ++stringtableId;
 
-        if (m->user_data_size_bits() & 2) {
+        if (m->user_data_size_bits() & 2)
             return;
-        }
 
         // add table to table list
         stringtables.insert(stringtableMap::entry_type{m->name(), tableid, stringtable(m)});
@@ -131,7 +130,7 @@ namespace dota {
                     ent->updateFromBitstream(stream);
 
                     // forward to handler
-                    h->forward<msgEntity>(ent->getClassName(), ent, 0);
+                    h->forward<msgEntity>(ent->getClassId(), ent, 0);
                 } break;
                 // entity is being updated
                 case entity::state_updated: {
@@ -145,7 +144,7 @@ namespace dota {
                         entity* ent = it->second;
                         ent->updateFromBitstream(stream);
                         ent->setState(entity::state_updated);
-                        h->forward<msgEntity>(ent->getClassName(), ent, 0);
+                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
                     } else {
                         BOOST_THROW_EXCEPTION( gamestateInvalidId()
                             << (EArgT<1, uint32_t>::info(eId))
@@ -163,7 +162,7 @@ namespace dota {
                     if (it != entities.end()) {
                         entity* ent = it->second;
                         ent->setState(entity::state_deleted);
-                        h->forward<msgEntity>(ent->getClassName(), ent, 0);
+                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
                         delete it->second;
                         entities.erase(it);
                     } else {
@@ -187,7 +186,7 @@ namespace dota {
                 if (it != entities.end()) {
                     entity* ent = it->second;
                     ent->setState(entity::state_deleted);
-                    h->forward<msgEntity>(ent->getClassName(), ent, 0);
+                    h->forward<msgEntity>(ent->getClassId(), ent, 0);
                     delete it->second;
                     entities.erase(it);
                 }

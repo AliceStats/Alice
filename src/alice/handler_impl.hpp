@@ -1,7 +1,7 @@
 /**
  * @file handler_impl.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -20,179 +20,103 @@
  *
  */
 
-template <typename Obj, typename Id, typename Data, uint32_t IdSelf>
-bool handlersub<Obj, Id, Data, IdSelf>::
-hasCallback(const id_t& i, std::true_type) {
-    bool has = (cbpref.find(i) != cbpref.end()) || (cb.find(i) != cb.end());
-    if (!has && std::is_same<std::string, Id>::value) {
-        for (auto &d : cbpref) {
-            if ((d.first.size() > i.size()) && (i.substr(0, d.first.size()).compare(d.first) != 0))
-                continue;
-
-            return true;
-        }
-    }
-
-    return has;
-}
-
-template <typename Obj, typename Id, typename Data, uint32_t IdSelf>
-bool handlersub<Obj, Id, Data, IdSelf>::
-hasCallback(const id_t& i, std::false_type) {
-    return cb.find(i) != cb.end();
-}
-
-template <typename Obj, typename Id, typename Data, uint32_t IdSelf>
+template <typename Obj, typename Id, typename Data, typename IdSelf>
 void handlersub<Obj, Id, Data, IdSelf>::
 forward(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
-    auto cbDef = cb.find(i); // check for 1 = 1 callback type
-
-    if ((cbDef == cb.end()) && cbpref.empty()) {
-        // there is neither a direct callback nor a potential prefix callback
+    // check for callback handlers
+    auto cbDef = cb.find(i);
+    if ((cbDef == cb.end()))
         return;
-    }
 
-    auto objConv = obj.find(i); // get conversion object
-    if (objConv == obj.end()) {
+    // get conversion object
+    auto objConv = obj.find(i);
+    if (objConv == obj.end())
         BOOST_THROW_EXCEPTION(handlerNoConversionAvailable()
             << (typename EArgT<1, id_t>::info(i))
         );
-    }
 
     // create object
     cbObject<Obj, Id> o(objConv->second(std::move(data)), tick, i);
 
-     // forward to definitive handlers
-    if ((cbDef != cb.end()))
-        for (auto &d : cbDef->second) {
-            d(&o);
-        }
-
-    // forward to prefix handlers
-    if (!cbpref.empty())
-        forwardPrefix(&o);
+    // forward to definitive handlers
+    for (auto &d : cbDef->second) {
+        d(&o);
+    }
 }
 
-template <typename Obj, typename Id, typename Data, uint32_t IdSelf>
+template <typename Obj, typename Id, typename Data, typename IdSelf>
 void handlersub<Obj, Id, Data, IdSelf>::
 forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
-    auto cbDef = cb.find(i); // check for 1 = 1 callback type
-
-    if ((cbDef == cb.end()) && cbpref.empty()) {
-        // there is neither a direct callback nor a potential prefix callback
+    // check for callback handlers
+    auto cbDef = cb.find(i);
+    if ((cbDef == cb.end()))
         return;
-    }
 
-    // create object, moving here makes shared_ptrs impossible TODO fix
+    // create object
     cbObject<Obj, Id> o(std::move(data), tick, i, false);
 
     // forward to definitive handlers
-    if ((cbDef != cb.end()))
-        for (auto &d : cbDef->second) {
-            d(&o);
-        }
-
-    // forward to prefix handlers
-    if (!cbpref.empty())
-        forwardPrefix(&o);
-}
-
-template <typename Obj, typename Id, typename Data, uint32_t IdSelf>
-void handlersub<Obj, Id, Data, IdSelf>::
-forwardPrefix(callbackObj_t o, std::true_type) {
-    const std::string& comp = o->id;
-
-    for (auto &d : cbpref) {
-        if ((d.first.size() > comp.size()) && (comp.substr(0, d.first.size()).compare(d.first) != 0))
-            continue;
-
-        for (auto &d2 : d.second)
-            d2(o);
+    for (auto &d : cbDef->second) {
+        d(&o);
     }
 }
 
-template <typename Obj, typename Id, typename Data, uint32_t IdSelf>
-void handlersub<Obj, Id, Data, IdSelf>::
-forwardPrefix(callbackObj_t o, std::false_type) {
-    BOOST_THROW_EXCEPTION(handlerPrefixError() );
-}
-
 template <typename T1, typename... Rest>
-template <uint32_t Type, typename Id>
+template <typename Type, typename Id>
 bool handler<T1, Rest...>::hasCallback(const Id& i, std::true_type) {
-    if (T1::id == Type) {
-        return subhandler.hasCallback(i);
-    } else {
-        return child.template hasCallback<Type, Id>(i);
-    }
+    return subhandler.hasCallback(i);
 }
 
 template <typename T1, typename... Rest>
-template <uint32_t Type, typename Id>
+template <typename Type, typename Id>
 bool handler<T1, Rest...>::hasCallback(const Id& i, std::false_type) {
     return child.template hasCallback<Type, Id>(i);
 }
 
 template <typename T1, typename... Rest>
-template<uint32_t Type, typename Id, typename Delegate>
-void handler<T1, Rest...>::registerCallback(const Id& i, Delegate&& d, bool prefix, std::true_type) {
-    if (T1::id == Type) {
-        subhandler.registerCallback(i, std::move(d), prefix);
-    } else {
-        child.template registerCallback<Type>(i, std::move(d), prefix);
-    }
+template<typename Type, typename Id, typename Delegate>
+void handler<T1, Rest...>::registerCallback(const Id& i, Delegate&& d, std::true_type) {
+    subhandler.registerCallback(i, std::move(d));
 }
 
 template <typename T1, typename... Rest>
-template<uint32_t Type, typename Id, typename Delegate>
-void handler<T1, Rest...>::registerCallback(const Id& i, Delegate&& d, bool prefix, std::false_type) {
-    child.template registerCallback<Type>(i, std::move(d), prefix);
+template<typename Type, typename Id, typename Delegate>
+void handler<T1, Rest...>::registerCallback(const Id& i, Delegate&& d, std::false_type) {
+    child.template registerCallback<Type>(i, std::move(d));
 }
 
 template <typename T1, typename... Rest>
-template<uint32_t Type, typename Id, typename Delegate>
-void handler<T1, Rest...>::removeCallback(const Id& i, Delegate&& d, bool prefix, std::true_type) {
-    if (T1::id == Type) {
-        subhandler.removeCallback(i, std::move(d), prefix);
-    } else {
-        child.template removeCallback<Type>(i, std::move(d), prefix);
-    }
+template<typename Type, typename Id, typename Delegate>
+void handler<T1, Rest...>::removeCallback(const Id& i, Delegate&& d, std::true_type) {
+    subhandler.removeCallback(i, std::move(d));
 }
 
 template <typename T1, typename... Rest>
-template<uint32_t Type, typename Id, typename Delegate>
-void handler<T1, Rest...>::removeCallback(const Id& i, Delegate&& d, bool prefix, std::false_type) {
-    child.template removeCallback<Type>(i, std::move(d), prefix);
+template<typename Type, typename Id, typename Delegate>
+void handler<T1, Rest...>::removeCallback(const Id& i, Delegate&& d, std::false_type) {
+    child.template removeCallback<Type>(i, std::move(d));
 }
 
 template <typename T1, typename... Rest>
-template<uint32_t Type, typename T, typename Id>
+template<typename Type, typename T, typename Id>
 void handler<T1, Rest...>::registerObject(const Id& i, std::true_type) {
-    if (T1::id == Type) {
-        subhandler.template registerObject<T>(i);
-    } else {
-        child.template registerObject<Type, T>(i);
-    }
+    subhandler.template registerObject<T>(i);
 }
 
 template <typename T1, typename... Rest>
-template<uint32_t Type, typename T, typename Id>
+template<typename Type, typename T, typename Id>
 void handler<T1, Rest...>::registerObject(const Id& i, std::false_type) {
     child.template registerObject<Type, T>(i);
 }
 
 template <typename T1, typename... Rest>
-template <uint32_t Type, typename Id, typename Data>
+template <typename Type, typename Id, typename Data>
 void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::true_type) {
-    if (T1::id == Type) {
-        subhandler.forward(std::move(i), std::move(data), std::move(tick));
-    } else {
-        child.template forward<Type>(std::move(i), std::move(data), std::move(tick));
-    }
+    subhandler.forward(std::move(i), std::move(data), std::move(tick));
 }
 
 template <typename T1, typename... Rest>
-template <uint32_t Type, typename Id, typename Data>
+template <typename Type, typename Id, typename Data>
 void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::false_type) {
 	child.template forward<Type>(std::move(i), std::move(data), std::move(tick));
 }

@@ -161,19 +161,19 @@ namespace dota {
              *
              * This function is definitly broken for entities though.
              */
-            template <unsigned HandlerType, typename Object>
+            template <typename HandlerType, typename Object>
             typename std::remove_pointer<handlerCbType(msgDem)>::type getCallbackObject(stringWrapper str, uint32_t tick) {
                 Object* msg = new Object;
                 if (!msg->ParseFromArray(str.str, str.size))
                     BOOST_THROW_EXCEPTION((handlerParserError()));
 
-                typedef typename std::remove_pointer<typename handler_t::type<HandlerType>::callbackObj_t>::type cbObj;
+                typedef typename std::remove_pointer<typename handler_t::type<HandlerType::id>::callbackObj_t>::type cbObj;
 
                 return cbObj(msg, tick, 0);
             }
 
             /** Forwards all entries in the message as specified type */
-            template <unsigned Type>
+            template <typename Type>
             void forwardMessageContainer(stringWrapper str, uint32_t tick) {
                 while (str.size) {
                     uint32_t type = readVarInt(str, file);
@@ -194,26 +194,26 @@ namespace dota {
                     str.size = (str.size - size);
 
                     // directly parse entities to omit calling the handler to often
-                    if (Type == msgNet) {
+                    if (std::is_same<Type, msgNet>{}) {
                         switch (type) {
                         case svc_PacketEntities: {
-                            auto e = getCallbackObject<(uint32_t)msgNet, CSVCMsg_PacketEntities>(std::move(message), tick);
+                            auto e = getCallbackObject<msgNet, CSVCMsg_PacketEntities>(std::move(message), tick);
                             db.handleEntity(&e);
                         } break;
                         case svc_ServerInfo: {
-                            auto e = getCallbackObject<(uint32_t)msgNet, CSVCMsg_ServerInfo>(std::move(message), tick);
+                            auto e = getCallbackObject<msgNet, CSVCMsg_ServerInfo>(std::move(message), tick);
                             db.handleServerInfo(&e);
                         } break;
                         case svc_SendTable: {
-                            auto e = getCallbackObject<(uint32_t)msgNet, CSVCMsg_SendTable>(std::move(message), tick);
+                            auto e = getCallbackObject<msgNet, CSVCMsg_SendTable>(std::move(message), tick);
                             db.handleSendTable(&e);
                         } break;
                         case svc_CreateStringTable: {
-                            auto e = getCallbackObject<(uint32_t)msgNet, CSVCMsg_CreateStringTable>(std::move(message), tick);
+                            auto e = getCallbackObject<msgNet, CSVCMsg_CreateStringTable>(std::move(message), tick);
                             db.handleCreateStringtable(&e);
                         } break;
                         case svc_UpdateStringTable: {
-                            auto e = getCallbackObject<(uint32_t)msgNet, CSVCMsg_UpdateStringTable>(std::move(message), tick);
+                            auto e = getCallbackObject<msgNet, CSVCMsg_UpdateStringTable>(std::move(message), tick);
                             db.handleUpdateStringtable(&e);
                         } break;
                         default:

@@ -144,6 +144,33 @@ namespace dota {
                 return it->second;
             }
 
+            /** Returns entity class id for a specific definition */
+            inline uint32_t getEntityIdFor(std::string name) {
+                for (auto &e : clist) {
+                    if (e.second.networkName == name)
+                        return e.second.id;
+                }
+
+                BOOST_THROW_EXCEPTION( gamestateInvalidDefinition()
+                    << EArg<1>::info(name)
+                );
+
+                return 0;
+            }
+
+            /** Returns all entity class id's for a specific definition substring */
+            inline std::vector<uint32_t> findEntityIdFor(std::string name) {
+                std::vector<uint32_t> ret;
+                uint32_t length = name.size();
+
+                for (auto &e : clist) {
+                    if (e.second.networkName.substr(0, length) == name)
+                        ret.push_back(e.second.id);
+                }
+
+                return ret;
+            }
+
             /** Handles the entity class information and creates the entity_list. */
             void handleClassInfo(handlerCbType(msgDem) msg);
 

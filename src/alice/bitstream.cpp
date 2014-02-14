@@ -1,7 +1,7 @@
 /**
  * @file bitstream.cpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -38,16 +38,17 @@ namespace dota {
                 << (EArgT<1, size_type>::info(n))
                 << (EArgT<2, size_type>::info(32))
             );
-
-        // this part is from edith, might beautify it
-        uint32_t a = data[pos / 32];
-        uint32_t b = data[(pos + n - 1) / 32];
-        uint32_t shift = pos & 31;
-
-        a >>= shift;
-        b <<= 32 - shift;
-        uint32_t mask = (uint32_t)(((uint64_t)1 << n) - 1);
-        uint32_t ret = (a | b) & mask;
+            
+        uint32_t start = pos / 32;
+        uint32_t end = (pos + n - 1) / 32;
+        uint32_t s = (pos % 32);
+        uint32_t ret;
+        
+        if (start == end) {
+            ret = (data[start] >> shift[s]) & masks[n];
+        } else { // wrap around
+            ret = ((data[start] >> shift[s]) | (data[end] << (32 - shift[s]))) & masks[n];
+        }
 
         pos += n;
         return ret;

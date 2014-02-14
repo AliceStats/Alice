@@ -1,7 +1,7 @@
 /**
  * @file bitstream.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -65,7 +65,9 @@ namespace dota {
             typedef std::size_t size_type;
             
             /** Creates an empty bitstream */
-            bitstream() : data{}, pos{0}, size{0} { }
+            bitstream() : data{}, pos{0}, size{0} { 
+                generateMasks();
+            }
             
             /** Creates a bitstream from a std::string */
             bitstream(const std::string &str) : data{}, pos{0}, size{str.size()*8} {
@@ -75,16 +77,22 @@ namespace dota {
                 // Reserve the memory in beforehand so we can just memcpy everything
                 data.resize((str.size() + 3) / 4 + 1);
                 memcpy(&data[0], str.c_str(), str.size());
+                
+                // Generate bitmasks used
+                generateMasks(); 
             }
             
             /** Copy-Constructor */
-            bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} { }
+            bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} {
+                generateMasks();
+            }
             
             /** Move-Constructor */
             bitstream(bitstream&& b) : data{std::move(b.data)}, pos{b.pos}, size{b.size} {
                 b.data.clear();
                 b.pos = 0;
                 b.size = 0;
+                generateMasks();
             }
 
             /** Destructor */
@@ -101,6 +109,7 @@ namespace dota {
                 std::swap(data, b.data);
                 std::swap(pos, b.pos);
                 std::swap(size, b.size);
+                std::swap(masks, b.masks);
             }
 
             /** Checked whether there is still data left to be read. */
@@ -133,6 +142,20 @@ namespace dota {
             size_type pos;
             /** Overall size of the data in bits */
             size_type size;
+            
+            /** Bitmask for reading  */
+            uint32_t masks[33];
+            /** Shift amount for reading */
+            uint32_t shift[33];
+            
+            /** Pre-Generate used bitmasks to speed up performance */
+            void generateMasks() {
+                for (uint32_t i = 0; i < 33; ++i) {
+                    masks[i] = static_cast<uint32_t>( (static_cast<uint64_t>(1) << i) - 1);
+                    shift[i] = i & 31;
+                }
+                
+            }
     };
 
     /// @}

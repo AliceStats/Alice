@@ -124,6 +124,9 @@ namespace dota {
         handlerRegisterCallback(h, msgDem, DEM_SignonPacket, reader, handlePacket)
         handlerRegisterCallback(h, msgDem, DEM_SendTables,   reader, handleSendTablesDem)
         handlerRegisterCallback(h, msgNet, svc_UserMessage,  reader, handleUserMessage)
+
+        // let handlers now we can start parsing
+        h->forward<msgStatus>(REPLAY_START, REPLAY_START, 0);
     }
 
     void reader::readMessage(bool skip) {
@@ -139,8 +142,13 @@ namespace dota {
         uint32_t size = readVarInt(fstream, file);
         cTick = tick;
 
-        // mark for finish if type 0 is reached
-        if (state == 1) state = 2;
+        // Done parsing
+        if (state == 1) {
+            h->forward<msgStatus>(REPLAY_FINISH, REPLAY_FINISH, tick);
+            state = 2;
+        }
+
+        // This means there is still one message left
         if (type == 0)  state = 1;
 
         // skip messages if skipUntil is set or no handler is available

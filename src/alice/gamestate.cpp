@@ -40,6 +40,7 @@ namespace dota {
         }
 
         flattenSendtables();
+        h->forward<msgStatus>(1, 1, msg->tick); // "1" corresponds to REPLAY_FLATTABLES
     }
 
     void gamestate::handleSendTable(handlerCbType(msgNet) msg) {

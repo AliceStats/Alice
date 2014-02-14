@@ -67,6 +67,13 @@ namespace dota {
     /** This class reads all messages for a given replay and reports them to the registered handlers and the gamestate. */
     class reader {
         public:
+            /** Reading status, announces when certain parts of the replay become available */
+            enum status {
+                REPLAY_START = 0,   // Parsing started
+                REPLAY_FLATTABLES,  // Flattables are available
+                REPLAY_FINISH       // Parsing finished
+            };
+
             /** Constructor, takes path to the replay as a first argument. */
             reader(const std::string& file);
 

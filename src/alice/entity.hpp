@@ -241,6 +241,11 @@ namespace dota {
                 return id;
             }
 
+            /** Returns the numeric ID for the definition of this entity */
+            inline uint32_t getClassId() const {
+                return cls->id;
+            }
+
             /** Returns the network name referenced in the entity description. */
             inline const std::string& getClassName() const {
                 return cls->networkName;

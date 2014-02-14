@@ -50,6 +50,9 @@ namespace dota {
     /// Thrown when an invalid entity is specified in an update or delete
     CREATE_EXCEPTION( gamestateInvalidId, "Invalid entity id specified in update or delete." )
 
+    /// Thrown when the id for an invalid definition is requested
+    CREATE_EXCEPTION( gamestateInvalidDefinition, "Invalid definition specified." )
+
     /// @}
     /// @defgroup CORE Core
     /// @{

@@ -15,14 +15,24 @@ class handler_example {
         std::unordered_map<uint32_t, std::string> h2p;
         /** Pointer to the handler */
         handler_t *h;
+        /** Pointer to gamestate */
+        gamestate& g;
     public:
         /** Constructor, takes the handler */
-        handler_example(handler_t *h) : h(h) {
+        handler_example(handler_t *h, gamestate& g) : h(h), g(g) {
+           handlerRegisterCallback(h, msgStatus, reader::REPLAY_FLATTABLES, handler_example, handleReady)
+        }
+
+        /** Callback when stringtables are available */
+        void handleReady(handlerCbType(msgStatus) msg) {
             // Normal Callback, method is only invoked if ressource is equal
-            handlerRegisterCallback(h, msgEntity,  "CDOTA_PlayerResource", handler_example, handlePlayer)
+            handlerRegisterCallback(h, msgEntity, g.getEntityIdFor("CDOTA_PlayerResource"), handler_example, handlePlayer)
 
             // Prefix Callback, any entity matching it triggers a callback
-            handlerRegisterPrefixCallback(h, msgEntity, "CDOTA_Unit_Hero_", handler_example, handleHero)
+            std::vector<uint32_t> units = g.findEntityIdFor("CDOTA_Unit_Hero_");
+            for (auto &i : units) {
+                handlerRegisterCallback(h, msgEntity, i, handler_example, handleHero)
+            }
         }
 
         /** Callback for a player ressource */
@@ -72,7 +82,7 @@ int main(int argc, char **argv) {
 
     try {
         reader r(argv[1]);
-        handler_example h(r.getHandler());
+        handler_example h(r.getHandler(), r.getState());
         r.readAll();
     } catch (boost::exception &e) {
         std::cout << boost::diagnostic_information(e) << std::endl;

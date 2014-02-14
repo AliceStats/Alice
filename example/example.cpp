@@ -42,7 +42,7 @@ class handler_example {
                 auto name = msg->msg->find(std::string("m_iszPlayerNames.000")+std::to_string(i));
                 auto hero = msg->msg->find(std::string("m_hSelectedHero.000")+std::to_string(i));
 
-                h2p[(hero->second.as<IntProperty>() & 0x7FF)] = name->second.as<StringProperty>();
+                h2p[(hero->as<IntProperty>() & 0x7FF)] = name->as<StringProperty>();
             }
         }
 
@@ -55,7 +55,7 @@ class handler_example {
             if (h2p.find(heroId) == h2p.end())
                 return; // illusion
 
-            int life = msg->msg->find("DT_DOTA_BaseNPC.m_iHealth")->second.as<IntProperty>();
+            int life = msg->msg->find("DT_DOTA_BaseNPC.m_iHealth")->as<IntProperty>();
             if (life > 0 || lifeTracker[heroId] == 0) {
                 lifeTracker[heroId] = life; // do not double track kills
                 return;
@@ -63,10 +63,10 @@ class handler_example {
 
             lifeTracker[heroId] = life;
 
-            int cell_x = msg->msg->find("DT_DOTA_BaseNPC.m_cellX")->second.as<IntProperty>();
-            int cell_y = msg->msg->find("DT_DOTA_BaseNPC.m_cellY")->second.as<IntProperty>();
-            int cell_z = msg->msg->find("DT_DOTA_BaseNPC.m_cellZ")->second.as<IntProperty>();
-            auto vec = msg->msg->find("DT_DOTA_BaseNPC.m_vecOrigin")->second.as<VectorXYProperty>();
+            int cell_x = msg->msg->find("DT_DOTA_BaseNPC.m_cellX")->as<IntProperty>();
+            int cell_y = msg->msg->find("DT_DOTA_BaseNPC.m_cellY")->as<IntProperty>();
+            int cell_z = msg->msg->find("DT_DOTA_BaseNPC.m_cellZ")->as<IntProperty>();
+            auto vec = msg->msg->find("DT_DOTA_BaseNPC.m_vecOrigin")->as<VectorXYProperty>();
 
             std::cout << heroId << ", " << msg->msg->getClassName() << ", " << h2p[heroId] << ", "
                 << life << ", [" << cell_x << "|" << cell_y << "|" << cell_z << "], [" << vec[0]

@@ -23,41 +23,40 @@
 #include <alice/entity.hpp>
 
 namespace dota {
+    /** Read the id of a field from a bitstream */
+    inline bool readFieldId(bitstream& bstream, uint32_t& fieldId) {
+        const bool incremental = bstream.read(1);
+        if (incremental) {
+            ++fieldId;
+        } else {
+            const uint32_t value = bstream.readVarUInt();
+
+            if (value == 0x3FFF)
+                return false;
+            else
+                fieldId += value + 1;
+        }
+
+        return true;
+    }
+
     void entity::updateFromBitstream(bitstream& bstream) {
         // use this static vector so we don't realocate memory all the time
         static std::vector<uint32_t> fields(1000, 0);
         fields.clear();
 
         uint32_t fieldId = -1;
-
-        /** small lambda reading the field id from the bitstream */
-        auto readFieldId = [&]() {
-            const bool incremental = bstream.read(1);
-            if (incremental) {
-                ++fieldId;
-            } else {
-                const uint32_t value = bstream.readVarUInt();
-
-                if (value == 0x3FFF)
-                    fieldId = 0xFFFFFFFF;
-                else
-                    fieldId += value + 1;
-            }
-        };
-
-        readFieldId();
-        while (fieldId != 0xFFFFFFFF) {
+        while (readFieldId(bstream, fieldId)) {
             fields.push_back(fieldId);
-            readFieldId();
         }
 
         for (auto &it : fields) {
-            //const std::string &name = stringMap[it];
-            auto i = properties.find(it);
-            if (i == properties.end())
+            property &p = properties[it];
+            if (p.isInitialized())
+                p.update(bstream);
+            else {
                 properties[it] = property::create(bstream, flat->properties[it]);
-            else
-                i->second.update(bstream);
+            }
         }
     }
 
@@ -67,9 +66,9 @@ namespace dota {
         str << "Name: " << cls->networkName << " / Id: " << id << " / State: " << currentState << std::endl;
 
         for (auto &p : properties) {
-            str << "Property: " << p.first << " / Type: ";
+            str << "Type: ";
 
-            switch (p.second.getType()) {
+            switch (p.getType()) {
                 case sendprop::T_Int:
                     str << " Int / Value: ";
                     break;
@@ -95,7 +94,7 @@ namespace dota {
                     str << " Unkown" << std::endl;
             }
 
-            str << p.second.asString() << std::endl;
+            str << p.asString() << std::endl;
         }
 
         return str.str();

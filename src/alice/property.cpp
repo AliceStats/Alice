@@ -76,6 +76,7 @@ namespace dota {
     property property::create(bitstream &stream, sendprop* prop) {
         property p(prop); // filled in switch
         p.update(stream);
+        p.init = true;
         return std::move(p);
     }
 
@@ -281,7 +282,7 @@ namespace dota {
             // let's hope this doesn't really want a 64 bit int or something
             // will throw an exception anyway so let's see what happens in the long run
             int64_t ret = stream.readVarUInt();
-            
+
             if (prop->getFlags() & SPROP_UNSIGNED)
                 return ret;
             else

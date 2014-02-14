@@ -167,7 +167,7 @@ namespace dota {
             };
 
             /** Type for a list of properties accessed by their field id. */
-            typedef std::unordered_map<uint32_t, property, boost::hash<uint32_t>> map_type;
+            typedef std::vector<property> map_type;
             /** Iterator type for underlying map */
             typedef map_type::iterator iterator;
             /** Value type for underlying map */
@@ -182,8 +182,12 @@ namespace dota {
              * @param cls Entity description according to it's type in the entity_list
              * @param flat Flattened sendtable, containing the correct order of properties
              */
-            entity(uint32_t id, const entity_list::value_type &cls, const flatsendtable& flat) : id(id),
-                cls(&cls), flat(&flat), currentState(state_created) {}
+            entity(uint32_t id, const entity_list::value_type &cls, const flatsendtable& flat)
+                : id(id), cls(&cls), flat(&flat), currentState(state_created)
+            {
+                // Reserve memory for each possible property
+                properties.resize(flat.properties.size()+1);
+            }
 
             /** Default constructor */
             ~entity() = default;
@@ -219,21 +223,22 @@ namespace dota {
              */
             inline iterator find(const std::string& needle) {
                 if (stringIndex.empty())
-                    for (auto &it : properties) {
-                        stringIndex[it.second.getName()] = it.first;
+                    for (uint32_t i = 0; i < properties.size(); ++i) {
+                        if (properties[i].isInitialized())
+                            stringIndex[properties[i].getName()] = i;
                     }
 
                 auto it = stringIndex.find(needle);
                 if (it == stringIndex.end()) {
                     return properties.end();
                 } else {
-                    return properties.find(it->second);
+                    return properties.begin() + it->second;
                 }
             }
 
             /** Returns iterator pointing to the element request or one element behind the last if none can be found */
             inline iterator find(uint32_t index) {
-                return properties.find(index);
+                return properties.begin() + index;
             }
 
             /** Returns this entities ID */

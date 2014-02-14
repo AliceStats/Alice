@@ -168,8 +168,13 @@ namespace dota {
                 Int64Property       // T_Int64
             > value_type;
 
-            /** Empty constructor, required for property to be hashable */
-            property() {}
+            /** Empty constructor */
+            property() : init(false) {}
+
+            /** Returns whether this property has been initialized */
+            bool isInitialized() {
+                return init;
+            }
 
             /** Returns the type of this property */
             inline const type_t& getType() const {
@@ -247,6 +252,8 @@ namespace dota {
             value_type value;
             /** Sendprop definition for the type */
             sendprop* prop;
+            /** Whether this property has been initialized */
+            bool init;
 
             /** Private constructor, we only want our create function to instantize new properties */
             property(sendprop* p) : type(p->getType()), prop(p) {

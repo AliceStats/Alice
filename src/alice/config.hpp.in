@@ -22,12 +22,9 @@
 #ifndef _DOTA_VERSION_HPP_
 #define _DOTA_VERSION_HPP_
 
-/// If this is set to true, enabled debugging stuff
-#define DOTA_DEBUG 1
-
-/// Contains the git repo hash
-#define DOTA_VERSION "@GIT_SHA1@"
-#define DOTA_PYTHON 1
-#define DOTA_EXTRA 1
+#define DOTA_VERSION "@GIT_SHA1@"       // sha1 hash of repository version
+#define DOTA_PYTHON  @BUILD_PYTHON@     // whether to build python binding
+#define DOTA_EXTRA   @BUILD_ADDON@      // whether to rely on addon functionallity
+#define DOTA_64BIT   @DOTA_64BIT@       // target architecture
 
 #endif /* _DOTA_VERSION_HPP_ */

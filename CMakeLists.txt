@@ -47,12 +47,19 @@ ENDIF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable --stdlib=libc++" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
+  SET ( CMAKE_CXX_FLAGS "-O3 -g --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   MESSAGE ( STATUS "Intel Compiler not tested yet, falling back to default compiler flags" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # use default msvc flags
 endif()
+
+# Check for 64 bit
+if ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    SET (DOTA_64BIT "1")
+else ( )
+    SET (DOTA_64BIT "0")
+endif ( )
 
 #------------------------------------------------------------
 # Generate configuration

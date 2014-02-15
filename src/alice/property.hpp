@@ -33,7 +33,6 @@
 
 #include <alice/exception.hpp>
 #include <alice/sendprop.hpp>
-#include <alice/bitstream.hpp>
 
 /// Specifies the maximum length of a string
 #define PROPERTY_MAX_STRING_LENGTH 0x200
@@ -57,6 +56,9 @@ namespace dota {
     CREATE_EXCEPTION( propertyInvalidNumberOfElements, "Unnaturaly large number of elements" )
 
     /// @}
+
+    // forward declaration
+    class bitstream;
 
     /// @defgroup CORE Core
     /// @{

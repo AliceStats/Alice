@@ -26,12 +26,10 @@
 #include <unordered_map>
 #include <string>
 #include <utility>
-#include <sstream>
 
 #include <boost/functional/hash.hpp>
 
 #include <alice/netmessages.pb.h>
-#include <alice/bitstream.hpp>
 #include <alice/exception.hpp>
 #include <alice/sendtable.hpp>
 #include <alice/property.hpp>
@@ -49,6 +47,9 @@ namespace dota {
     CREATE_EXCEPTION( entityIdToLarge, "Entity ID supplied is to large" )
 
     /// @}
+
+    // forward declaration for bitstream
+    class bitstream;
 
     /// @defgroup CORE Core
     /// @{

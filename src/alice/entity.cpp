@@ -20,6 +20,7 @@
  *
  */
 
+#include <alice/bitstream.hpp>
 #include <alice/entity.hpp>
 
 namespace dota {

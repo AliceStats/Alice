@@ -29,9 +29,6 @@
 #include <memory>
 #include <type_traits>
 
-#include <google/protobuf/message.h>
-
-#include <alice/entity.hpp>
 #include <alice/exception.hpp>
 #include <alice/delegate.hpp>
 
@@ -86,6 +83,12 @@ handler_->removeCallback<type_>( \
 // include detail namespace
 #include "handler_detail.hpp"
 
+namespace google {
+    namespace protobuf {
+        // forward declaration
+        class Message;
+    }
+}
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions
     /// @{
@@ -103,6 +106,10 @@ namespace dota {
     CREATE_EXCEPTION( handlerTypeError, "Type in question has not be registered." )
 
     /// @}
+
+    // forward declaration
+    class entity;
+
     /// @defgroup CORE Core
     /// @{
 

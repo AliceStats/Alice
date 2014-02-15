@@ -22,6 +22,7 @@
 
 #include <utility>
 
+#include <alice/bitstream.hpp>
 #include <alice/gamestate.hpp>
 
 namespace dota {

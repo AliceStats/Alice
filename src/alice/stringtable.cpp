@@ -21,6 +21,8 @@
  */
 
 #include <cmath>
+
+#include <alice/bitstream.hpp>
 #include <alice/stringtable.hpp>
 
 namespace dota {

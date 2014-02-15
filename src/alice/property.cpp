@@ -23,6 +23,7 @@
 #include <cmath>
 #include <iostream>
 
+#include <alice/bitstream.hpp>
 #include <alice/property.hpp>
 
 namespace dota {

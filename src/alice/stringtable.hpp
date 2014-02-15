@@ -27,7 +27,6 @@
 #include <unordered_map>
 
 #include <alice/netmessages.pb.h>
-#include <alice/bitstream.hpp>
 #include <alice/exception.hpp>
 #include <alice/multiindex.hpp>
 
@@ -78,6 +77,9 @@ namespace dota {
     CREATE_EXCEPTION( stringtableValueOverflow, "Trying to read large stringtable value." )
 
     /// @}
+
+    // forward declaration
+    class bitstream;
 
     /// @defgroup CORE Core
     /// @{

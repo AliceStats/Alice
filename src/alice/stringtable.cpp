@@ -84,9 +84,9 @@ namespace dota {
                         );
 
                     keys[sIndex].copy(key, sLength, 0);
-                    bstream.readString(key + sLength, STRINGTABLE_MAX_KEY_SIZE - sLength);
+                    bstream.nReadString(key + sLength, STRINGTABLE_MAX_KEY_SIZE - sLength);
                 } else {
-                    bstream.readString(reinterpret_cast<char*>(&key), STRINGTABLE_MAX_KEY_SIZE);
+                    bstream.nReadString(reinterpret_cast<char*>(&key), STRINGTABLE_MAX_KEY_SIZE);
                 }
 
                 // check the key history

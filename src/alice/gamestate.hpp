@@ -123,9 +123,9 @@ namespace dota {
                 // check if the entity is skipped because there is no handler
                 bool skipU = (skipUnsubscribed && !h->hasCallback<msgEntity>(eId));
                 // check to skip if entity is in the ignore set
-                bool skipE = skipent.empty() ? false :  (skipent.find(eId) != skipent.end());
+                bool skipE = skipent.empty() ? false : (skipent.find(eId) != skipent.end());
 
-                return skipU || skipE;
+                return (skipU || skipE);
             }
 
             /** Returns how many bits we need to read for the class size. */

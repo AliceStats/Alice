@@ -166,10 +166,15 @@ namespace dota {
              * because currently all protobuf objects forwarded to the handler have the same
              * callback signature.
              *
-             * This function is definitly broken for entities though.
+             * Returning by value here is a hack that is possible because the compiler optimizes
+             * this function in a way that, instead of creating a copy, the original value is used.
+             * The destructor is therefor triggered when the value leaves the return scope.
+             *
+             * @todo: Check if all recent compilers support this.
+             * Works on MSVC >= 2013 / Clang >= 3.2 / G++ >= 4.7 so far.
              */
             template <typename HandlerType, typename Object>
-            typename std::remove_pointer<handlerCbType(msgDem)>::type getCallbackObject(stringWrapper str, uint32_t tick) {
+            inline typename std::remove_pointer<handlerCbType(msgDem)>::type getCallbackObject(stringWrapper str, uint32_t tick) {
                 Object* msg = new Object;
                 if (!msg->ParseFromArray(str.str, str.size))
                     BOOST_THROW_EXCEPTION((handlerParserError()));
@@ -222,6 +227,10 @@ namespace dota {
                         case svc_UpdateStringTable: {
                             auto e = getCallbackObject<msgNet, CSVCMsg_UpdateStringTable>(std::move(message), tick);
                             db.handleUpdateStringtable(&e);
+                        } break;
+                        case svc_UserMessage: {
+                            auto e = getCallbackObject<msgNet, CSVCMsg_UserMessage>(std::move(message), tick);
+                            handleUserMessage(&e);
                         } break;
                         default:
                             h->forward<Type>(type, std::move(message), tick);

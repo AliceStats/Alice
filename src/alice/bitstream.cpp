@@ -200,6 +200,7 @@ namespace dota {
         if (integral && (flags & flag_intval)) {
             uint32_t toRead = (flags & flag_inbound) ? COORD_INTEGER_BITS_MP+1 : COORD_INTEGER_BITS+1;
             seekForward(toRead);
+            return;
         }
 
         // bits to skip depending on type
@@ -233,7 +234,7 @@ namespace dota {
         }
     }
 
-    void bitstream::readString(char *buffer, bitstream::size_type n) {
+    void bitstream::nReadString(char *buffer, bitstream::size_type n) {
         for (std::size_t i = 0; i < n; ++i) {
             buffer[i] = static_cast<char>(read(8));
 

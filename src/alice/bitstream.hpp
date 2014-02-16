@@ -187,7 +187,7 @@ namespace dota {
              * If the resulting position would overflow, it is set to max.
              */
             void seekForward(size_type n) {
-                if (n+pos > size)
+                if (n+pos < size)
                     pos += n;
                 else
                     pos = size;
@@ -324,7 +324,10 @@ namespace dota {
 
             /** Skips cell coordinate */
             void nSkipCellCoord(size_type n, bool integral, bool lowPrecision) {
-                lowPrecision ? seekForward( n + 3 ) : seekForward( n + 5 );
+                if (!integral)
+                    lowPrecision ? seekForward( n + 3 ) : seekForward( n + 5 );
+                else
+                    seekForward(n);
             }
 
             /**
@@ -334,7 +337,7 @@ namespace dota {
              * n can be arbitrarily large in this context. The underlying read method throws in case an overflow
              * happens.
              */
-            void readString(char *buffer, size_type n);
+            void nReadString(char *buffer, size_type n);
 
             /**
              * Skips over a 0 terminated string.
@@ -342,7 +345,7 @@ namespace dota {
              * This function will always read the full 8 bits per character until the null
              * terminator occours.
              */
-            void skipString(size_type n) {
+            void nSkipString(size_type n) {
                 for (std::size_t i = 0; i < n; ++i) {
                     if (static_cast<char>(read(8)) == '\0')
                         return;

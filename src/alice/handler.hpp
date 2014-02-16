@@ -1,7 +1,7 @@
 /**
  * @file handler.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.1
+ * @version 1.2
  *
  * @par License
  *    Alice Replay Parser
@@ -224,6 +224,11 @@ namespace dota {
                 forward(i, std::move(data), tick, std::is_same<Obj, Data>{});
             }
 
+            /** Retrieve a parsed callback object without forwarding it. */
+            callbackObj_t retrieve(const id_t& i, Data&& data, uint32_t tick) {
+                return retrieve(i, std::move(data), tick, std::is_same<Obj, Data>{});
+            }
+
             /** Deletes all registered callbacks and objects. */
             void clear() {
                 cb.clear();
@@ -244,6 +249,11 @@ namespace dota {
             void forward(const id_t& i, Data &&data, uint32_t tick, std::false_type);
             /** Called if the data is already in message format */
             void forward(const id_t& i, Data &&data, uint32_t tick, std::true_type);
+
+            /** Called if the message needs to be parsed from the data */
+            callbackObj_t retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type);
+            /** Called if the data is already in message format */
+            callbackObj_t retrieve(const id_t& i, Data &&data, uint32_t tick, std::true_type);
     };
 
     /**
@@ -328,6 +338,15 @@ namespace dota {
                 forward<Type, Id, Data>(std::move(i), std::move(data), tick, std::is_same<typename T1::id, Type>{});
             }
 
+            /** Retrieve a parsed callback object without forwarding it. */
+            template <unsigned Type, typename Id, typename Data>
+            typename type<Type>::callbackObj_t retrieve(Id i, Data data, uint32_t tick) {
+                return retrieve<Type, Id, Data>(
+                    std::move(i), std::move(data), tick,
+                    std::is_same<typename type<Type>::id, typename T1::id>{}
+                );
+            }
+
             /** Removes all registered callbacks */
             template <typename Type>
             void clear() {
@@ -380,6 +399,15 @@ namespace dota {
             /** Implementation for forward */
             template <typename Type, typename Id, typename Data>
             void forward(Id i, Data data, uint32_t tick, std::false_type);
+
+            /** Implementation for retrieve */
+            template <unsigned Type, typename Id, typename Data>
+            typename type<Type>::callbackObj_t
+            retrieve(Id i, Data data, uint32_t tick, std::true_type);
+            /** Implementation for retrieve */
+            template <unsigned Type, typename Id, typename Data>
+            typename type<Type>::callbackObj_t
+            retrieve(Id i, Data data, uint32_t tick, std::false_type);
     };
 
     // this file has the actual implementation which is seperated for enhanced readability

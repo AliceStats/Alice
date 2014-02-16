@@ -1,7 +1,7 @@
 /**
  * @file handler_impl.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.1
+ * @version 1.2
  *
  * @par License
  *    Alice Replay Parser
@@ -59,6 +59,31 @@ forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
     for (auto &d : cbDef->second) {
         d(&o);
     }
+}
+
+template <typename Obj, typename Id, typename Data, typename IdSelf>
+typename handlersub<Obj, Id, Data, IdSelf>::callbackObj_t handlersub<Obj, Id, Data, IdSelf>::
+retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
+    // get conversion object
+    auto objConv = obj.find(i);
+    if (objConv == obj.end())
+        BOOST_THROW_EXCEPTION(handlerNoConversionAvailable()
+            << (typename EArgT<1, id_t>::info(i))
+        );
+
+    // create object
+    cbObject<Obj, Id>* o = new cbObject<Obj, Id>(objConv->second(std::move(data)), tick, i);
+
+    return o;
+}
+
+template <typename Obj, typename Id, typename Data, typename IdSelf>
+typename handlersub<Obj, Id, Data, IdSelf>::callbackObj_t handlersub<Obj, Id, Data, IdSelf>::
+retrieve(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
+    // create object
+    cbObject<Obj, Id>* o = new cbObject<Obj, Id>(std::move(data), tick, i);
+
+    return o;
 }
 
 template <typename T1, typename... Rest>
@@ -119,4 +144,18 @@ template <typename T1, typename... Rest>
 template <typename Type, typename Id, typename Data>
 void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::false_type) {
 	child.template forward<Type>(std::move(i), std::move(data), std::move(tick));
+}
+
+template <typename T1, typename... Rest>
+template <unsigned Type, typename Id, typename Data>
+typename handler<T1, Rest...>::template type<Type>::callbackObj_t
+handler<T1, Rest...>::retrieve(Id i, Data data, uint32_t tick, std::true_type) {
+    return subhandler.retrieve(std::move(i), std::move(data), std::move(tick));
+}
+
+template <typename T1, typename... Rest>
+template <unsigned Type, typename Id, typename Data>
+typename handler<T1, Rest...>::template type<Type>::callbackObj_t
+handler<T1, Rest...>::retrieve(Id i, Data data, uint32_t tick, std::false_type) {
+    return child.template retrieve<Type-1>(std::move(i), std::move(data), std::move(tick));
 }

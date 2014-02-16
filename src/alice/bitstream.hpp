@@ -1,7 +1,7 @@
 /**
  * @file bitstream.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.1
+ * @version 1.2
  *
  * @par License
  *    Alice Replay Parser
@@ -17,6 +17,10 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
+ *
+ * @par Source
+ *    The source for most of the stuff represented in the bitstream is the
+ *    public Source Engine SDK released by valve.
  */
 
 #ifndef _DOTA_BITSTREAM_HPP_
@@ -33,7 +37,45 @@
 /// This requirement is verly likely not defined in the source engine. In our case however this is helpful
 /// towards mitigating problems from malicious replays by limiting the amount of data a single entity or
 /// stringtable update can possible pass to a bitstream.
-#define DOTA_BITSTREAM_MAX_SIZE 0x10000 // 65536
+#define DOTA_BITSTREAM_MAX_SIZE 65536
+
+/// Defines the underlying type used to represent the data
+#if DOTA_64BIT
+    #define DOTA_BITSTREAM_WORD_TYPE uint64_t
+#else
+    #define DOTA_BITSTREAM_WORD_TYPE uint32_t // slightly faster on 32 bit systems
+#endif
+
+/// Number of fraction bits in a normalized float
+#define NORMAL_FRACTION_BITS 11
+/// Normal denominator
+#define NORMAL_DENOMINATOR ( (1<<(NORMAL_FRACTION_BITS)) - 1 )
+/// Normal resolution
+#define NORMAL_RESOLUTION (1.0/(NORMAL_DENOMINATOR))
+/// Maximum number of bytes to read for a 32 bit varint (32/8 + 1)
+#define VARINT32_MAX 5
+/// Maximum number of bytes to read for a 64 bit varint (64/8 + 2)
+#define VARINT64_MAX 10
+/// Number of bits to read for integer part for coord
+#define COORD_INTEGER_BITS 14
+/// Number of bits to read for fraction part of coord
+#define COORD_FRACTION_BITS 5
+/// Coord demoniator
+#define COORD_DENOMINATOR (1<<(COORD_FRACTION_BITS))
+/// Coord resolution
+#define COORD_RESOLUTION (1.0/(COORD_DENOMINATOR))
+/// Bits to read for multiplayer optimized coordinates
+#define COORD_INTEGER_BITS_MP 11
+/// Fractional part of low-precision coords
+#define COORD_FRACTION_BITS_MP_LOWPRECISION 3
+/// Denominator for low-precision coords
+#define COORD_DENOMINATOR_LOWPRECISION (1<<(COORD_FRACTION_BITS_MP_LOWPRECISION))
+/// Resolution for low-precision coords
+#define COORD_RESOLUTION_LOWPRECISION (1.0/(COORD_DENOMINATOR_LOWPRECISION))
+/// Number of bits to read for the fraction part of a cell coord
+#define CELL_COORD_FRACTION_BITS 5
+/// Number of bits to read for a low-precision cell coord's fraction
+#define CELL_COORD_FRACTION_BITS_LOWPRECISION 3
 
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions
@@ -53,14 +95,18 @@ namespace dota {
     /**
      * Converts a string into a read-only bitstream.
      *
-     * The string is converted into a vector of unsigned 32-bit integers. It keeps track of the data read
-     * and adjusts its position accordingly. Size values returned are measured in bit. This class is can
-     * not be copied.
+     * The string is converted into a vector of word_t. It keeps track of the data read
+     * and adjusts its position accordingly. Size values are mostly measured in bits.
      *
-     * Thanks to edith for providing a reference implementation.
+     * Methods starting with "n" provide facilities to read network encoded data from the
+     * bitstream.
+     *
+     * Thanks to edith for providing an initial implementation.
      */
     class bitstream {
         public:
+            /** Underlying type used to represent a chunk of data */
+            typedef DOTA_BITSTREAM_WORD_TYPE word_t;
             /** Type used to keep track of the stream position */
             typedef std::size_t size_type;
 
@@ -92,7 +138,7 @@ namespace dota {
                 b.data.clear();
                 b.pos = 0;
                 b.size = 0;
-                generateMasks();
+                std::swap(masks, b.masks);
             }
 
             /** Destructor */
@@ -127,34 +173,209 @@ namespace dota {
                 return pos;
             }
 
-            /** Reads n characters from the steam with a maximum of 32 at once */
+            /**
+             * Returns result of reading n bits into an uint32_t.
+             *
+             * This function can read a maximum of 32 bits at once. If the amount of data requested
+             * exceeds the remaining size of the current chunk it wraps around to the next one.
+             */
             uint32_t read(size_type n);
-            /** Reads a variable sized uint32_t from the stream */
-            uint32_t readVarUInt();
-            /** Reads a null-terminated string into the buffer, stops once it reaches \0 */
+
+            /**
+             * Seek n bits forward.
+             *
+             * If the resulting position would overflow, it is set to max.
+             */
+            void seekForward(size_type n) {
+                if (n+pos > size)
+                    pos += n;
+                else
+                    pos = size;
+            }
+
+            /**
+             * Seek n bits backward.
+             *
+             * If the resulting position would underflow, it is set to 0.
+             */
+            void seekBackward(size_type n) {
+                if (pos - n < 0)
+                    pos = 0;
+                else
+                    pos -= n;
+            }
+
+            /**
+             * Read an unsigned integer from the stream.
+             *
+             * n corresponds to the number of bits in the sendprop.
+             */
+            uint32_t nReadUInt(size_type n) {
+                return read(n);
+            }
+
+            /**
+             * Read a signed integer from the stream.
+             *
+             * n corresponds to the number of bits in the sendprop.
+             */
+            int32_t nReadSInt(size_type n) {
+                int32_t ret = read(n);
+                uint32_t sign = 1 << (n - 1);
+
+                if (ret >= sign)
+                    ret = ret - sign - sign;
+
+                return ret;
+            }
+
+            /** Read a normalized float from the stream. */
+            float nReadNormal() {
+                uint32_t sign = read(1);
+                float fraction = read( NORMAL_FRACTION_BITS );
+                float ret = fraction * NORMAL_RESOLUTION;
+
+                if (sign)
+                    return -ret;
+                else
+                    return ret;
+            }
+
+            /** Skips a normalized float in the stream. */
+            void nSkipNormal() {
+                // sign bit + fraction bits
+                seekForward(NORMAL_FRACTION_BITS + 1);
+            }
+
+            /**
+             * Reads a variable sized uint32_t from the stream.
+             *
+             * A variable int is read in chunks of 8. The first 7 bits are added to return value
+             * while the last bit is the indicator whether to continue reading.
+             */
+            uint32_t nReadVarUInt32();
+
+            /** Reads a variable sized uint64_t from the stream. */
+            uint64_t nReadVarUInt64();
+
+            /**
+             * Reads a variable sized int32_t from the stream.
+             *
+             * The signed version of the varint uses protobuf's zigzag encoding from for
+             * the sign.
+             */
+            int32_t nReadVarSInt32() {
+                uint32_t value = nReadVarUInt32();
+                return (value >> 1) ^ -static_cast<int32_t>(value & 1);
+            }
+
+            /** Reads a variable sized int64_t from the stream. */
+            int64_t nReadVarSInt64() {
+                uint64_t value = nReadVarUInt64();
+                return (value >> 1) ^ -static_cast<int64_t>(value & 1);
+            }
+
+            /**
+             * Skips over a variable sized int.
+             *
+             * This function will skip 7 bits and read 1.
+             */
+            void nSkipVarInt() {
+                do { seekForward(7); } while (read(1));
+            }
+
+            /** Reads networked coordinates from the bitstream. */
+            float nReadCoord();
+
+            /**
+             * Skips coordinates in bitstream.
+             *
+             * This function reads 2 bits to determine the amount of skipped bits
+             */
+            void nSkipCoord() {
+                uint32_t intval   = read(1); // integer part
+                uint32_t fractval = read(1); // fraction part
+
+                if (intval || fractval) {
+                    seekForward(1); // skip sign bit
+
+                    if (intval)   seekForward( COORD_INTEGER_BITS );
+                    if (fractval) seekForward( COORD_FRACTION_BITS );
+                }
+            }
+
+            /**
+             * Reads coordinates, version optimized for multi player games.
+             *
+             * Float Encoding:   [Inbound|IsInteger|IsSigned|Optional Int Part|Float Part]
+             * Integer Encoding: [Inbound|IsInteger|Optional IsSigned| Optinal Int part]
+             */
+            float nReadCoordMp(bool integral, bool lowPrecision);
+
+            /**
+             * Skips coordinates optimized towards multiplayer games.
+             *
+             * This function needs to read 2 - 3 bits in order to determine the amount required.
+             */
+            void nSkipCoordMp(bool integral, bool lowPrecision);
+
+            /** Reads cell coordinate from their network representation. */
+            float nReadCellCoord(size_type n, bool integral, bool lowPrecision);
+
+            /** Skips cell coordinate */
+            void nSkipCellCoord(size_type n, bool integral, bool lowPrecision) {
+                lowPrecision ? seekForward( n + 3 ) : seekForward( n + 5 );
+            }
+
+            /**
+             * Reads a null-terminated string into the buffer, stops once it reaches \0 or n chars.
+             *
+             * n is treated as the number of bytes to be read.
+             * n can be arbitrarily large in this context. The underlying read method throws in case an overflow
+             * happens.
+             */
             void readString(char *buffer, size_type n);
-            /** Reads the exact number of bits into the buffer */
+
+            /**
+             * Skips over a 0 terminated string.
+             *
+             * This function will always read the full 8 bits per character until the null
+             * terminator occours.
+             */
+            void skipString(size_type n) {
+                for (std::size_t i = 0; i < n; ++i) {
+                    if (static_cast<char>(read(8)) == '\0')
+                        return;
+                }
+            }
+
+            /**
+             * Reads the exact number of bits into the buffer.
+             *
+             * The function reads in chunks of 8 bit until n is smaller than that
+             * and appends the left over bits
+             */
             void readBits(char *buffer, size_type n);
         private:
             /** Data to read from */
-            std::vector<uint32_t> data;
+            std::vector<word_t> data;
             /** Current position in the vector in bits */
             size_type pos;
             /** Overall size of the data in bits */
             size_type size;
 
             /** Bitmask for reading  */
-            uint32_t masks[33];
+            uint32_t masks[(sizeof(word_t)*8) + 1];
             /** Shift amount for reading */
-            uint32_t shift[33];
+            uint32_t shift[(sizeof(word_t)*8) + 1];
 
-            /** Pre-Generate used bitmasks to speed up performance */
+            /** Pre-Generate bitmasks to speed up performance */
             void generateMasks() {
-                for (uint32_t i = 0; i < 33; ++i) {
-                    masks[i] = static_cast<uint32_t>( (static_cast<uint64_t>(1) << i) - 1);
-                    shift[i] = i & 31;
+                uint32_t bitSize = sizeof(word_t) * 8;
+                for (uint32_t i = 0; i < (bitSize + 1); ++i) {
+                    masks[i] = ((uint64_t)1 << i) - 1;
+                    shift[i] = i & (bitSize - 1);
                 }
-
             }
     };
 

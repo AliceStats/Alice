@@ -30,7 +30,7 @@ namespace dota {
         if (incremental) {
             ++fieldId;
         } else {
-            const uint32_t value = bstream.readVarUInt();
+            const uint32_t value = bstream.nReadVarUInt32();
 
             if (value == 0x3FFF)
                 return false;

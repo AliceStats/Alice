@@ -61,6 +61,21 @@ namespace dota {
         }
     }
 
+    void entity::skip(bitstream& bstream) {
+        // use this static vector so we don't realocate memory all the time
+        static std::vector<uint32_t> fields(1000, 0);
+        fields.clear();
+
+        uint32_t fieldId = -1;
+        while (readFieldId(bstream, fieldId)) {
+            fields.push_back(fieldId);
+        }
+
+        for (auto &it : fields) {
+            property::skip(bstream, flat->properties[it]);
+        }
+    }
+
     std::string entity::DebugString() {
         std::stringstream str("");
 

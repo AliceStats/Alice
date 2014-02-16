@@ -278,6 +278,8 @@ namespace dota {
 
             /** Updates all the entities from the given bitstream. */
             void updateFromBitstream(bitstream& bstream);
+            /** Skips each property in this entity */
+            void skip(bitstream& bstream);
 
             /** Prints a debug string containing all the properties and their values. */
             std::string DebugString();

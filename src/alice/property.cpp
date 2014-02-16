@@ -21,7 +21,7 @@
  */
 
 /// Define this to test if skip length equals read length
-#define TEST_SKIPPING
+//#define TEST_SKIPPING
 
 #include <cmath>
 #include <iostream>

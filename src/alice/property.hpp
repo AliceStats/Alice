@@ -1,7 +1,7 @@
 /**
  * @file property.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -68,6 +68,9 @@ namespace dota {
     /** Underlying type for an IntProperty */
     typedef int32_t IntProperty;
 
+    /** Underlying type for an UIntProperty */
+    typedef uint32_t UIntProperty;
+
     /** Underlying type for a FloatProperty */
     typedef float FloatProperty;
 
@@ -85,6 +88,9 @@ namespace dota {
 
     /** Underlying type for a 64 bit Int Property */
     typedef int64_t Int64Property;
+
+    /** Underlying type for a 64 bit Int Property */
+    typedef uint64_t UInt64Property;
 
     namespace detail {
         template <typename T>
@@ -162,12 +168,14 @@ namespace dota {
             /** Type for the variant used internally */
             typedef boost::variant<
                 IntProperty,        // T_Int
+                UIntProperty,       // T_Int & SPROP_UNSIGNED
                 FloatProperty,      // T_Float
                 VectorProperty,     // T_Vector
                 VectorXYProperty,   // T_VectorXY
                 StringProperty,     // T_String
                 ArrayProperty,      // T_Array
-                Int64Property       // T_Int64
+                Int64Property,      // T_Int64
+                UInt64Property      // T_Int64 & SPROP_UNSIGNED
             > value_type;
 
             /** Empty constructor */
@@ -218,35 +226,13 @@ namespace dota {
             }
 
             /** Updates this property from a bitstream */
-            void update(bitstream &stream);
+            void update(bitstream& stream);
 
             /** Creates property from bitstream and corresponding sendprop definition */
-            static property create(bitstream &stream, sendprop* prop);
+            static property create(bitstream& stream, sendprop* prop);
 
-            /** Reads an int32_t */
-            static int32_t readInt(bitstream &stream, sendprop* p);
-            /** Read world coordinate (float) */
-            static float readFloatCoord(bitstream &stream);
-            /** Read float coordinate in given precision  */
-            static float readFloatCoordMp(bitstream &stream, uint32_t type);
-            /** Read float whos memory layout is represented as an integer */
-            static float readFloatNoScale(bitstream &stream);
-            /** Read normalized float */
-            static float readFloatNormal(bitstream &stream);
-            /** Read float cell coordinate with given precision */
-            static float readFloatCellCord(bitstream &stream, uint32_t type, uint32_t bits);
-            /** Read single float */
-            static float readFloat(bitstream &stream, sendprop* prop);
-            /** Read 3D vector of floats */
-            static void readVector(std::array<float, 3> &vec, bitstream &stream, sendprop* prop);
-            /** Read 2d vector of floats */
-            static void readVectorXY(std::array<float, 2> &vec, bitstream &stream, sendprop* prop);
-            /** Read string */
-            static uint32_t readString(char *buf, std::size_t max, bitstream &stream, sendprop* prop);
-            /** Read 64 bit integer*/
-            static int64_t readInt64(bitstream &stream, sendprop* prop);
-            /** Read array containing multiple properties */
-            static void readArray(std::vector<property> &props, bitstream &stream, sendprop* prop);
+            /** Skips property contents in the bitstream */
+            static void skip(bitstream& stream, sendprop* prop);
         protected:
             /** Type for this paticular property */
             type_t type;

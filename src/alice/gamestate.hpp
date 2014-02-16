@@ -78,7 +78,7 @@ namespace dota {
             /** Constructor, sets default values and registers the callbacks nessecary. */
             gamestate(handler_t* h)
                 : h(h), clist{}, stringtables{}, sendtables{}, flattables{}, entities{}, entityClassBits(0),
-                  sendtableId(-1), stringtableId(-1)
+                  sendtableId(-1), stringtableId(-1), skipUnsubscribed(false)
             {
                 // handle messages nessecary to update gamestate
                 handlerRegisterCallback(h, msgDem, DEM_ClassInfo, gamestate, handleClassInfo)
@@ -103,6 +103,29 @@ namespace dota {
                 sendtables.clear();
                 flattables.clear();
                 entities.clear();
+            }
+
+            /** Set whether we should skip all unsubscribed entities */
+            void skipByDefault(bool skip) {
+                skipUnsubscribed = skip;
+            }
+
+            /** Ignores said entity when updating the gamestate */
+            void ignoreEntity(uint32_t id) {
+                skipent.insert(id);
+            }
+
+            /** Check if an entity is skipped */
+            bool isSkipped(entity *e) {
+                // get classid
+                uint32_t eId = e->getClassId();
+
+                // check if the entity is skipped because there is no handler
+                bool skipU = (skipUnsubscribed && !h->hasCallback<msgEntity>(eId));
+                // check to skip if entity is in the ignore set
+                bool skipE = skipent.empty() ? false :  (skipent.find(eId) != skipent.end());
+
+                return skipU || skipE;
             }
 
             /** Returns how many bits we need to read for the class size. */
@@ -219,6 +242,11 @@ namespace dota {
             int32_t sendtableId;
             /** ID of the next stringtable to add */
             int32_t stringtableId;
+
+            /** Whether to skip unsubscribed entities  */
+            bool skipUnsubscribed;
+            /** List of entity IDs to ignore */
+            std::set<uint32_t> skipent;
 
             /** Prevent copying of this class. */
             gamestate(const gamestate&) = delete;

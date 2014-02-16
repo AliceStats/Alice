@@ -107,7 +107,9 @@ namespace dota {
                         );
 
                     uint32_t classId = stream.read(entityClassBits); // <- points to id in the entity list
-                    uint32_t serial = stream.read(10);
+                    // serial was never used to lets just always skip it
+                    // uint32_t serial = stream.read(10);
+                    stream.seekForward(10);
 
                     const entity_list::value_type &eClass = clist.get(classId);
                     const flatsendtable &f = getFlattable(eClass.name);
@@ -123,13 +125,17 @@ namespace dota {
                         ent->setState(entity::state_overwritten);
                     }
 
-                    // read updates from baseline and current data
-                    bitstream baselineStream(baseline.get(std::to_string(classId)));
-                    ent->updateFromBitstream(baselineStream);
-                    ent->updateFromBitstream(stream);
+                    if (isSkipped(ent)) {
+                        ent->skip(stream);
+                    } else {
+                        // read updates from baseline and current data
+                        bitstream baselineStream(baseline.get(std::to_string(classId)));
+                        ent->updateFromBitstream(baselineStream);
+                        ent->updateFromBitstream(stream);
 
-                    // forward to handler
-                    h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        // forward to handler
+                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                    }
                 } break;
                 // entity is being updated
                 case entity::state_updated: {
@@ -140,9 +146,13 @@ namespace dota {
 
                     entity* ent = entities[eId];
                     if (ent != nullptr) {
-                        ent->updateFromBitstream(stream);
-                        ent->setState(entity::state_updated);
-                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        if (isSkipped(ent)) {
+                            ent->skip(stream);
+                        } else {
+                            ent->updateFromBitstream(stream);
+                            ent->setState(entity::state_updated);
+                            h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        }
                     } else {
                         BOOST_THROW_EXCEPTION( gamestateInvalidId()
                             << (EArgT<1, uint32_t>::info(eId))
@@ -158,8 +168,11 @@ namespace dota {
 
                     entity* ent = entities[eId];
                     if (ent != nullptr) {
-                        ent->setState(entity::state_deleted);
-                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        if (!isSkipped(ent)) {
+                            ent->setState(entity::state_deleted);
+                            h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        }
+
                         delete ent;
                         entities[eId] = nullptr;
                     } else {
@@ -181,8 +194,11 @@ namespace dota {
 
                 entity* ent = entities[eId];
                 if (ent != nullptr) {
-                    ent->setState(entity::state_deleted);
-                    h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                    if (!isSkipped(ent)) {
+                        ent->setState(entity::state_deleted);
+                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                    }
+
                     delete ent;
                     entities[eId] = nullptr;
                 }

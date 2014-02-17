@@ -1,5 +1,5 @@
 /**
- * @file dem_stream_file.hpp
+ * @file dem_stream_file.cpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
  * @version 1.0
  *

@@ -140,6 +140,12 @@ namespace dota {
         T* get() {
             return reinterpret_cast<T*>(msg);
         }
+
+        /** Delete memory held by this object, does never lead to a double free, only works if Obj is a pointer */
+        void free() {
+            ownsPointer = false;
+            detail::destroyCallbackObjectHelper<Obj>::destroy(std::move(msg));
+        }
     };
 
     /**
@@ -175,6 +181,8 @@ namespace dota {
 
             /** Type for the parameter of the callback function */
             typedef cbObject<Obj, Id>* callbackObj_t;
+            /** Pointer-less type for the callback object */
+            typedef cbObject<Obj, Id> callbackObjS_t;
             /** Type for the callback signature */
             typedef delegate<void, callbackObj_t> delegate_t;
 
@@ -251,9 +259,9 @@ namespace dota {
             void forward(const id_t& i, Data &&data, uint32_t tick, std::true_type);
 
             /** Called if the message needs to be parsed from the data */
-            callbackObj_t retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type);
+            callbackObjS_t retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type);
             /** Called if the data is already in message format */
-            callbackObj_t retrieve(const id_t& i, Data &&data, uint32_t tick, std::true_type);
+            callbackObjS_t retrieve(const id_t& i, Data &&data, uint32_t tick, std::true_type);
     };
 
     /**
@@ -340,7 +348,7 @@ namespace dota {
 
             /** Retrieve a parsed callback object without forwarding it. */
             template <unsigned Type, typename Id, typename Data>
-            typename type<Type>::callbackObj_t retrieve(Id i, Data data, uint32_t tick) {
+            typename type<Type>::callbackObjS_t retrieve(Id i, Data data, uint32_t tick) {
                 return retrieve<Type, Id, Data>(
                     std::move(i), std::move(data), tick,
                     std::is_same<typename type<Type>::id, typename T1::id>{}
@@ -402,11 +410,11 @@ namespace dota {
 
             /** Implementation for retrieve */
             template <unsigned Type, typename Id, typename Data>
-            typename type<Type>::callbackObj_t
+            typename type<Type>::callbackObjS_t
             retrieve(Id i, Data data, uint32_t tick, std::true_type);
             /** Implementation for retrieve */
             template <unsigned Type, typename Id, typename Data>
-            typename type<Type>::callbackObj_t
+            typename type<Type>::callbackObjS_t
             retrieve(Id i, Data data, uint32_t tick, std::false_type);
     };
 

@@ -62,7 +62,7 @@ forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
 }
 
 template <typename Obj, typename Id, typename Data, typename IdSelf>
-typename handlersub<Obj, Id, Data, IdSelf>::callbackObj_t handlersub<Obj, Id, Data, IdSelf>::
+typename handlersub<Obj, Id, Data, IdSelf>::callbackObjS_t handlersub<Obj, Id, Data, IdSelf>::
 retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
     // get conversion object
     auto objConv = obj.find(i);
@@ -71,19 +71,14 @@ retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
             << (typename EArgT<1, id_t>::info(i))
         );
 
-    // create object
-    cbObject<Obj, Id>* o = new cbObject<Obj, Id>(objConv->second(std::move(data)), tick, i);
-
-    return o;
+    // return object
+    return cbObject<Obj, Id>(objConv->second(std::move(data)), tick, i);
 }
 
 template <typename Obj, typename Id, typename Data, typename IdSelf>
-typename handlersub<Obj, Id, Data, IdSelf>::callbackObj_t handlersub<Obj, Id, Data, IdSelf>::
+typename handlersub<Obj, Id, Data, IdSelf>::callbackObjS_t handlersub<Obj, Id, Data, IdSelf>::
 retrieve(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
-    // create object
-    cbObject<Obj, Id>* o = new cbObject<Obj, Id>(std::move(data), tick, i);
-
-    return o;
+    return cbObject<Obj, Id>(std::move(data), tick, i);
 }
 
 template <typename T1, typename... Rest>
@@ -148,14 +143,14 @@ void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::false_ty
 
 template <typename T1, typename... Rest>
 template <unsigned Type, typename Id, typename Data>
-typename handler<T1, Rest...>::template type<Type>::callbackObj_t
+typename handler<T1, Rest...>::template type<Type>::callbackObjS_t
 handler<T1, Rest...>::retrieve(Id i, Data data, uint32_t tick, std::true_type) {
     return subhandler.retrieve(std::move(i), std::move(data), std::move(tick));
 }
 
 template <typename T1, typename... Rest>
 template <unsigned Type, typename Id, typename Data>
-typename handler<T1, Rest...>::template type<Type>::callbackObj_t
+typename handler<T1, Rest...>::template type<Type>::callbackObjS_t
 handler<T1, Rest...>::retrieve(Id i, Data data, uint32_t tick, std::false_type) {
     return child.template retrieve<Type-1>(std::move(i), std::move(data), std::move(tick));
 }

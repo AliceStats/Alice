@@ -233,7 +233,7 @@ namespace dota {
             }
 
             /** Retrieve a parsed callback object without forwarding it. */
-            callbackObj_t retrieve(const id_t& i, Data&& data, uint32_t tick) {
+            callbackObjS_t retrieve(const id_t& i, Data&& data, uint32_t tick) {
                 return retrieve(i, std::move(data), tick, std::is_same<Obj, Data>{});
             }
 

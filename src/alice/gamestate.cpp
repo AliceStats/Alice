@@ -114,27 +114,27 @@ namespace dota {
                     const entity_list::value_type &eClass = clist.get(classId);
                     const flatsendtable &f = getFlattable(eClass.name);
 
-                    entity* ent = entities[eId];
-                    if (ent == nullptr) {
+                    entity &ent = entities[eId];
+                    if (!ent.isInitialized()) {
                         // create the entity
-                        ent = new entity(eId, eClass, f);
-                        entities[eId] = ent;
+                        entities[eId] = entity(eId, eClass, f);
+                        ent = entities[eId];
                     } else {
                         // entity already exists, update it as overwritten
-                        ent->update(eId, eClass, f);
-                        ent->setState(entity::state_overwritten);
+                        ent.update(eId, eClass, f);
+                        ent.setState(entity::state_overwritten);
                     }
 
                     if (isSkipped(ent)) {
-                        ent->skip(stream);
+                        ent.skip(stream);
                     } else {
                         // read updates from baseline and current data
                         bitstream baselineStream(baseline.get(std::to_string(classId)));
-                        ent->updateFromBitstream(baselineStream);
-                        ent->updateFromBitstream(stream);
+                        ent.updateFromBitstream(baselineStream);
+                        ent.updateFromBitstream(stream);
 
                         // forward to handler
-                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        h->forward<msgEntity>(ent.getClassId(), &ent, 0);
                     }
                 } break;
                 // entity is being updated
@@ -144,14 +144,14 @@ namespace dota {
                             << (EArgT<1, uint32_t>::info(eId))
                         );
 
-                    entity* ent = entities[eId];
-                    if (ent != nullptr) {
+                    entity& ent = entities[eId];
+                    if (ent.isInitialized()) {
                         if (isSkipped(ent)) {
-                            ent->skip(stream);
+                            ent.skip(stream);
                         } else {
-                            ent->updateFromBitstream(stream);
-                            ent->setState(entity::state_updated);
-                            h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                            ent.updateFromBitstream(stream);
+                            ent.setState(entity::state_updated);
+                            h->forward<msgEntity>(ent.getClassId(), &ent, 0);
                         }
                     } else {
                         BOOST_THROW_EXCEPTION( gamestateInvalidId()
@@ -166,15 +166,14 @@ namespace dota {
                             << (EArgT<1, uint32_t>::info(eId))
                         );
 
-                    entity* ent = entities[eId];
-                    if (ent != nullptr) {
+                    entity& ent = entities[eId];
+                    if (ent.isInitialized()) {
                         if (!isSkipped(ent)) {
-                            ent->setState(entity::state_deleted);
-                            h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                            ent.setState(entity::state_deleted);
+                            h->forward<msgEntity>(ent.getClassId(), &ent, 0);
                         }
 
-                        delete ent;
-                        entities[eId] = nullptr;
+                        entities[eId] = entity();
                     } else {
                         BOOST_THROW_EXCEPTION( gamestateInvalidId()
                             << (EArgT<1, uint32_t>::info(eId))
@@ -192,15 +191,14 @@ namespace dota {
             while (stream.read(1)) {
                 eId = stream.read(11);
 
-                entity* ent = entities[eId];
-                if (ent != nullptr) {
+                entity& ent = entities[eId];
+                if (ent.isInitialized()) {
                     if (!isSkipped(ent)) {
-                        ent->setState(entity::state_deleted);
-                        h->forward<msgEntity>(ent->getClassId(), ent, 0);
+                        ent.setState(entity::state_deleted);
+                        h->forward<msgEntity>(ent.getClassId(), &ent, 0);
                     }
 
-                    delete ent;
-                    entities[eId] = nullptr;
+                    entities[eId] = entity();
                 }
             }
         }

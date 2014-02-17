@@ -73,7 +73,7 @@ namespace dota {
             /** Type for a map of flattables. */
             typedef std::unordered_map<std::string, flatsendtable> flatMap;
             /** Type for a list of entities. */
-            typedef std::vector<entity*> entityMap;
+            typedef std::vector<entity> entityMap;
 
             /** Constructor, sets default values and registers the callbacks nessecary. */
             gamestate(handler_t* h)
@@ -84,15 +84,11 @@ namespace dota {
                 handlerRegisterCallback(h, msgDem, DEM_ClassInfo, gamestate, handleClassInfo)
 
                 // allocate memory for entities
-                entities.resize(DOTA_MAX_ENTITIES, nullptr);
+                entities.resize(DOTA_MAX_ENTITIES);
             }
 
             /** Destructor, frees all entities that have not been explicitly deleted. */
             ~gamestate() {
-                for (auto &e : entities) {
-                    delete e;
-                }
-
                 for (auto &s : sendtables) {
                     for (auto &ss : s.value) {
                         delete ss.value;
@@ -116,9 +112,9 @@ namespace dota {
             }
 
             /** Check if an entity is skipped */
-            bool isSkipped(entity *e) {
+            bool isSkipped(entity &e) {
                 // get classid
-                uint32_t eId = e->getClassId();
+                uint32_t eId = e.getClassId();
 
                 // check if the entity is skipped because there is no handler
                 bool skipU = (skipUnsubscribed && !h->hasCallback<msgEntity>(eId));

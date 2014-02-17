@@ -176,6 +176,10 @@ namespace dota {
             /** Typedef for state enum */
             typedef state state_type;
 
+            entity() : initialized(false) {
+
+            }
+
             /**
              * Constructor filling the initial state.
              *
@@ -184,7 +188,7 @@ namespace dota {
              * @param flat Flattened sendtable, containing the correct order of properties
              */
             entity(uint32_t id, const entity_list::value_type &cls, const flatsendtable& flat)
-                : id(id), cls(&cls), flat(&flat), currentState(state_created)
+                : initialized(true), id(id), cls(&cls), flat(&flat), currentState(state_created)
             {
                 // Reserve memory for each possible property
                 properties.resize(flat.properties.size()+1);
@@ -192,6 +196,11 @@ namespace dota {
 
             /** Default constructor */
             ~entity() = default;
+
+            /** Returns whether this entity has been initialized */
+            bool isInitialized() {
+                return initialized;
+            }
 
             /**
              * Updates the entity with given values.
@@ -287,6 +296,8 @@ namespace dota {
             /** Reads the entities header. */
             static void readHeader(uint32_t &id, bitstream &bstream, state_type &type);
         private:
+            /** Whether this entity has been initialized */
+            bool initialized;
             /** Entity Id */
             uint32_t id;
             /** Information / Name for this entity. */

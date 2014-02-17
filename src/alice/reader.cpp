@@ -81,7 +81,7 @@ namespace dota {
 
     reader::reader(const std::string& file)
         : file(file), fstream(file.c_str(), std::ifstream::in | std::ifstream::binary),
-          state(0), cTick(0), h(new handler_t), db(h)
+          state(0), cTick(0), h(new handler_t), db(h), fwdInternal(false)
     {
         // check if file can be opened / read
         if (!fstream.is_open())
@@ -120,10 +120,13 @@ namespace dota {
         registerTypes();
 
         // add handlers for events we want to receive
-        handlerRegisterCallback(h, msgDem, DEM_Packet,       reader, handlePacket)
-        handlerRegisterCallback(h, msgDem, DEM_SignonPacket, reader, handlePacket)
-        handlerRegisterCallback(h, msgDem, DEM_SendTables,   reader, handleSendTablesDem)
-        handlerRegisterCallback(h, msgNet, svc_UserMessage,  reader, handleUserMessage)
+        if (fwdInternal) {
+            handlerRegisterCallback(h, msgDem, DEM_Packet,       reader, handlePacket)
+            handlerRegisterCallback(h, msgDem, DEM_SignonPacket, reader, handlePacket)
+            handlerRegisterCallback(h, msgDem, DEM_SendTables,   reader, handleSendTablesDem)
+        }
+
+        //handlerRegisterCallback(h, msgNet, svc_UserMessage,  reader, handleUserMessage)
 
         // let handlers now we can start parsing
         h->forward<msgStatus>(REPLAY_START, REPLAY_START, 0);
@@ -152,7 +155,7 @@ namespace dota {
         if (type == 0)  state = 1;
 
         // skip messages if skipUntil is set or no handler is available
-        if (skip || (!h->hasCallback<msgDem>(type))) {
+        if (skip || (type == 13)) {
             fstream.seekg(size, std::ios::cur); // seek forward
             return;
         }
@@ -199,8 +202,31 @@ namespace dota {
             s.size = size;
         }
 
-        // relay message
-        h->forward<msgDem>(type, std::move(s), tick);
+        // relay to client if applicable
+        if (fwdInternal) {
+            h->forward<msgDem>(type, std::move(s), tick);
+        } else {
+            switch (type) {
+                case DEM_SignonPacket:
+                case DEM_Packet: {
+                    auto cb = h->retrieve<msgDem::id>(type, std::move(s), tick);
+                    handlePacket(&cb);
+                    cb.free();
+                } break;
+
+                case DEM_SendTables: {
+                    auto cb = h->retrieve<msgDem::id>(type, std::move(s), tick);
+                    handleSendTablesDem(&cb);
+                    cb.free();
+                } break;
+
+                case DEM_ClassInfo: {
+                    auto cb = h->retrieve<msgDem::id>(type, std::move(s), tick);
+                    db.handleClassInfo(&cb);
+                    cb.free();
+                } break;
+            }
+        }
     }
 
     void reader::registerTypes() {

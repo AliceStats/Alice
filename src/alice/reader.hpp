@@ -147,6 +147,8 @@ namespace dota {
             handler_t* h;
             /** Initialized in the reader to make sure a valid gamestate is available for all accessors */
             gamestate db;
+            /** Foward internal messages */
+            bool fwdInternal;
 
             /** Private copy constructor, dont allow copying */
             reader(const reader&) = delete;

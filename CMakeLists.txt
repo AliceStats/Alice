@@ -204,6 +204,7 @@ SET ( PROTO_HEADERS
 )
 
 SET ( ALICE_CORE_HEADERS
+    src/alice/alice.hpp
     src/alice/bitstream.hpp
     src/alice/config.hpp
     src/alice/dem.hpp

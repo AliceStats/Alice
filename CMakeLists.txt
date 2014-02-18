@@ -161,10 +161,9 @@ SET ( PROTO_SOURCES
 SET ( ALICE_CORE_SOURCES
     src/alice/bitstream.cpp
     src/alice/entity.cpp
-    src/alice/gamestate.cpp
     src/alice/property.cpp
-    src/alice/reader.cpp
     src/alice/stringtable.cpp
+    src/alice/dem_stream_file.cpp
 )
 
 SET ( ALICE_ADDON_SOURCES
@@ -207,16 +206,17 @@ SET ( PROTO_HEADERS
 SET ( ALICE_CORE_HEADERS
     src/alice/bitstream.hpp
     src/alice/config.hpp
+    src/alice/dem.hpp
+    src/alice/dem_stream_file.hpp
     src/alice/delegate.hpp
     src/alice/entity.hpp
     src/alice/exception.hpp
-    src/alice/gamestate.hpp
     src/alice/handler.hpp
     src/alice/handler_detail.hpp
     src/alice/handler_impl.hpp
     src/alice/multiindex.hpp
+    src/alice/parser.hpp
     src/alice/property.hpp
-    src/alice/reader.hpp
     src/alice/sendprop.hpp
     src/alice/sendtable.hpp
     src/alice/stringtable.hpp

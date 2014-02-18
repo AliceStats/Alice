@@ -1,35 +1,36 @@
 #include <iostream>
 #include <exception>
 
-#include <alice/exception.hpp>
-#include <alice/handler.hpp>
-#include <alice/gamestate.hpp>
-#include <alice/reader.hpp>
+#include <alice/alice.hpp>
 
 using namespace dota;
+
+// typedef for the parser we use
+typedef parser<dem_stream_file> parser_t;
 
 /** This handler prints the coordinates of a hero dieing to the console. */
 class handler_example {
     private:
         /** Hero-to-Player list, maps the player ID to a corresponding hero */
         std::unordered_map<uint32_t, std::string> h2p;
+        /** Pointer to the parser */
+        parser_t* p;
         /** Pointer to the handler */
-        handler_t *h;
-        /** Pointer to gamestate */
-        gamestate& g;
+        handler_t* h;
     public:
         /** Constructor, takes the handler */
-        handler_example(handler_t *h, gamestate& g) : h(h), g(g) {
-           handlerRegisterCallback(h, msgStatus, reader::REPLAY_FLATTABLES, handler_example, handleReady)
+        handler_example(parser_t* p) : p(p), h(p->getHandler()) {
+            // Subscribe to REPLAY_FLATTABLES so we can register our entity stuff
+            handlerRegisterCallback(h, msgStatus, REPLAY_FLATTABLES, handler_example, handleReady)
         }
 
         /** Callback when stringtables are available */
         void handleReady(handlerCbType(msgStatus) msg) {
             // Normal Callback, method is only invoked if ressource is equal
-            handlerRegisterCallback(h, msgEntity, g.getEntityIdFor("CDOTA_PlayerResource"), handler_example, handlePlayer)
+            handlerRegisterCallback(h, msgEntity, p->getEntityIdFor("CDOTA_PlayerResource"), handler_example, handlePlayer)
 
             // Prefix Callback, any entity matching it triggers a callback
-            std::vector<uint32_t> units = g.findEntityIdFor("CDOTA_Unit_Hero_");
+            std::vector<uint32_t> units = p->findEntityIdFor("CDOTA_Unit_Hero_");
             for (auto &i : units) {
                 handlerRegisterCallback(h, msgEntity, i, handler_example, handleHero)
             }
@@ -83,11 +84,29 @@ int main(int argc, char **argv) {
     }
 
     try {
-        //for ( int i = 0; i < 100; ++i ) {
-        reader r(argv[1]);
-        handler_example h(r.getHandler(), r.getState());
-        r.readAll();
-        //}
+        // settings for the parser
+        settings s{
+            false, // forward_dem - We don't handle them so we don't need to listen to them
+            false, // forward_net - Same as above
+            false, // forward_net_internal - Same as above. In addition, these are never ever required. Ever. Almost.
+            false, // forward_user - We don't use them so we can skip them. Contains stuff like the combat log and chat.
+            true, // parse_stringtables - We need baseline instance
+            {"ActiveModifiers", "CooldownNames", "ModifierNames", "CombatLogNames" }, // blocked stringtables - Names say all
+            true,  // parse_entities - Yes we need them
+            true,  // forward entities - Yes we listen to em
+            true,  // skip unused - Yes cause we don't request them via the parser
+            {}     // blocked ones - All except the forwarded with skip_unused=true
+        };
+
+        // create a parser and open the replay
+        parser_t p(s);
+        p.open(argv[1]);
+
+        // create handler and attach parser
+        handler_example h(&p);
+
+        // parse all messages
+        p.handle();
     } catch (boost::exception &e) {
         std::cout << boost::diagnostic_information(e) << std::endl;
     } catch (std::exception &e) {

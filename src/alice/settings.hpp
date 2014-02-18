@@ -29,25 +29,25 @@ namespace dota {
     /** Settings for the replay parser. Immutable for the duration of a full-parse once set. */
     struct settings {
         /** Whether to forward dem messages */
-        bool forward_dem;
-
-        /** Whether to parse net messages */
-        bool parse_net;
+        const bool forward_dem;
 
         /** Whether to forward net messages */
-        bool forward_net;
+        const bool forward_net;
 
         /** Whether to forward internal net messages */
-        bool forward_net_internal;
-
-        /** Whether to parse user messages */
-        bool parse_user;
+        const bool forward_net_internal;
 
         /** Whether to forward user messages */
-        bool forward_use;
+        const bool forward_user;
+
+        /** Whether to parse stringtables */
+        const bool parse_stringtables;
+
+        /** Stringtables to skip */
+        const std::set<std::string> skip_stringtables;
 
         /** Whether to parse entities */
-        bool parse_entities;
+        const bool parse_entities;
 
         /**
          * Whether to forward entities.
@@ -55,7 +55,7 @@ namespace dota {
          * Even if no entities are forwarded, access is still possible directly though
          * the entity list.
          */
-        bool forward_entities;
+        const bool forward_entities;
 
         /**
          * Skips parsing entities which have no subscriber.
@@ -63,10 +63,10 @@ namespace dota {
          * You will be unable to access entities that fall into this categories
          * even when using the entity list directly.
          */
-        bool skip_unsubscribed_entities;
+        const bool skip_unsubscribed_entities;
 
         /** List of entities to always skip. Not affected by subscription status. */
-        std::set<uint32_t> skip_entities;
+        const std::set<uint32_t> skip_entities;
     };
 }
 

@@ -453,7 +453,7 @@ namespace dota {
                 uint32_t eId = e.getClassId();
 
                 // check if the entity is skipped because there is no handler
-                bool skipU = (set.skip_unsubscribed_entities || !handler.hasCallback<msgEntity>(eId));
+                bool skipU = (set.skip_unsubscribed_entities && !handler.hasCallback<msgEntity>(eId));
                 if (skipU) return true;
 
                 // check to skip if entity is in the ignore set

@@ -104,49 +104,59 @@ namespace dota {
             void open(std::string path) {
                 file = path;
                 stream.open(path);
+
+                // let handlers know we begin to parse
+                handler.forward<msgStatus>(REPLAY_START, REPLAY_START, 0);
+            }
+
+            /** Returns whether there are still messages left to read */
+            bool good() {
+                return stream.good();
+            }
+
+            /** Parse and read a single message */
+            void read() {
+                // Read a single message
+                //
+                // If forward_dem is set, packages not handled by the parser are skipped because no
+                // one would get them anyway.
+                // This increases the read performance by about 20% for the DEM part.
+                demMessage_t msg = stream.read(!set.forward_dem);
+
+                // Forward messages via the handler or handle them internaly
+                if (set.forward_dem) {
+                    handler.forward<msgDem>(msg.type, std::move(msg), msg.tick);
+                } else {
+                    switch (msg.type) {
+                        case DEM_ClassInfo: {
+                            if (set.parse_entities) {
+                                auto cb = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
+                                handleClasses(&cb);
+                                cb.free();
+                            }
+                        } break;
+                        case DEM_SignonPacket:
+                        case DEM_Packet: {
+                            auto cb = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
+                            handlePacket(&cb);
+                            cb.free();
+                        } break;
+                        case DEM_SendTables: {
+                            if (set.parse_entities) {
+                                auto cb = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
+                                handleSendTables(&cb);
+                                cb.free();
+                            }
+                        } break;
+                    }
+                }
             }
 
             /** Parse and handle all messages in the replay */
             void handle() {
-                // let handlers know we begin to parse
-                handler.forward<msgStatus>(REPLAY_START, REPLAY_START, 0);
-
-                // parse all messages while there is data vailable
+                // parse all messages while there is data available
                 while (stream.good()) {
-                    // Read a single message
-                    //
-                    // If forward_dem is set, packages not handled by the parser are skipped because no
-                    // one would get them anyway.
-                    // This increases the read performance by about 20% for the DEM part.
-                    demMessage_t msg = stream.read(!set.forward_dem);
-
-                    // Forward messages via the handler or handle them internaly
-                    if (set.forward_dem) {
-                        handler.forward<msgDem>(msg.type, std::move(msg), msg.tick);
-                    } else {
-                        switch (msg.type) {
-                            case DEM_ClassInfo: {
-                                if (set.parse_entities) {
-                                    auto cb = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
-                                    handleClasses(&cb);
-                                    cb.free();
-                                }
-                            } break;
-                            case DEM_SignonPacket:
-                            case DEM_Packet: {
-                                auto cb = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
-                                handlePacket(&cb);
-                                cb.free();
-                            } break;
-                            case DEM_SendTables: {
-                                if (set.parse_entities) {
-                                    auto cb = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
-                                    handleSendTables(&cb);
-                                    cb.free();
-                                }
-                            } break;
-                        }
-                    }
+                    read();
                 }
 
                 // let handlers know we are done

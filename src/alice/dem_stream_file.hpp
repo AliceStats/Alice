@@ -75,7 +75,7 @@ namespace dota {
             void open(std::string path);
 
             /** Returns a message */
-            demMessage_t read(bool skip = false);
+            demMessage_t read(const bool skip = false);
         private:
             /** Internal buffer (message) */
             char* buffer;

@@ -65,7 +65,7 @@ namespace dota {
         file = path;
     }
 
-    demMessage_t dem_stream_file::read(bool skip) {
+    demMessage_t dem_stream_file::read(const bool skip) {
         // Make sure the buffers has been allocated
         assert(buffer != nullptr);
         assert(bufferSnappy != nullptr);

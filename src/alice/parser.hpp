@@ -194,6 +194,26 @@ namespace dota {
                 return 0;
             }
 
+            /** Returns all entities */
+            entityMap& getEntities() {
+                return entities;
+            }
+
+            /** Returns all stringtables */
+            stringtableMap& getStringtables() {
+                return stringtables;
+            }
+
+            /** Returns all flattables */
+            flatMap& getFlattables() {
+                return flattables;
+            }
+
+            /** Returns all sendtables */
+            sendtableMap& getSendtables() {
+                return sendtables;
+            }
+
             /** Returns all entity class id's for a specific definition substring */
             inline std::vector<uint32_t> findEntityIdFor(std::string name) {
                 std::vector<uint32_t> ret;

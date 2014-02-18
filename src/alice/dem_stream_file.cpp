@@ -21,6 +21,7 @@
  */
 
 
+#include <set>
 #include <snappy.h>
 
 #include <alice/demo.pb.h>
@@ -69,6 +70,11 @@ namespace dota {
         assert(buffer != nullptr);
         assert(bufferSnappy != nullptr);
 
+        // Static default list of packages that are not parsed
+        static std::set<uint32_t> skips {
+            1, 2, 3, 9, 10, 11, 12, 13, 14
+        };
+
         // Get type / tick / size
         uint32_t type = readVarInt();
         const bool compressed = type & DEM_IsCompressed;
@@ -82,7 +88,7 @@ namespace dota {
         if (type == 0)         parsingState = 1; // marks the message before the laste one
 
         // skip messages if skip is set
-        if (skip) {
+        if (skip && skips.count(type)) {
             stream.seekg(size, std::ios::cur); // seek forward
             return demMessage_t{false, 0, 0, nullptr, 0}; // return empty msg
         }

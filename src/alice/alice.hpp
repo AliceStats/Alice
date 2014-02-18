@@ -32,7 +32,7 @@
 #include <alice/entity.hpp>
 #include <alice/exception.hpp>
 #include <alice/handler.hpp>
-#include <alice/multiiindex.hpp>
+#include <alice/multiindex.hpp>
 #include <alice/parser.hpp>
 #include <alice/property.hpp>
 #include <alice/sendprop.hpp>

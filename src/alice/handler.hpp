@@ -31,6 +31,7 @@
 
 #include <alice/exception.hpp>
 #include <alice/delegate.hpp>
+#include <alice/dem.hpp>
 
 /// Registers and object with the handler.
 ///
@@ -149,21 +150,6 @@ namespace dota {
     };
 
     /**
-     * Used to transmit string data and length to the handler.
-     *
-     * Taking substrings of std::string always requires a copy. This is generally pretty bad
-     * for the performance because most of the messages are nested. This struct is a compromise
-     * between adding a pointer + size as handler argument and using the std::string. It's not as
-     * nice but it's still viable and leads to a significant performance increase.
-     */
-    struct stringWrapper {
-        /** string in question */
-        const char* str;
-        /** size to read */
-        std::size_t size;
-    };
-
-    /**
      * This is the implementation of each of the handler functions for a specifc set of parameters.
      *
      * @param Obj Parent object for each of the messages that should be parsed
@@ -218,9 +204,9 @@ namespace dota {
             /** Register a new object type for the specified ID */
             template <typename T>
             void registerObject(const id_t& i) {
-                obj[i] = [](stringWrapper&& data) {
+                obj[i] = [](demMessage_t&& data) {
                     obj_t msg = new T;
-                    if (!msg->ParseFromArray(data.str, data.size))
+                    if (!msg->ParseFromArray(data.msg, data.size))
                             BOOST_THROW_EXCEPTION((handlerParserError()));
 
                     return msg;
@@ -437,9 +423,9 @@ namespace dota {
     /** Type for our default handler */
     typedef handler<
         handlersub< uint32_t, uint32_t, uint32_t, msgStatus >,
-        handlersub< ::google::protobuf::Message*, uint32_t, stringWrapper, msgDem >,
-        handlersub< ::google::protobuf::Message*, uint32_t, stringWrapper, msgUser >,
-        handlersub< ::google::protobuf::Message*, uint32_t, stringWrapper, msgNet >,
+        handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgDem >,
+        handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgUser >,
+        handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgNet >,
         handlersub< entity*, uint32_t, entity*, msgEntity >
     > handler_t;
 

@@ -220,6 +220,7 @@ SET ( ALICE_CORE_HEADERS
     src/alice/property.hpp
     src/alice/sendprop.hpp
     src/alice/sendtable.hpp
+    src/alice/settings.hpp
     src/alice/stringtable.hpp
 )
 

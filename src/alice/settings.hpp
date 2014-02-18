@@ -26,7 +26,7 @@
 #include <set>
 
 namespace dota {
-    /** Settings for the replay parser. Immutable for the duration of a parse once set. */
+    /** Settings for the replay parser. Immutable for the duration of a full-parse once set. */
     struct settings {
         /** Whether to forward dem messages */
         bool forward_dem;
@@ -36,6 +36,9 @@ namespace dota {
 
         /** Whether to forward net messages */
         bool forward_net;
+
+        /** Whether to forward internal net messages */
+        bool forward_net_internal;
 
         /** Whether to parse user messages */
         bool parse_user;

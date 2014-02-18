@@ -27,6 +27,7 @@
 #define DOTA_DEMHEADERID "PBUFDEM"
 
 #include <alice/exception.hpp>
+#include <alice/config.hpp>
 
 namespace dota {
     /// Thrown when the replay in inaccesible (e.g. wrong permissions or wrong path)
@@ -64,6 +65,13 @@ namespace dota {
         const char* msg;
         /** Size of the message */
         std::size_t size;
+    };
+
+    /** Reading status, announces when certain parts of the replay become available */
+    enum status {
+        REPLAY_START = 0,   // Parsing started
+        REPLAY_FLATTABLES,  // Flattables are available
+        REPLAY_FINISH       // Parsing finished
     };
 }
 

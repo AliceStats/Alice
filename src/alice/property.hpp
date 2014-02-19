@@ -54,6 +54,8 @@ namespace dota {
     CREATE_EXCEPTION( propertyInvalidInt64Type, "Type of int64 is not implemented" )
     /// Thrown when the number of array elements exceeds #PROPERTY_MAX_ELEMENTS
     CREATE_EXCEPTION( propertyInvalidNumberOfElements, "Unnaturaly large number of elements" )
+    /// Thrown when trying to access property as invalid Type
+    CREATE_EXCEPTION( propertyBadCast, "Property requested as wrong type" )
 
     /// @}
 
@@ -194,7 +196,13 @@ namespace dota {
             /** Returns value as type T, throws if conversion fails */
             template <typename T>
             const T& as() {
-                return boost::get<T>(value);
+                try {
+                    return boost::get<T>(value);
+                } catch (boost::bad_get &e) {
+                    BOOST_THROW_EXCEPTION( propertyBadCast()
+                        << EArg<1>::info(getName())
+                    );
+                }
             }
 
             /** Sets value as type T with data provided */

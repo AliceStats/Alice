@@ -47,7 +47,7 @@ ENDIF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable --stdlib=libc++" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  SET ( CMAKE_CXX_FLAGS "-O3 -g --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable" )
+  SET ( CMAKE_CXX_FLAGS "-O3 -g --std=c++0x -fPIC -fno-pie -Wall -Wno-sign-compare -Wno-unused-variable" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   MESSAGE ( STATUS "Intel Compiler not tested yet, falling back to default compiler flags" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -164,6 +164,7 @@ SET ( ALICE_CORE_SOURCES
     src/alice/property.cpp
     src/alice/stringtable.cpp
     src/alice/dem_stream_file.cpp
+    src/alice/dem_stream_memory.cpp
 )
 
 SET ( ALICE_ADDON_SOURCES
@@ -209,6 +210,7 @@ SET ( ALICE_CORE_HEADERS
     src/alice/config.hpp
     src/alice/dem.hpp
     src/alice/dem_stream_file.hpp
+    src/alice/dem_stream_memory.hpp
     src/alice/delegate.hpp
     src/alice/entity.hpp
     src/alice/exception.hpp

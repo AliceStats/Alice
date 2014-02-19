@@ -29,6 +29,7 @@
 #include <alice/delegate.hpp>
 #include <alice/dem.hpp>
 #include <alice/dem_stream_file.hpp>
+#include <alice/dem_stream_memory.hpp>
 #include <alice/entity.hpp>
 #include <alice/exception.hpp>
 #include <alice/handler.hpp>

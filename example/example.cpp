@@ -6,7 +6,7 @@
 using namespace dota;
 
 // typedef for the parser we use
-typedef parser<dem_stream_file> parser_t;
+typedef parser parser_t;
 
 /** This handler prints the coordinates of a hero dieing to the console. */
 class handler_example {
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
         };
 
         // create a parser and open the replay
-        parser_t p(s);
+        parser_t p(s, new dem_stream_file);
         p.open(argv[1]);
 
         // create handler and attach parser

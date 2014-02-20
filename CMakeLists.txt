@@ -161,6 +161,7 @@ SET ( PROTO_SOURCES
 SET ( ALICE_CORE_SOURCES
     src/alice/bitstream.cpp
     src/alice/entity.cpp
+    src/alice/parser.cpp
     src/alice/property.cpp
     src/alice/stringtable.cpp
     src/alice/dem_stream_file.cpp

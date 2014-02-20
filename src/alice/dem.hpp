@@ -73,6 +73,25 @@ namespace dota {
         REPLAY_FLATTABLES,  // Flattables are available
         REPLAY_FINISH       // Parsing finished
     };
+
+    /** Baseclass implemented by all streams */
+    class dem_stream {
+        public:
+            /** Constructor */
+            dem_stream() {}
+
+            /** Destructor */
+            virtual ~dem_stream() {};
+
+            /** Whether there are still messages left to be read */
+            virtual bool good() = 0;
+
+            /** Opens a dem file from given path */
+            virtual void open(std::string path) = 0;
+
+            /** Returns a message */
+            virtual demMessage_t read(const bool skip = false) = 0;
+    };
 }
 
 #endif // _DOTA_DEM_HPP_

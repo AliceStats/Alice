@@ -43,7 +43,7 @@ namespace dota {
      * This class allocates a fixed buffer of 2 MB to be used for copy-less
      * message return as well as uncompressing the data.
      */
-    class dem_stream_file {
+    class dem_stream_file : public dem_stream {
         public:
             /** Constructor, allocates memory to buffer file contents */
             dem_stream_file() : buffer(nullptr), bufferSnappy(nullptr), parsingState(0) {
@@ -58,7 +58,7 @@ namespace dota {
             dem_stream_file(dem_stream_file &&stream) = delete;
 
             /** Destructor, free's allocated memory */
-            ~dem_stream_file() {
+            virtual ~dem_stream_file() {
                 delete[] buffer;
                 delete[] bufferSnappy;
 
@@ -67,15 +67,15 @@ namespace dota {
             }
 
             /** Whether there are still messages left to be parsed */
-            bool good() {
+            virtual bool good() {
                 return stream.good() && (parsingState != 2);
             }
 
             /** Opens a DEM file from the given path */
-            void open(std::string path);
+            virtual void open(std::string path);
 
             /** Returns a message */
-            demMessage_t read(const bool skip = false);
+            virtual demMessage_t read(const bool skip = false);
         private:
             /** Internal buffer (message) */
             char* buffer;

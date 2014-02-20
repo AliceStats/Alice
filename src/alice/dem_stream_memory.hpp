@@ -41,7 +41,7 @@ namespace dota {
      * It addition it allocates 1MB of fixed space to take care of decompressing
      * messages with snappy.
      */
-    class dem_stream_memory {
+    class dem_stream_memory : public dem_stream {
         public:
             /** Constructor, allocates memory to buffer file contents */
             dem_stream_memory() : buffer(nullptr), bufferSnappy(nullptr), pos(0), size(0), parsingState(0) {
@@ -55,7 +55,7 @@ namespace dota {
             dem_stream_memory(dem_stream_memory &&stream) = delete;
 
             /** Destructor, free's allocated memory */
-            ~dem_stream_memory() {
+            virtual ~dem_stream_memory() {
                 if (buffer != nullptr)
                     delete[] buffer;
 
@@ -63,15 +63,15 @@ namespace dota {
             }
 
             /** Whether there are still messages left to be parsed */
-            bool good() {
+            virtual bool good() {
                 return (pos < size) && (parsingState != 2);
             }
 
             /** Opens a DEM file from the given path */
-            void open(std::string path);
+            virtual void open(std::string path);
 
             /** Returns a message */
-            demMessage_t read(const bool skip = false);
+            virtual demMessage_t read(const bool skip = false);
         private:
             /** Internal buffer (message) */
             char* buffer;

@@ -31,6 +31,9 @@
 #include <alice/settings.hpp>
 
 namespace dota {
+    /// @defgroup EXCEPTIONS Exceptions
+    /// @{
+
     /// Thrown when a property is defined as an Array but it's subtype hasn't been set
     CREATE_EXCEPTION( aliceInvalidArrayProp, "Array property has no previous member to define state." )
 
@@ -42,6 +45,10 @@ namespace dota {
 
     /// Thrown when the id for an invalid definition is requested
     CREATE_EXCEPTION( aliceInvalidDefinition, "Invalid definition specified." )
+
+    /// @}
+    /// @defgroup CORE Core
+    /// @{
 
     class parser {
         public:
@@ -273,4 +280,6 @@ namespace dota {
             /** Registers all currently known types */
             void registerTypes();
     };
+
+    /// @}
 }

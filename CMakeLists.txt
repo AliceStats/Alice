@@ -27,6 +27,9 @@ OPTION (BUILD_EXAMPLE "Build example code" OFF)
 # Build unit tests
 OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF)
 
+# Build python bindings
+OPTION (BUILD_BINDINGS_PYTHON "Build python bindings using Boost.Python" OFF)
+
 #------------------------------------------------------------
 # Version Info
 #------------------------------------------------------------
@@ -188,6 +191,41 @@ IF ( BUILD_ADDON )
     ADD_LIBRARY ( alice-addon-shared SHARED $<TARGET_OBJECTS:alice-addon>)
     ADD_LIBRARY ( alice-addon-static STATIC $<TARGET_OBJECTS:alice-addon>)
 ENDIF ( BUILD_ADDON )
+
+# build the python bindings
+#
+# Currently tied to my local path's and only compiling on linux
+# Variables / stuff that needs to be added:
+#
+# - protoc library variable / FindProtoc
+# - boost_python check
+# - python2.7 check
+# - FindPython2.7 for library and include path
+#
+IF ( BUILD_BINDINGS_PYTHON )
+    # Build the protobuf generator for the boost.python code
+    ADD_EXECUTABLE( alice-python-protobuf bindings/python/protobuf.cpp)
+    TARGET_LINK_LIBRARIES ( alice-python-protobuf
+        ${PROTOBUF_LIBRARY}
+        protoc
+    )
+
+    # Generate the code for the bindings
+    ADD_CUSTOM_COMMAND(
+        OUTPUT protopython
+        COMMAND alice-python-protobuf  ${ProtoFiles} --proto_path=${CMAKE_SOURCE_DIR}/proto --bp_out=${CMAKE_SOURCE_DIR}/src/bindings/python
+        DEPENDS alice-python-protobuf
+    )
+
+    # Build python bindings
+    ADD_LIBRARY ( alice-python SHARED $<TARGET_OBJECTS:alice-core> src/bindings/python.cpp protopython)
+    include_directories( /usr/include/python2.7/ )
+    TARGET_LINK_LIBRARIES ( alice-python
+        boost_python
+        python2.7
+    )
+
+ENDIF ( BUILD_BINDINGS_PYTHON )
 
 #------------------------------------------------------------
 # Install headers and lib

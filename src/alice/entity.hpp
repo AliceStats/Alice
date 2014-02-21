@@ -45,6 +45,8 @@ namespace dota {
     CREATE_EXCEPTION( entityUnkownClassIndex, "Can't set / get specified index (out of range)" )
     /// Thrown when the given entity id exceedes entity_list::reserve
     CREATE_EXCEPTION( entityIdToLarge, "Entity ID supplied is to large" )
+    /// Thrown when trying to access a non-existant property without a default value
+    CREATE_EXCEPTION( entityUnkownProperty, "Property specified does not exist" )
 
     /// @}
 
@@ -232,11 +234,7 @@ namespace dota {
              * This is only nessecary ones and happens automatically. Subsequent access will be a lot faster.
              */
             inline iterator find(const std::string& needle) {
-                if (stringIndex.empty())
-                    for (uint32_t i = 0; i < properties.size(); ++i) {
-                        if (properties[i].isInitialized())
-                            stringIndex[properties[i].getName()] = i;
-                    }
+                buildIndex();
 
                 auto it = stringIndex.find(needle);
                 if (it == stringIndex.end()) {
@@ -249,6 +247,34 @@ namespace dota {
             /** Returns iterator pointing to the element request or one element behind the last if none can be found */
             inline iterator find(uint32_t index) {
                 return properties.begin() + index;
+            }
+
+            /** Returns property value, throws if property doesn't exist */
+            template <typename T>
+            inline T prop(const std::string& needle) {
+                buildIndex();
+
+                auto it = stringIndex.find(needle);
+                if (it == stringIndex.end()) {
+                    BOOST_THROW_EXCEPTION(entityUnkownProperty()
+                        << EArg<1>::info(needle)
+                    );
+                } else {
+                    return properties[it->second].as<T>();
+                }
+            }
+
+            /** Returns property value or default if property doesn't exist */
+            template <typename T>
+            inline T prop(const std::string& needle, T def) {
+                buildIndex();
+                
+                auto it = stringIndex.find(needle);
+                if (it == stringIndex.end()) {
+                    return def;
+                } else {
+                    return properties[it->second].as<T>();
+                }
             }
 
             /** Returns this entities ID */
@@ -310,6 +336,15 @@ namespace dota {
             state_type currentState;
             /** Search index to allow getting properties by their respective name. */
             std::unordered_map<std::string, uint32_t, boost::hash<std::string>> stringIndex;
+
+            /** Builds the string index */
+            void buildIndex() {
+                if (stringIndex.empty())
+                    for (uint32_t i = 0; i < properties.size(); ++i) {
+                        if (properties[i].isInitialized())
+                            stringIndex[properties[i].getName()] = i;
+                    }
+            }
     };
 
     /// @}

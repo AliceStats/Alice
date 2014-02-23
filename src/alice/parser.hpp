@@ -79,6 +79,9 @@ namespace dota {
             /** Parse and handle all messages in the replay */
             void handle();
 
+            /** Skip to the desired second in the replay */
+            void skipTo(uint32_t second);
+
             /** Returns pointer to handler, pointer is tied to lifetime of this object */
             handler_t* getHandler();
 
@@ -109,6 +112,8 @@ namespace dota {
             dem_stream* stream;
             /** Handler */
             handler_t handler;
+            /** Current tick */
+            uint32_t tick;
 
             /** File opened */
             std::string file;

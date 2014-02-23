@@ -29,7 +29,7 @@
 #include <alice/parser.hpp>
 
 namespace dota {
-    parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), sendtableId(-1), stringtableId(-1) {
+    parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), sendtableId(-1), stringtableId(-1) {
         // Only register callback if we want to forward dem messages.
         // We can take care of these internally which makes things a lot faster.
         if (set.forward_dem) {
@@ -89,6 +89,9 @@ namespace dota {
         // This increases the read performance by about 20% for the DEM part.
         demMessage_t msg = stream->read(!set.forward_dem);
 
+        // update current tick
+        tick = msg.tick;
+
         // Forward messages via the handler or handle them internaly
         if (set.forward_dem) {
             handler.forward<msgDem>(msg.type, std::move(msg), msg.tick);
@@ -125,8 +128,57 @@ namespace dota {
         }
 
         // let handlers know we are done
-        // @todo: Send the real tick here instead of 0
-        handler.forward<msgStatus>(REPLAY_FINISH, REPLAY_FINISH, 0);
+        handler.forward<msgStatus>(REPLAY_FINISH, REPLAY_FINISH, tick);
+    }
+
+    void parser::skipTo(uint32_t second) {
+        uint32_t min = second/60;
+        int32_t sec = second%60;
+
+        // make sure we have a valid state before skipping ahead / back
+        while (tick < 30) {
+            read();
+        }
+
+        // clear all entities
+        entities.clear();
+        entities.resize(DOTA_MAX_ENTITIES);
+
+        // skip to the fullpacket
+        stream->move(min);
+
+        // get the next full package in the stram
+        demMessage_t msg;
+        do {
+            msg = stream->read(false);
+        } while (msg.type != 13 && good());
+
+        // parse it
+        auto full = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
+        CDemoFullPacket* p = full.get<CDemoFullPacket>();
+
+        for (auto &tbl : p->string_table().tables()) {
+            auto it = stringtables.findKey(tbl.table_name());
+            if (it == stringtables.end())
+                continue;
+
+            for (auto &item : tbl.items()) {
+                it->value.set(item.str(), item.data());
+            }
+
+            for (auto &item : tbl.items_clientside()) {
+                it->value.set(item.str(), item.data());
+            }
+        }
+
+        // forward packets
+        const std::string &data = p->packet().data();
+        forwardMessageContainer<msgNet>(data.c_str(), data.size(), msg.tick);
+
+        // asume 1 tick 2 / secs
+        for (; sec > 0; sec -= 2) {
+            read();
+        }
     }
 
     handler_t* parser::getHandler() {

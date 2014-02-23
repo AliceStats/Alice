@@ -124,6 +124,14 @@ namespace dota {
                 return db.size();
             }
 
+            /** Set value of key directly */
+            inline void set(const std::string& key, std::string value) const {
+                if (db.findKey(key) == db.end())
+                    return;
+
+                db.set(key, std::move(value));
+            }
+
             /** Get element value by key */
             inline const value_type& get(const std::string& key) const  {
                 auto it = db.findKey(key);

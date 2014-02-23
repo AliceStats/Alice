@@ -91,6 +91,9 @@ namespace dota {
 
             /** Returns a message */
             virtual demMessage_t read(const bool skip = false) = 0;
+
+            /** Move to the desired minute in the replay */
+            virtual void move(uint32_t minute) = 0;
     };
 }
 

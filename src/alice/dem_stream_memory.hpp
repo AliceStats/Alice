@@ -72,6 +72,9 @@ namespace dota {
 
             /** Returns a message */
             virtual demMessage_t read(const bool skip = false);
+
+            /** Move to the desired minute in the replay */
+            virtual void move(uint32_t min);
         private:
             /** Internal buffer (message) */
             char* buffer;
@@ -86,6 +89,8 @@ namespace dota {
             uint32_t size;
             /** Parsing state */
             uint32_t parsingState;
+            /** Position cache for fullpackets */
+            std::vector<uint32_t> fpackcache;
 
             /** Reads a varint32 from the array (protobuf serialization format) */
             uint32_t readVarInt();

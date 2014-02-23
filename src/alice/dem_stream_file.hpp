@@ -74,8 +74,11 @@ namespace dota {
             /** Opens a DEM file from the given path */
             virtual void open(std::string path);
 
-            /** Returns a message */
+            /** Returns next message from current position */
             virtual demMessage_t read(const bool skip = false);
+
+            /** Move to the desired minute in the replay */
+            virtual void move(uint32_t min);
         private:
             /** Internal buffer (message) */
             char* buffer;
@@ -88,6 +91,8 @@ namespace dota {
             std::ifstream stream;
             /** Parsing state */
             uint32_t parsingState;
+            /** Position cache for fullpackets */
+            std::vector<uint32_t> fpackcache;
 
             /** Reads a varint32 from the stream (protobuf serialization format) */
             uint32_t readVarInt();

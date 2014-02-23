@@ -141,6 +141,35 @@ namespace dota {
         return msg;
     }
 
+    void dem_stream_file::move(uint32_t min) {
+        // generate the cache
+        if (fpackcache.empty()) {
+            stream.seekg (sizeof(demHeader_t), std::ios::beg);
+            fpackcache.push_back(sizeof(demHeader_t)); // 0 min start
+
+            // Get type / tick / size
+            uint32_t type = 0;
+
+            do {
+                uint32_t p = stream.tellg();
+                type = readVarInt() & ~DEM_IsCompressed;
+                uint32_t tick = readVarInt();
+                uint32_t size = readVarInt();
+
+                if (type == 13)
+                    fpackcache.push_back(p);
+
+                stream.seekg(size, std::ios::cur);
+            } while (type != 0);
+        }
+
+        // seek to the fullpacket at the desired position
+        if (fpackcache.size() <= min)
+            min = fpackcache.size() - 1;
+
+        stream.seekg(fpackcache[min]);
+    }
+
     uint32_t dem_stream_file::readVarInt() {
         char buffer;
         uint32_t count = 0;

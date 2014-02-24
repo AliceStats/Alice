@@ -199,7 +199,7 @@ namespace dota {
              * If the resulting position would underflow, it is set to 0.
              */
             void seekBackward(size_type n) {
-                if (pos - n < 0)
+                if ((pos - n) < 0)
                     pos = 0;
                 else
                     pos -= n;

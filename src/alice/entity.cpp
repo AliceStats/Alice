@@ -57,6 +57,7 @@ namespace dota {
                 p.update(bstream);
             else {
                 properties[it] = property::create(bstream, flat->properties[it]);
+                properties[it].setName(&flat->names[it]); // set hierarchial name of property
             }
         }
     }

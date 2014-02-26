@@ -61,6 +61,7 @@ namespace dota {
 
     // forward declaration
     class bitstream;
+    class entity;
 
     /// @defgroup CORE Core
     /// @{
@@ -164,6 +165,7 @@ namespace dota {
      * data.
      */
     class property {
+        friend entity;
         public:
             /** Type for the underlying definition */
             typedef sendprop::type type_t;
@@ -201,6 +203,7 @@ namespace dota {
                 } catch (boost::bad_get &e) {
                     BOOST_THROW_EXCEPTION( propertyBadCast()
                         << EArg<1>::info(getName())
+                        << (EArgT<2, uint32_t>::info(type))
                     );
                 }
             }
@@ -214,6 +217,11 @@ namespace dota {
             /** Returns name of this property based on it's sendprop */
             std::string getName() {
                 return prop->getNetname() + "." + prop->getName();
+            }
+
+            /** Returns unique name from flattened sendtable */
+            const std::string& getFlatName() {
+                return *name;
             }
 
             /** Return value as string */
@@ -248,12 +256,19 @@ namespace dota {
             value_type value;
             /** Sendprop definition for the type */
             sendprop* prop;
+            /** unique name for this property */
+            const std::string* name;
             /** Whether this property has been initialized */
             bool init;
 
             /** Private constructor, we only want our create function to instantize new properties */
             property(sendprop* p) : type(p->getType()), prop(p) {
 
+            }
+
+            /** Set hierarchial name */
+            void setName(const std::string* name) {
+                this->name = name;
             }
     };
 

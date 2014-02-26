@@ -58,6 +58,8 @@ namespace dota {
         std::string name;
         /** Correct network property order */
         std::vector<sendprop*> properties;
+        /** Unique identifiers for the send props base on their position in the hierarchy */
+        std::vector<std::string> names;
     };
 
     /**

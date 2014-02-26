@@ -277,10 +277,10 @@ namespace dota {
             void buildExcludeList(const sendtable &tbl, std::set<std::string> &excludes);
 
             /** Build hierarchy for one table */
-            void buildHierarchy(const sendtable &tbl, std::set<std::string> &excludes, std::vector<sendprop*> &props);
+            void buildHierarchy(const sendtable &tbl, std::set<std::string> &excludes, std::vector<sendprop*> &props, std::string base, std::vector<std::string>& ids);
 
             /** Gather all properties, exclude those marked from the list */
-            void gatherProperties(const sendtable &tbl, std::vector<sendprop*> &dt_prop, std::set<std::string> &excludes, std::vector<sendprop*> &props);
+            void gatherProperties(const sendtable &tbl, std::vector<sendprop*> &dt_prop, std::set<std::string> &excludes, std::vector<sendprop*> &props, std::string base, std::vector<std::string>& ids);
 
             /** Registers all currently known types */
             void registerTypes();

@@ -508,12 +508,13 @@ namespace dota {
 
             std::set<std::string> excludes;  // names of excluded properties
             std::vector<sendprop*> props;    // list of property classes
+            std::vector<std::string> names;   // list of property names when traversing
 
             // Building excludes
             buildExcludeList(table.value, excludes);
 
             // Building hierarchy
-            buildHierarchy(table.value, excludes, props);
+            buildHierarchy(table.value, excludes, props, table.value.getName(), names);
 
             // Sorting tables
             std::set<uint32_t> priorities({64}); // list of all possible priorities
@@ -537,7 +538,8 @@ namespace dota {
             }
 
             // insert stuff into flat table
-            flattables.emplace(table.key, flatsendtable{table.key, std::move(props)});
+            assert(props.size() == names.size());
+            flattables.emplace(table.key, flatsendtable{table.key, std::move(props), std::move(names)});
         }
     }
 
@@ -560,17 +562,17 @@ namespace dota {
         }
     }
 
-    void parser::buildHierarchy(const sendtable &tbl, std::set<std::string> &excludes, std::vector<sendprop*> &props) {
+    void parser::buildHierarchy(const sendtable &tbl, std::set<std::string> &excludes, std::vector<sendprop*> &props, std::string base, std::vector<std::string>& ids) {
         // Building hierarchy for the table
         std::vector<sendprop*> p;
-        gatherProperties(tbl, p, excludes, props);
+        gatherProperties(tbl, p, excludes, props, base, ids);
 
         for (auto ExcludedProps : p) {
             props.push_back(ExcludedProps);
         }
     }
 
-    void parser::gatherProperties(const sendtable &tbl, std::vector<sendprop*> &dt_prop, std::set<std::string> &excludes, std::vector<sendprop*> &props) {
+    void parser::gatherProperties(const sendtable &tbl, std::vector<sendprop*> &dt_prop, std::set<std::string> &excludes, std::vector<sendprop*> &props, std::string base, std::vector<std::string>& ids) {
         for (auto &p : tbl) {
             sendprop* pr = p.value;
 
@@ -591,11 +593,12 @@ namespace dota {
                 const sendtable &dtTbl = it->value;
 
                 if (SPROP_COLLAPSIBLE & pr->getFlags()) {
-                    gatherProperties(dtTbl, dt_prop, excludes, props);
+                    gatherProperties(dtTbl, dt_prop, excludes, props, base, ids);
                 } else {
-                    buildHierarchy(dtTbl, excludes, props);
+                    buildHierarchy(dtTbl, excludes, props, base+"."+pr->getName(), ids);
                 }
             } else {
+                ids.push_back(base+"."+pr->getName());
                 dt_prop.push_back(p.value);
             }
         }

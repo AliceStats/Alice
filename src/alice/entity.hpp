@@ -47,6 +47,8 @@ namespace dota {
     CREATE_EXCEPTION( entityIdToLarge, "Entity ID supplied is to large" )
     /// Thrown when trying to access a non-existant property without a default value
     CREATE_EXCEPTION( entityUnkownProperty, "Property specified does not exist" )
+    /// Thrown when trying to access a non-existant property (e.g. larger than the size of properties)
+    CREATE_EXCEPTION( entityUnkownSendprop, "Property index out of range" )
 
     /// @}
 
@@ -268,7 +270,7 @@ namespace dota {
             template <typename T>
             inline T prop(const std::string& needle, T def) {
                 buildIndex();
-                
+
                 auto it = stringIndex.find(needle);
                 if (it == stringIndex.end()) {
                     return def;

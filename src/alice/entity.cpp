@@ -52,6 +52,12 @@ namespace dota {
         }
 
         for (auto &it : fields) {
+            if (it >= properties.size())
+                BOOST_THROW_EXCEPTION(entityUnkownSendprop()
+                    << (EArgT<1, std::size_t>::info(properties.size()))
+                    << (EArgT<2, std::size_t>::info(id))
+                );
+
             property &p = properties[it];
             if (p.isInitialized())
                 p.update(bstream);
@@ -73,6 +79,12 @@ namespace dota {
         }
 
         for (auto &it : fields) {
+            if (it >= properties.size())
+                BOOST_THROW_EXCEPTION(entityUnkownSendprop()
+                    << (EArgT<1, std::size_t>::info(properties.size()))
+                    << (EArgT<2, std::size_t>::info(id))
+                );
+
             property::skip(bstream, flat->properties[it]);
         }
     }

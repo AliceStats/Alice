@@ -47,7 +47,7 @@ ENDIF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -Wall -Wno-sign-compare -Wno-unused-variable --stdlib=libc++" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  SET ( CMAKE_CXX_FLAGS "-O3 -g --std=c++0x -fPIC -fno-pie -Wall -Wno-sign-compare -Wno-unused-variable" )
+  SET ( CMAKE_CXX_FLAGS "-O3 --std=c++0x -fPIC -fno-pie -Wall -Wno-sign-compare -Wno-unused-variable" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   MESSAGE ( STATUS "Intel Compiler not tested yet, falling back to default compiler flags" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -189,6 +189,14 @@ IF ( BUILD_ADDON )
     ADD_LIBRARY ( alice-addon-shared SHARED $<TARGET_OBJECTS:alice-addon>)
     ADD_LIBRARY ( alice-addon-static STATIC $<TARGET_OBJECTS:alice-addon>)
 ENDIF ( BUILD_ADDON )
+
+#------------------------------------------------------------
+# Build unittests
+#------------------------------------------------------------
+
+IF ( BUILD_TEST )
+    ADD_SUBDIRECTORY( test )
+ENDIF ( BUILD_TEST )
 
 #------------------------------------------------------------
 # Install headers and lib

@@ -141,6 +141,7 @@ void handler<T1, Rest...>::forward(Id i, Data data, uint32_t tick, std::false_ty
 	child.template forward<Type>(std::move(i), std::move(data), std::move(tick));
 }
 
+#ifndef _MSC_VER
 template <typename T1, typename... Rest>
 template <unsigned Type, typename Id, typename Data>
 typename handler<T1, Rest...>::template type<Type>::callbackObjS_t
@@ -154,3 +155,4 @@ typename handler<T1, Rest...>::template type<Type>::callbackObjS_t
 handler<T1, Rest...>::retrieve(Id i, Data data, uint32_t tick, std::false_type) {
     return child.template retrieve<Type-1>(std::move(i), std::move(data), std::move(tick));
 }
+#endif // _MSC_VER

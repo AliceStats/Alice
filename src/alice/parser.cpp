@@ -30,27 +30,21 @@
 
 namespace dota {
     parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), sendtableId(-1), stringtableId(-1) {
-        // Only register callback if we want to forward dem messages.
-        // We can take care of these internally which makes things a lot faster.
-        if (set.forward_dem) {
-            handlerRegisterCallback((&handler), msgDem, DEM_Packet,       parser, handlePacket)
-            handlerRegisterCallback((&handler), msgDem, DEM_SignonPacket, parser, handlePacket)
-            handlerRegisterCallback((&handler), msgNet, svc_UserMessage,  parser, handleUserMessage)
+        handlerRegisterCallback((&handler), msgDem, DEM_Packet,       parser, handlePacket)
+        handlerRegisterCallback((&handler), msgDem, DEM_SignonPacket, parser, handlePacket)
+        handlerRegisterCallback((&handler), msgNet, svc_UserMessage,  parser, handleUserMessage)
+
+        if (set.parse_entities) {
+            handlerRegisterCallback((&handler),  msgDem, DEM_ClassInfo,  parser, handleClasses)
+            handlerRegisterCallback((&handler),  msgDem, DEM_SendTables, parser, handleSendTables)
+
+            handlerRegisterCallback((&handler), msgNet, svc_ServerInfo, parser, handleServerInfo)
+            handlerRegisterCallback((&handler), msgNet, svc_SendTable,  parser, handleSendTable)
         }
 
-        if (set.forward_net) {
-            if (set.parse_entities) {
-                handlerRegisterCallback((&handler),  msgDem, DEM_ClassInfo,  parser, handleClasses)
-                handlerRegisterCallback((&handler),  msgDem, DEM_SendTables, parser, handleSendTables)
-
-                handlerRegisterCallback((&handler), msgNet, svc_ServerInfo, parser, handleServerInfo)
-                handlerRegisterCallback((&handler), msgNet, svc_SendTable,  parser, handleSendTable)
-            }
-
-            if (set.parse_stringtables) {
-                handlerRegisterCallback((&handler), msgNet, svc_CreateStringTable, parser, handleCreateStringtable)
-                handlerRegisterCallback((&handler), msgNet, svc_UpdateStringTable, parser, handleUpdateStringtable)
-            }
+        if (set.parse_stringtables) {
+            handlerRegisterCallback((&handler), msgNet, svc_CreateStringTable, parser, handleCreateStringtable)
+            handlerRegisterCallback((&handler), msgNet, svc_UpdateStringTable, parser, handleUpdateStringtable)
         }
 
         if (set.parse_entities) {
@@ -96,6 +90,7 @@ namespace dota {
         if (set.forward_dem) {
             handler.forward<msgDem>(msg.type, std::move(msg), msg.tick);
         } else {
+            #ifndef _MSC_VER
             switch (msg.type) {
                 case DEM_ClassInfo: {
                     if (set.parse_entities) {
@@ -118,6 +113,9 @@ namespace dota {
                     }
                 } break;
             }
+            #else // _MSC_VER
+                handler.forward<msgDem>(msg.type, std::move(msg), msg.tick);
+            #endif // _MSC_VER
         }
     }
 

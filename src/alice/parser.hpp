@@ -178,6 +178,7 @@ namespace dota {
                         }
 
                         // Parse internal messages
+                        #ifndef _MSC_VER
                         switch (mType) {
                             case svc_PacketEntities: {
                                 if (set.parse_entities) {
@@ -228,6 +229,20 @@ namespace dota {
                                 continue;
                             } break;
                         }
+                        #else // _MSC_VER
+                        switch (mType) {
+                            case svc_PacketEntities:
+                            case svc_ServerInfo:
+                            case svc_SendTable:
+                            case svc_CreateStringTable:
+                            case svc_UpdateStringTable:
+                            case svc_UserMessage:
+                                handler.forward<msgNet>(mType, demMessage_t{0, tick, mType, mMsg, mSize}, tick);
+                                continue;
+                            default:
+                                break;
+                        }
+                        #endif // _MSC_VER
 
                         // Forward remaining?
                         if (set.forward_net)

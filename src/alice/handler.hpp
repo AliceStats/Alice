@@ -332,7 +332,8 @@ namespace dota {
                 forward<Type, Id, Data>(std::move(i), std::move(data), tick, std::is_same<typename T1::id, Type>{});
             }
 
-            /** Retrieve a parsed callback object without forwarding it. */
+            #ifndef _MSC_VER
+            /** Retrieve a parsed callback object without forwarding it. Not available when compiling with visual studio. */
             template <unsigned Type, typename Id, typename Data>
             typename type<Type>::callbackObjS_t retrieve(Id i, Data data, uint32_t tick) {
                 return retrieve<Type, Id, Data>(
@@ -340,6 +341,7 @@ namespace dota {
                     std::is_same<typename type<Type>::id, typename T1::id>{}
                 );
             }
+            #endif // _MSC_VER
 
             /** Removes all registered callbacks */
             template <typename Type>
@@ -394,6 +396,7 @@ namespace dota {
             template <typename Type, typename Id, typename Data>
             void forward(Id i, Data data, uint32_t tick, std::false_type);
 
+            #ifndef _MSC_VER
             /** Implementation for retrieve */
             template <unsigned Type, typename Id, typename Data>
             typename type<Type>::callbackObjS_t
@@ -402,6 +405,7 @@ namespace dota {
             template <unsigned Type, typename Id, typename Data>
             typename type<Type>::callbackObjS_t
             retrieve(Id i, Data data, uint32_t tick, std::false_type);
+            #endif // _MSC_VER
     };
 
     // this file has the actual implementation which is seperated for enhanced readability

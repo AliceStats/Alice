@@ -29,7 +29,7 @@
 #include <alice/parser.hpp>
 
 namespace dota {
-    parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), sendtableId(-1), stringtableId(-1) {
+    parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), msgs(0), sendtableId(-1), stringtableId(-1) {
         handlerRegisterCallback((&handler), msgDem, DEM_Packet,       parser, handlePacket)
         handlerRegisterCallback((&handler), msgDem, DEM_SignonPacket, parser, handlePacket)
         handlerRegisterCallback((&handler), msgNet, svc_UserMessage,  parser, handleUserMessage)
@@ -82,9 +82,11 @@ namespace dota {
         // one would get them anyway.
         // This increases the read performance by about 20% for the DEM part.
         demMessage_t msg = stream->read(!set.forward_dem);
+        ++msgs;
 
         // update current tick
-        tick = msg.tick;
+        if (msg.tick > 0) // last ticks are 0ed
+            tick = msg.tick;
 
         // Forward messages via the handler or handle them internaly
         if (set.forward_dem) {

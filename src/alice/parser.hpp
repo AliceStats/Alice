@@ -105,6 +105,16 @@ namespace dota {
 
             /** Returns all entity class id's for a specific definition substring */
             std::vector<uint32_t> findEntityIdFor(std::string name);
+
+            /** Get the current tick count */
+            uint32_t getTick() {
+                return tick;
+            }
+
+            /** Get the current message count */
+            uint32_t getMsgCount() {
+                return msgs;
+            }
         private:
             /** Settings for this parser, cannot be changed */
             settings set;
@@ -114,6 +124,8 @@ namespace dota {
             handler_t handler;
             /** Current tick */
             uint32_t tick;
+            /** Number of messages parsed */
+            uint32_t msgs;
 
             /** File opened */
             std::string file;
@@ -142,6 +154,9 @@ namespace dota {
             template <typename Type>
             void forwardMessageContainer(const char* data, uint32_t size, uint32_t tick) {
                 while (size) {
+                    // increase message count
+                    ++msgs;
+
                     // 0ed in readVarInt, used to increase data pointer offset
                     uint32_t read;
 

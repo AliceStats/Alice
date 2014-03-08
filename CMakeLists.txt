@@ -276,6 +276,19 @@ IF ( BUILD_EXAMPLE )
     )
 
     INSTALL( TARGETS alice-example RUNTIME DESTINATION bin )
+
+    ADD_EXECUTABLE ( alice-performance
+        example/performance.cpp
+    )
+
+    TARGET_LINK_LIBRARIES ( alice-performance
+        alice-core-static
+        ${PROTOBUF_LIBRARY}
+    	${SNAPPY_LIBRARIES}
+    	${Boost_LIBRARIES}
+    )
+
+    INSTALL( TARGETS alice-performance RUNTIME DESTINATION bin )
 ENDIF ( BUILD_EXAMPLE )
 
 #------------------------------------------------------------

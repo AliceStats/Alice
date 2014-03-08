@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="rickshaw.min.css">
+        <title>Alice - Performance Charts</title>
+    </head>
+    <body>
+        <style>
+            #legend_container {
+                top: 0;
+                margin: 10px 0 0 1010px;
+                position: fixed;
+            }
+        </style>
+        <div id="chart"></div>
+        <div id="legend_container">
+    		<div id="smoother" title="Smoothing"></div>
+    		<div id="legend"></div>
+    	</div>
+	    <div id="slider"></div>
+
+        <script src="d3.min.js"></script>
+        <script src="d3.layout.min.js"></script>
+        <script src="rickshaw.min.js"></script>
+        <script src="data.js"></script>
+        <script>
+            var data_full = [];
+            var data_min = [];
+            var data_verify = [];
+
+            var palette = new Rickshaw.Color.Palette();
+
+            for (var i = 0; i < data.length; ++i) {
+                data_full.push({x: data[i].msgs, y: data[i].full});
+                data_min.push({x: data[i].msgs, y: data[i].minimal});
+                data_verify.push({x: data[i].msgs, y: data[i].verify});
+            }
+
+            function compare(a,b) {
+                if (a.x < b.x) return -1;
+                if (a.x > b.x) return 1;
+                return 0;
+            }
+
+            data_full.sort(compare);
+            data_min.sort(compare);
+            data_verify.sort(compare);
+
+            var graph = new Rickshaw.Graph( {
+                element: document.querySelector("#chart"),
+                width: 1000,
+                height: 500,
+                renderer: 'line',
+                series: [
+                    {
+                        color: palette.color(),
+                        data: data_full,
+                        name: "Full"
+                    },
+                    {
+                        color: palette.color(),
+                        data: data_min,
+                        name: "Minimal"
+                    },
+                    {
+                        color: palette.color(),
+                        data: data_verify,
+                        name: "Verify"
+                    },
+                ]
+            });
+
+            var axes = new Rickshaw.Graph.Axis.X( { graph: graph } );
+            var axes = new Rickshaw.Graph.Axis.Y( { graph: graph } );
+
+            var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        	    graph: graph,
+        	    formatter: function(series, x, y) {
+            		return "Ticks: "+x+", "+y+" ms";
+            	}
+            });
+
+            var legend = new Rickshaw.Graph.Legend( {
+            	graph: graph,
+            	element: document.getElementById('legend')
+
+            } );
+
+            var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+            	graph: graph,
+            	legend: legend
+            } );
+
+            graph.render();
+        </script>
+    </body>
+</html>

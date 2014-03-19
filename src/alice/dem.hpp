@@ -49,7 +49,9 @@ namespace dota {
 
     /** DEM file header, used for verification purposes */
     struct demHeader_t {
-        char headerid[ 8 ]; // needs to equal DOTA_HEADERID
+        /** Used for verification purposes, needs to equal DOTA_HEADERID */
+        char headerid[ 8 ];
+        /** Points to the location of the game summary */
         int32_t offset;
     };
 
@@ -69,9 +71,12 @@ namespace dota {
 
     /** Reading status, announces when certain parts of the replay become available */
     enum status {
-        REPLAY_START = 0,   // Parsing started
-        REPLAY_FLATTABLES,  // Flattables are available
-        REPLAY_FINISH       // Parsing finished
+        /** Send once the parsing starts */
+        REPLAY_START = 0,
+        /** Send once flattables are available and you can subscribe to entities */
+        REPLAY_FLATTABLES,
+        /** Send once parsing is done */
+        REPLAY_FINISH
     };
 
     /** Baseclass implemented by all streams */
@@ -82,6 +87,12 @@ namespace dota {
 
             /** Destructor */
             virtual ~dem_stream() {};
+
+            /** Don't allow copying of streams */
+            dem_stream(const dem_stream&) = delete;
+
+            /** Default move constructor */
+            dem_stream(dem_stream&&) = default;
 
             /** Whether there are still messages left to be read */
             virtual bool good() = 0;

@@ -1,7 +1,7 @@
 /**
  * @file dem_stream_memory.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -34,6 +34,9 @@
 #include <alice/dem.hpp>
 
 namespace dota {
+    /// @defgroup CORE Core
+    /// @{
+
     /**
      * Read the contents of a demo file (Dota 2 Replay) from the harddrive.
      *
@@ -51,7 +54,7 @@ namespace dota {
             /** Copy constructor, don't allow copying */
             dem_stream_memory(const dem_stream_memory &s) = delete;
 
-            /** Move constructor, don't allow deleting */
+            /** Move constructor, don't allow moving */
             dem_stream_memory(dem_stream_memory &&stream) = delete;
 
             /** Destructor, free's allocated memory */
@@ -95,6 +98,8 @@ namespace dota {
             /** Reads a varint32 from the array (protobuf serialization format) */
             uint32_t readVarInt();
     };
+
+    /// @}
 }
 
 #endif // _DOTA_DEM_STREAM_MEMORY_HPP_

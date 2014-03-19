@@ -1,7 +1,7 @@
 /**
  * @file dem_stream_file.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -34,8 +34,15 @@
 #include <alice/dem.hpp>
 
 namespace dota {
+    /// @defgroup EXCEPTIONS Exceptions
+    /// @{
+
     /// Thrown when the dem_stream_file object has been accessed after being moved
     CREATE_EXCEPTION( streamInvalidState, "Accessing stream in invalid state." )
+
+    /// @}
+    /// @defgroup CORE Core
+    /// @{
 
     /**
      * Read the contents of a demo file (Dota 2 Replay) from the harddrive.
@@ -54,7 +61,7 @@ namespace dota {
             /** Copy constructor, don't allow copying */
             dem_stream_file(const dem_stream_file &s) = delete;
 
-            /** Move constructor, don't allow deleting */
+            /** Move constructor, don't allow moving */
             dem_stream_file(dem_stream_file &&stream) = delete;
 
             /** Destructor, free's allocated memory */
@@ -97,6 +104,8 @@ namespace dota {
             /** Reads a varint32 from the stream (protobuf serialization format) */
             uint32_t readVarInt();
     };
+
+    /// @}
 }
 
 #endif // _DOTA_DEM_STREAM_FILE_HPP_

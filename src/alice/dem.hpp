@@ -30,6 +30,9 @@
 #include <alice/config.hpp>
 
 namespace dota {
+    /// @defgroup EXCEPTIONS Exceptions
+    /// @{
+
     /// Thrown when the replay in inaccesible (e.g. wrong permissions or wrong path)
     CREATE_EXCEPTION( demFileNotAccessible,  "Unable to open file." )
     /// Thrown when the replay has an unlikely small file size
@@ -46,6 +49,10 @@ namespace dota {
     CREATE_EXCEPTION( demParsingError,       "Parsing protouf message failed." )
     /// Thrown when the size of a single messages would cause a buffer overflow
     CREATE_EXCEPTION( demMessageToBig,       "Messagesize is to big." )
+
+    /// @}
+    /// @defgroup CORE Core
+    /// @{
 
     /** DEM file header, used for verification purposes */
     struct demHeader_t {
@@ -106,6 +113,8 @@ namespace dota {
             /** Move to the desired minute in the replay */
             virtual void move(uint32_t minute) = 0;
     };
+
+    /// @}
 }
 
 #endif // _DOTA_DEM_HPP_

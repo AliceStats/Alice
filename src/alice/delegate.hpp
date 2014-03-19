@@ -1,7 +1,7 @@
 /**
  * @file delegate.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,16 +35,23 @@ namespace dota {
     template <typename R, typename ... ARGS>
     class delegate {
         public:
-            /** Constructor, 0's object and function pointer */
-            delegate() : pObj(nullptr), pFunc(nullptr) {
-
-            }
+            /** Constructor, zero's object and function pointer */
+            delegate() : pObj(nullptr), pFunc(nullptr) { }
 
             /** Default copy constructor. */
             delegate(const delegate&) = default;
 
             /** Default destructor */
             ~delegate() = default;
+
+            /** Move constructor, zero's old object and function pointer */
+            delegate(delegate&& d) {
+                pObj = d.pObj;
+                pFunc = d.pFunc;
+
+                d.pObj = nullptr;
+                d.pFunc = nullptr;
+            }
 
             /** Compares two delegates with each other */
             bool operator== (delegate &d1) {

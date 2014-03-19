@@ -51,8 +51,34 @@ in the following manner:
  - _stringtables_: the contents can be accessed though there is no information on how to parse it
  - _voice data_: binary packets can be written to disk but no one has figured out how the encoding works
 
-Building Alice
---------------
+Performance
+-----------
+
+Alice is heavily optimized and can parse the majority of replays in less than one second. A standard 45 Minute public
+Replay parses in about 750ms.
+
+The following settings are available to further tweak the parsing process with the recommended settings in brackets:
+
+ - forward_dem: Allows the User to receive base-level messages such as raw packet contents (`false`)
+ - forward_net: Allows the User to receive network messages (`true`)
+ - forward_net_internal: Forwards internal messages e.g. Packet containters and raw packet contents (`false`)
+ - forward_user: Whether to receive user messages, required `forward_net` (`true`)
+ - parse_stringtables: Whether to parse stringtables, required when using entities (`true`)
+ - parse_entities: Whether to parse entities, required for hero positioning and items (`true`)
+ - forward_entities: Forward entities like other messages. Might not be required if you have a good parsing setup (`true`)
+ - skip_unsubscribed_entities: Skips all non-forwarded entities, increases performance by 10-20% (`true`)
+
+Longer replays often have more messages than their shorter counterparts in the same skill-bracket.
+Games with in different skill-brackets and different game modes have more / less messages depending on factors such as
+spectator commentary and interaction based messages.
+
+The performance example includes three sample configurations, the following graph shows the differences based on the amount
+of messages parsed. These replays measured are captains-mode games from the TI3 Qualifiers.
+
+![Image](https://raw.github.com/AliceStats/Alice/master/doc/performance/graph.png)
+
+Building Alice on Unix
+----------------------
 
 Alice utilizes CMake as its build system. To build Alice on Linux or OS X issue the following commands in the top-level
 directory:
@@ -66,20 +92,23 @@ directory:
 This will generate a bin folder containing the example, a lib folder containing shared and static versions of
 the library as well as an include folder with the nessecary headers needed to develop with Alice.
 
-Building Alice on Windows requires you to download [CMake for Windows](http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip).
-Put protobuf, snappy and boost in their corresponding directories under /deps/. You don't have to build boost and
-and snappy but you need to build protobuf. If you have done so, let cmake generate the MSVC project files. Opening
-those should allow you to build the whole project in MSVC.
+Building Alice on Windows
+-------------------------
 
-Binary releases for Windows might be made available in the future when I find a good place to store them.
+See the accompanied build-windows.md for instructions on how to build Alice with MSVC.
 
 Using Alice
 -----------
 
-The example folder contains a very basic usage example. More applications / examples will follow.
+The example folder contains a very basic usage example.
+
+You can use the [Devkit](https://github.com/AliceStats/DevKit) to get a quick overview of entities and their properties.
+
+![Image](https://raw.github.com/AliceStats/DevKit/master/doc/screenshot.png)
 
 Thanks
 ------
 
 Thanks to [edith](https://github.com/dschleck/edith) and [skadistats](https://github.com/skadistats/)!
+
 Come join us over in #dota2replay on QuakeNet.

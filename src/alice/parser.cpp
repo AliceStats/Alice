@@ -60,7 +60,13 @@ namespace dota {
     }
 
     parser::~parser() {
+        // free stream memory
         delete stream;
+
+        // free sendprop table
+        for (auto &tbl : sendtables) {
+            tbl.value.free();
+        }
     }
 
     void parser::open(std::string path) {

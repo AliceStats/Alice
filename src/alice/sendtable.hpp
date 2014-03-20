@@ -88,6 +88,14 @@ namespace dota {
 
             }
 
+            /** Dealocates memory for all sendproperties */
+            inline void free() const {
+                // About 1MB of memory get's freed here
+                for (auto &p : properties) {
+                    delete p.value;
+                }
+            }
+
             /** Returns iterator pointed at the beginning of the sendprops stored s */
             inline iterator begin() const {
                 return properties.beginIndex();

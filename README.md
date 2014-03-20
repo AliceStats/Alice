@@ -77,6 +77,49 @@ of messages parsed. These replays measured are captains-mode games from the TI3 
 
 ![Image](https://raw.github.com/AliceStats/Alice/master/doc/performance/graph.png)
 
+Memory Usage
+------------
+
+Alice was designed to allocate a fixed amount of memory during it's initialization stage in order to prevent slow
+reallocations and memory fragmentation. How much memory is allocated mainly depends on the combination of the
+following two factors:
+
+ - Dem-Stream Type: Using the `dem_stream_memory` requires an additional allocation which equals the size of the replay
+ - CPU-Architecture: Compiling the Alice with 64 bit support requires additional memory due to the increased pointer size
+
+The size of the replay only comes into play when using the `dem_stream_memory`. Other than that, replay size only increases
+the amount of memory allocated by roughly 200 kb for each 100 MB. Pre-loading the whole replay (as opposed to progressively
+reading it) is faster when parsing many replays concurrently.
+
+    MB
+    27.73^                                                                       :
+         |                        ::@:::::::::@::@@:@::::@@::::::::::::::##:::::@:
+         |       @::::::::::::::::: @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         |       @:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         |      :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         |  :::::@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         |  : : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         |  : : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         |  : : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+         | :: : :@:: :::: : : ::: : @: :: ::: @::@ :@::: @ :: ::: ::::: :# :::::@:
+       0 +----------------------------------------------------------------------->
+         0
+
+The graph above represents the amount of memory allocated during the parse of a 170 MB replay. The amount of memory
+allocated in the beginning increases rapidly and does only grow very little later.
+
+Taking into account a stack-size of roughly ~6 MB, the overall memory usage will always be between 30 and 33 MB.
+
 Building Alice on Unix
 ----------------------
 

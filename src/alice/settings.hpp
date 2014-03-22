@@ -49,6 +49,9 @@ namespace dota {
         /** Whether to parse entities */
         const bool parse_entities;
 
+        /** Whether to send information about updated fields */
+        const bool track_entities;
+
         /**
          * Whether to forward entities.
          *

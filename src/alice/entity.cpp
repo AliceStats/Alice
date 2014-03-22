@@ -41,7 +41,7 @@ namespace dota {
         return true;
     }
 
-    void entity::updateFromBitstream(bitstream& bstream) {
+    void entity::updateFromBitstream(bitstream& bstream, entity_delta* delta) {
         // use this static vector so we don't realocate memory all the time
         static std::vector<uint32_t> fields(1000, 0);
         fields.clear();
@@ -65,6 +65,13 @@ namespace dota {
                 properties[it] = property::create(bstream, flat->properties[it]);
                 properties[it].setName(&flat->names[it]); // set hierarchial name of property
             }
+        }
+
+        // check if we should keep track of changes
+        if (delta != nullptr) {
+            delta->entity_fields.clear();
+            delta->entity_fields.reserve(fields.size());
+            memcpy( &delta->entity_fields[0], &fields[0], fields.size()*sizeof(uint32_t) );
         }
     }
 

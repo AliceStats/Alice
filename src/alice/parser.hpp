@@ -146,6 +146,8 @@ namespace dota {
             flatMap flattables;
             /** List of active entities. */
             entityMap entities;
+            /** Contains last entity delta */
+            entity_delta* delta;
 
             /** Reads a varint from a string */
             uint32_t readVarInt(const char* data, uint32_t& count);

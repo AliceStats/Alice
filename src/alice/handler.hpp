@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -110,6 +111,7 @@ namespace dota {
 
     // forward declaration
     class entity;
+    class entity_delta;
 
     /// @defgroup CORE Core
     /// @{
@@ -156,6 +158,8 @@ namespace dota {
      * @param Id Which type non-unique ID's should be saved at (e.g. uint32_t, string)
      * @param Data Type of the data that should be parsed into Obj
      * @param Own unique ID in the handler context (numeric uint32_t)
+     *
+     * If Obj and Data have the same type, Data will be treated as if it was already parsed.
     */
     template <typename Obj, typename Id, typename Data, typename IdSelf>
     class handlersub {
@@ -424,13 +428,22 @@ namespace dota {
     /** Struct for an entity message */
     struct msgEntity { static const uint32_t id = 4; };
 
+    /**
+     * Struct for an entity delta message.
+     *
+     * The entity_delta object passed to each subscriber will always reuse the previous
+     * pointer.
+     */
+    struct msgEntityDelta { static const uint32_t id = 5; };
+
     /** Type for our default handler */
     typedef handler<
         handlersub< uint32_t, uint32_t, uint32_t, msgStatus >,
         handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgDem >,
         handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgUser >,
         handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgNet >,
-        handlersub< entity*, uint32_t, entity*, msgEntity >
+        handlersub< entity*, uint32_t, entity*, msgEntity >,
+        handlersub< entity_delta*, uint32_t, entity_delta*, msgEntityDelta >
     > handler_t;
 
     /// @}

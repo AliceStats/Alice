@@ -29,7 +29,9 @@
 #include <alice/parser.hpp>
 
 namespace dota {
-    parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), msgs(0), sendtableId(-1), stringtableId(-1) {
+    parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), msgs(0), sendtableId(-1),
+        stringtableId(-1), delta(nullptr)
+    {
         handlerRegisterCallback((&handler), msgDem, DEM_Packet,       parser, handlePacket)
         handlerRegisterCallback((&handler), msgDem, DEM_SignonPacket, parser, handlePacket)
         handlerRegisterCallback((&handler), msgNet, svc_UserMessage,  parser, handleUserMessage)
@@ -55,6 +57,10 @@ namespace dota {
             handlerRegisterCallback((&handler), msgNet, svc_PacketEntities, parser, handleEntity)
         }
 
+        if (set.track_entities) {
+            delta = new entity_delta;
+        }
+
         // Get unique / non-unique IDs for all messages
         registerTypes();
     }
@@ -67,6 +73,10 @@ namespace dota {
         for (auto &tbl : sendtables) {
             tbl.value.free();
         }
+
+        // free entity delta
+        if (set.track_entities)
+            delete delta;
     }
 
     void parser::open(std::string path) {
@@ -387,14 +397,16 @@ namespace dota {
             // read update type and id from header
             entity::readHeader(eId, stream, eType);
 
+            if (eId > DOTA_MAX_ENTITIES)
+                BOOST_THROW_EXCEPTION( entityIdToLarge()
+                    << (EArgT<1, uint32_t>::info(eId))
+                );
+
+            entity& ent = entities[eId];
+
             switch(eType) {
                 // entity is being created
                 case entity::state_created: {
-                    if (eId > DOTA_MAX_ENTITIES)
-                        BOOST_THROW_EXCEPTION( entityIdToLarge()
-                            << (EArgT<1, uint32_t>::info(eId))
-                        );
-
                     uint32_t classId = stream.read(classBits); // <- points to id in the entity list
                     // serial was never used to lets just always skip it
                     // uint32_t serial = stream.read(10);
@@ -403,7 +415,6 @@ namespace dota {
                     const entity_list::value_type &eClass = clist.get(classId);
                     const flatsendtable &f = getFlattable(eClass.name);
 
-                    entity &ent = entities[eId];
                     if (!ent.isInitialized()) {
                         // create the entity
                         entities[eId] = entity(eId, eClass, f);
@@ -420,7 +431,7 @@ namespace dota {
                         // read updates from baseline and current data
                         bitstream baselineStream(baseline.get(std::to_string(classId)));
                         ent.updateFromBitstream(baselineStream);
-                        ent.updateFromBitstream(stream);
+                        ent.updateFromBitstream(stream, delta);
 
                         // forward to handler
                         handler.forward<msgEntity>(ent.getClassId(), &ent, 0);
@@ -428,17 +439,11 @@ namespace dota {
                 } break;
                 // entity is being updated
                 case entity::state_updated: {
-                    if (eId > DOTA_MAX_ENTITIES)
-                        BOOST_THROW_EXCEPTION( entityIdToLarge()
-                            << (EArgT<1, uint32_t>::info(eId))
-                        );
-
-                    entity& ent = entities[eId];
                     if (ent.isInitialized()) {
                         if (isSkipped(ent)) {
                             ent.skip(stream);
                         } else {
-                            ent.updateFromBitstream(stream);
+                            ent.updateFromBitstream(stream, delta);
                             ent.setState(entity::state_updated);
                             handler.forward<msgEntity>(ent.getClassId(), &ent, 0);
                         }
@@ -450,12 +455,6 @@ namespace dota {
                 } break;
                 // entity is being deleted
                 case entity::state_deleted: {
-                    if (eId > DOTA_MAX_ENTITIES)
-                        BOOST_THROW_EXCEPTION( entityIdToLarge()
-                            << (EArgT<1, uint32_t>::info(eId))
-                        );
-
-                    entity& ent = entities[eId];
                     if (ent.isInitialized()) {
                         if (!isSkipped(ent)) {
                             ent.setState(entity::state_deleted);
@@ -472,6 +471,14 @@ namespace dota {
                 default:
                     // ignore
                     break;
+            }
+
+            // forward entity delta?
+            if (set.track_entities) {
+                if (ent.isInitialized()) {
+                    delta->entity_id = eId;
+                    handler.forward<msgEntityDelta>(ent.getClassId(), delta, 0);
+                }
             }
         }
 

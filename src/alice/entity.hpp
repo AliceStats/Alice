@@ -148,6 +148,14 @@ namespace dota {
             mutable size_type maxEntities;
     };
 
+    /** Contains information about the last updated fields for a specific entity. */
+    struct entity_delta {
+        /** ID of entity as stored in the gamestate */
+        uint32_t entity_id;
+        /** List of fields updated as stored in the entities recv- / flattables */
+        std::vector<uint32_t> entity_fields;
+    };
+
     /**
      * Represents a single entity send over the network including it's properties.
      *
@@ -314,7 +322,7 @@ namespace dota {
             }
 
             /** Updates all the entities from the given bitstream. */
-            void updateFromBitstream(bitstream& bstream);
+            void updateFromBitstream(bitstream& bstream, entity_delta* = nullptr);
             /** Skips each property in this entity */
             void skip(bitstream& bstream);
 

@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
         // This is the least performant configuration.
         // It should be used when you are developing an application that needs all possible information available.
         settings s_full {
-            true, true, true, true, true, {}, true, true, false, {}
+            true, true, true, true, true, {}, true, true, true, false, {}
         };
 
         // This configuration skips stuff which you most likely don't care about.
@@ -26,12 +26,12 @@ int main(int argc, char **argv) {
             {"ParticleEffectNames", "EconItems", "lightstyles", "ResponseKeys", "downloadables", "InfoPanel",
              "userinfo", "server_query_info", "Scenes", "dynamicmodel", "VguiScreen", "ExtraParticleFilesTable",
              "EffectDispatch", "GameRulesCreation", "Materials"
-            }, true, true, true, {}
+            }, true, false, true, true, {}
         };
 
         // Verify file integrity
         settings s_verify {
-            false, false, false, false, true, {}, true, false, true, {}
+            false, false, false, false, true, {}, true, false, false, true, {}
         };
 
         // Read all replays into our vector

@@ -65,6 +65,7 @@ The following settings are available to further tweak the parsing process with t
  - forward_user: Whether to receive user messages, required `forward_net` (`true`)
  - parse_stringtables: Whether to parse stringtables, required when using entities (`true`)
  - parse_entities: Whether to parse entities, required for hero positioning and items (`true`)
+ - track_entities: Whether to send specific information about which fields have been modified in an update (`false`)
  - forward_entities: Forward entities like other messages. Might not be required if you have a good parsing setup (`true`)
  - skip_unsubscribed_entities: Skips all non-forwarded entities, increases performance by 10-20% (`true`)
 

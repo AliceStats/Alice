@@ -216,12 +216,12 @@ namespace dota {
 
             /** Returns name of this property based on it's sendprop */
             std::string getName() {
-                return prop->getNetname() + "." + prop->getName();
+                return *name;
             }
 
             /** Returns unique name from flattened sendtable */
-            const std::string& getFlatName() {
-                return *name;
+            std::string getFlatName() {
+                return prop->getNetname()+*name;
             }
 
             /** Return value as string */

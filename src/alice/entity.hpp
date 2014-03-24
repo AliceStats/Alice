@@ -259,7 +259,7 @@ namespace dota {
                 return properties.begin() + index;
             }
 
-            /** Returns property value, throws if property doesn't exist */
+            /** Returns property value by name, throws if property doesn't exist */
             template <typename T>
             inline T prop(const std::string& needle) {
                 buildIndex();
@@ -274,7 +274,19 @@ namespace dota {
                 }
             }
 
-            /** Returns property value or default if property doesn't exist */
+            /** Returns property value by recv table index, throws if property doesn't exist */
+            template <typename T>
+            inline T prop(uint32_t index) {
+                if (properties.size() <= index) {
+                    BOOST_THROW_EXCEPTION(entityUnkownProperty()
+                        << EArg<1>::info(index)
+                    );
+                } else {
+                    return properties[index].as<T>();
+                }
+            }
+
+            /** Returns property value by name, returns default value if property doesn't exist */
             template <typename T>
             inline T prop(const std::string& needle, T def) {
                 buildIndex();
@@ -285,6 +297,13 @@ namespace dota {
                 } else {
                     return properties[it->second].as<T>();
                 }
+            }
+
+            /** Checks if a property exists by name */
+            template <typename T>
+            inline T hasProp(const std::string& needle) {
+                buildIndex();
+                return (stringIndex.find(needle) != stringIndex.end());
             }
 
             /** Returns this entities ID */

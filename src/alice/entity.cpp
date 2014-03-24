@@ -62,8 +62,8 @@ namespace dota {
             if (p.isInitialized())
                 p.update(bstream);
             else {
-                properties[it] = property::create(bstream, flat->properties[it]);
-                properties[it].setName(&flat->names[it]); // set hierarchial name of property
+                properties[it] = property::create(bstream, flat->properties[it].prop);
+                properties[it].setName(&flat->properties[it].name); // set hierarchial name of property
             }
         }
 
@@ -92,7 +92,7 @@ namespace dota {
                     << (EArgT<2, std::size_t>::info(id))
                 );
 
-            property::skip(bstream, flat->properties[it]);
+            property::skip(bstream, flat->properties[it].prop);
         }
     }
 

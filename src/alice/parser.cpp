@@ -520,19 +520,18 @@ namespace dota {
             auto table = *it;
 
             std::set<std::string> excludes;  // names of excluded properties
-            std::vector<sendprop*> props;    // list of property classes
-            std::vector<std::string> names;   // list of property names when traversing
+            std::vector<dt_hiera> props;    // list of property classes
 
             // Building excludes
             buildExcludeList(table.value, excludes);
 
             // Building hierarchy
-            buildHierarchy(table.value, excludes, props, table.value.getName(), names);
+            buildHierarchy(table.value, excludes, props, table.value.getName());
 
             // Sorting tables
             std::set<uint32_t> priorities({64}); // list of all possible priorities
             for (auto &it : props) {
-                priorities.insert(it->getPriority());
+                priorities.insert(it.prop->getPriority());
             }
 
             std::size_t offset = 0;
@@ -540,7 +539,7 @@ namespace dota {
                 std::size_t cursor = offset;
 
                 while (cursor < props.size()) {
-                    auto prop = props[cursor];
+                    auto prop = props[cursor].prop;
 
                     if ((prop->getPriority() == prio) || ((SPROP_CHANGES_OFTEN & prop->getFlags()) && (prio == 64))) {
                         std::swap(props[cursor], props[offset]);
@@ -551,8 +550,7 @@ namespace dota {
             }
 
             // insert stuff into flat table
-            assert(props.size() == names.size());
-            flattables.emplace(table.key, flatsendtable{table.key, std::move(props), std::move(names)});
+            flattables.emplace(table.key, flatsendtable{table.key, std::move(props)});
         }
     }
 
@@ -575,17 +573,17 @@ namespace dota {
         }
     }
 
-    void parser::buildHierarchy(const sendtable &tbl, std::set<std::string> &excludes, std::vector<sendprop*> &props, std::string base, std::vector<std::string>& ids) {
+    void parser::buildHierarchy(const sendtable &tbl, std::set<std::string> &excludes, std::vector<dt_hiera> &props, std::string base) {
         // Building hierarchy for the table
-        std::vector<sendprop*> p;
-        gatherProperties(tbl, p, excludes, props, base, ids);
+        std::vector<dt_hiera> p;
+        gatherProperties(tbl, p, excludes, props, base);
 
-        for (auto ExcludedProps : p) {
-            props.push_back(ExcludedProps);
+        for (auto prop_ : p) {
+            props.push_back(prop_);
         }
     }
 
-    void parser::gatherProperties(const sendtable &tbl, std::vector<sendprop*> &dt_prop, std::set<std::string> &excludes, std::vector<sendprop*> &props, std::string base, std::vector<std::string>& ids) {
+    void parser::gatherProperties(const sendtable &tbl, std::vector<dt_hiera> &dt_prop, std::set<std::string> &excludes, std::vector<dt_hiera> &props, std::string base) {
         for (auto &p : tbl) {
             sendprop* pr = p.value;
 
@@ -606,13 +604,12 @@ namespace dota {
                 const sendtable &dtTbl = it->value;
 
                 if (SPROP_COLLAPSIBLE & pr->getFlags()) {
-                    gatherProperties(dtTbl, dt_prop, excludes, props, base, ids);
+                    gatherProperties(dtTbl, dt_prop, excludes, props, base);
                 } else {
-                    buildHierarchy(dtTbl, excludes, props, base+"."+pr->getName(), ids);
+                    buildHierarchy(dtTbl, excludes, props, base+"."+pr->getName());
                 }
             } else {
-                ids.push_back(base+"."+pr->getName());
-                dt_prop.push_back(p.value);
+                dt_prop.push_back({p.value, base+"."+pr->getName()});
             }
         }
     }

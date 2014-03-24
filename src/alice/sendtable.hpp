@@ -46,6 +46,14 @@ namespace dota {
     /// @defgroup CORE Core
     /// @{
 
+    /** Structure for keeping track of properties when building the hierarchy */
+    struct dt_hiera {
+        /** Pointer to sendprop */
+        sendprop* prop;
+        /** Name based on current level */
+        std::string name;
+    };
+
     /**
      * Structure for a flattened sendtable, includes it's name an correct property order.
      *
@@ -56,10 +64,8 @@ namespace dota {
     struct flatsendtable {
         /** Name of the sendtable */
         std::string name;
-        /** Correct network property order */
-        std::vector<sendprop*> properties;
-        /** Unique identifiers for the send props base on their position in the hierarchy */
-        std::vector<std::string> names;
+        /** Correct network property order and their corresponding hierarchy name */
+        std::vector<dt_hiera> properties;
     };
 
     /**

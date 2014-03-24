@@ -40,8 +40,8 @@ class handler_example {
         void handlePlayer(handlerCbType(msgEntity) msg) {
             for (int i = 0; i < 10; ++i) {
                 // get player hero
-                auto name = msg->msg->find(std::string("m_iszPlayerNames.000")+std::to_string(i));
-                auto hero = msg->msg->find(std::string("m_hSelectedHero.000")+std::to_string(i));
+                auto name = msg->msg->find(std::string(".m_iszPlayerNames.000")+std::to_string(i));
+                auto hero = msg->msg->find(std::string(".m_hSelectedHero.000")+std::to_string(i));
 
                 //std::cout << 1 << std::endl;
                 h2p[(hero->as<UIntProperty>() & 0x7FF)] = name->as<StringProperty>();
@@ -58,7 +58,7 @@ class handler_example {
                 return; // illusion
 
             //std::cout << 2 << std::endl;
-            int life = msg->msg->find("DT_DOTA_BaseNPC.m_iHealth")->as<UIntProperty>();
+            int life = msg->msg->find(".m_iHealth")->as<UIntProperty>();
             if (life > 0 || lifeTracker[heroId] == 0) {
                 lifeTracker[heroId] = life; // do not double track kills
                 return;
@@ -66,10 +66,10 @@ class handler_example {
 
             lifeTracker[heroId] = life;
             //std::cout << 3 << std::endl;
-            int cell_x = msg->msg->find("DT_DOTA_BaseNPC.m_cellX")->as<UIntProperty>();
-            int cell_y = msg->msg->find("DT_DOTA_BaseNPC.m_cellY")->as<UIntProperty>();
-            int cell_z = msg->msg->find("DT_DOTA_BaseNPC.m_cellZ")->as<UIntProperty>();
-            auto vec = msg->msg->find("DT_DOTA_BaseNPC.m_vecOrigin")->as<VectorXYProperty>();
+            int cell_x = msg->msg->find(".m_cellX")->as<UIntProperty>();
+            int cell_y = msg->msg->find(".m_cellY")->as<UIntProperty>();
+            int cell_z = msg->msg->find(".m_cellZ")->as<UIntProperty>();
+            auto vec = msg->msg->find(".m_vecOrigin")->as<VectorXYProperty>();
 
             std::cout << heroId << ", " << msg->msg->getClassName() << ", " << h2p[heroId] << ", "
                 << life << ", [" << cell_x << "|" << cell_y << "|" << cell_z << "], [" << vec[0]

@@ -103,8 +103,8 @@ namespace dota {
 
     /// Gets thrown when the conversion from data to object fails
     ///
-    /// This likely happens when you subscribe to a type which is available in the protobuf fails
-    /// but is missing acorresponding #handlerRegisterObject call.
+    /// This likely happens when you subscribe to a type which is available in the protobuf files
+    /// but is missing a corresponding #handlerRegisterObject call.
     CREATE_EXCEPTION( handlerTypeError, "Type in question has not be registered." )
 
     /// @}

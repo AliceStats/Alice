@@ -526,7 +526,7 @@ namespace dota {
             buildExcludeList(table.value, excludes);
 
             // Building hierarchy
-            buildHierarchy(table.value, excludes, props, table.value.getName());
+            buildHierarchy(table.value, excludes, props, "");
 
             // Sorting tables
             std::set<uint32_t> priorities({64}); // list of all possible priorities

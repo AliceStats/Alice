@@ -20,6 +20,9 @@
  *    limitations under the License.
  */
 
+#ifndef _ALICE_PARSER_HPP_
+#define _ALICE_PARSER_HPP_
+
 #include <string>
 
 #include <alice/dem.hpp>
@@ -320,3 +323,5 @@ namespace dota {
 
     /// @}
 }
+
+#endif /* _ALICE_PARSER_HPP_ */

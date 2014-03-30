@@ -135,6 +135,9 @@ namespace dota {
                 handler.forward<msgDem>(msg.type, std::move(msg), msg.tick);
             #endif // _MSC_VER
         }
+
+        if (!stream->good())
+            handler.forward<msgStatus>(REPLAY_FINISH, REPLAY_FINISH, tick);
     }
 
     void parser::handle() {

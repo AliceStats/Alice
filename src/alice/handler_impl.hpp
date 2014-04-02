@@ -24,22 +24,23 @@ template <typename Obj, typename Id, typename Data, typename IdSelf>
 void handlersub<Obj, Id, Data, IdSelf>::
 forward(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
     // check for callback handlers
-    auto cbDef = cb.find(i);
-    if ((cbDef == cb.end()))
+    if (cb.size() <= i)
+        return;
+
+    if (cb[i].empty())
         return;
 
     // get conversion object
-    auto objConv = obj.find(i);
-    if (objConv == obj.end())
+    if (obj.size() <= i || obj[i] == nullptr)
         BOOST_THROW_EXCEPTION(handlerNoConversionAvailable()
             << (typename EArgT<1, id_t>::info(i))
         );
 
     // create object
-    cbObject<Obj, Id> o(objConv->second(std::move(data)), tick, i);
+    cbObject<Obj, Id> o(obj[i](std::move(data)), tick, i);
 
     // forward to definitive handlers
-    for (auto &d : cbDef->second) {
+    for (auto &d : cb[i]) {
         d(&o);
     }
 }
@@ -48,15 +49,17 @@ template <typename Obj, typename Id, typename Data, typename IdSelf>
 void handlersub<Obj, Id, Data, IdSelf>::
 forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
     // check for callback handlers
-    auto cbDef = cb.find(i);
-    if ((cbDef == cb.end()))
+    if (cb.size() <= i)
+        return;
+
+    if (cb[i].empty())
         return;
 
     // create object
     cbObject<Obj, Id> o(std::move(data), tick, i, false);
 
     // forward to definitive handlers
-    for (auto &d : cbDef->second) {
+    for (auto &d : cb[i]) {
         d(&o);
     }
 }
@@ -65,14 +68,13 @@ template <typename Obj, typename Id, typename Data, typename IdSelf>
 typename handlersub<Obj, Id, Data, IdSelf>::callbackObjS_t handlersub<Obj, Id, Data, IdSelf>::
 retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
     // get conversion object
-    auto objConv = obj.find(i);
-    if (objConv == obj.end())
+    if (obj.size() <= i || obj[i] == nullptr)
         BOOST_THROW_EXCEPTION(handlerNoConversionAvailable()
             << (typename EArgT<1, id_t>::info(i))
         );
 
     // return object
-    return cbObject<Obj, Id>(objConv->second(std::move(data)), tick, i);
+    return cbObject<Obj, Id>(obj[i](std::move(data)), tick, i);
 }
 
 template <typename Obj, typename Id, typename Data, typename IdSelf>

@@ -181,11 +181,17 @@ namespace dota {
 
             /** Returns true if the specified type has at least one callback function */
             bool hasCallback(const id_t& i) {
-                return cb.find(i) != cb.end();
+                if (cb.size() <= i)
+                    return false;
+
+                return !cb[i].empty();
             }
 
             /** Registers a new callback handler for the specified ID */
             void registerCallback(const id_t& i, delegate_t&& d) {
+                if (cb.size() <= i)
+                    cb.resize(i+1);
+
                 cb[i].push_back(std::move(d));
             }
 
@@ -197,17 +203,20 @@ namespace dota {
              * so this function should not be overused.
              */
             void removeCallback(const id_t& i, delegate_t&& d) {
-                for (auto it = cb[i].begin(); it != cb[i].end(); ++it) {
+                /*for (auto it = cb[i].begin(); it != cb[i].end(); ++it) {
                     if (*it == d) {
                         cb[i].erase(it);
                         break;
                     }
-                }
+                }*/
             }
 
             /** Register a new object type for the specified ID */
             template <typename T>
             void registerObject(const id_t& i) {
+                if (obj.size() <= i)
+                    obj.resize(i+1, nullptr);
+
                 obj[i] = [](demMessage_t&& data) {
                     obj_t msg = new T;
                     if (!msg->ParseFromArray(data.msg, data.size))
@@ -234,12 +243,12 @@ namespace dota {
             }
         private:
             /** Type for a list of registered callbacks */
-            typedef std::unordered_map<id_t, std::vector<delegate_t>> cbmap_t;
+            typedef std::vector<std::vector<delegate_t>> cbmap_t;
             /** Callback list */
             cbmap_t cb;
 
             /** Type for a list of registered objects */
-            typedef std::unordered_map<id_t, obj_t (*)(Data&&)> objmap_t;
+            typedef std::vector<obj_t (*)(Data&&)> objmap_t;
             /** Object list */
             objmap_t obj;
 

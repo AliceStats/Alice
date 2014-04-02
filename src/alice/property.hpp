@@ -183,7 +183,7 @@ namespace dota {
             > value_type;
 
             /** Empty constructor */
-            property() : init(false), name(nullptr) {}
+            property() : name(nullptr), init(false) {}
 
             /** Returns whether this property has been initialized */
             bool isInitialized() {

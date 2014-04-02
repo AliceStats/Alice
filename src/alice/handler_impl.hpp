@@ -20,8 +20,8 @@
  *
  */
 
-template <typename Obj, typename Id, typename Data, typename IdSelf>
-void handlersub<Obj, Id, Data, IdSelf>::
+template <typename Obj, typename Data, typename IdSelf>
+void handlersub<Obj, Data, IdSelf>::
 forward(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
     // check for callback handlers
     if (cb.size() <= i)
@@ -37,7 +37,7 @@ forward(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
         );
 
     // create object
-    cbObject<Obj, Id> o(obj[i](std::move(data)), tick, i);
+    cbObject<Obj, uint32_t> o(obj[i](std::move(data)), tick, i);
 
     // forward to definitive handlers
     for (auto &d : cb[i]) {
@@ -45,8 +45,8 @@ forward(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
     }
 }
 
-template <typename Obj, typename Id, typename Data, typename IdSelf>
-void handlersub<Obj, Id, Data, IdSelf>::
+template <typename Obj, typename Data, typename IdSelf>
+void handlersub<Obj, Data, IdSelf>::
 forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
     // check for callback handlers
     if (cb.size() <= i)
@@ -56,7 +56,7 @@ forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
         return;
 
     // create object
-    cbObject<Obj, Id> o(std::move(data), tick, i, false);
+    cbObject<Obj, uint32_t> o(std::move(data), tick, i, false);
 
     // forward to definitive handlers
     for (auto &d : cb[i]) {
@@ -64,8 +64,8 @@ forward(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
     }
 }
 
-template <typename Obj, typename Id, typename Data, typename IdSelf>
-typename handlersub<Obj, Id, Data, IdSelf>::callbackObjS_t handlersub<Obj, Id, Data, IdSelf>::
+template <typename Obj, typename Data, typename IdSelf>
+typename handlersub<Obj, Data, IdSelf>::callbackObjS_t handlersub<Obj, Data, IdSelf>::
 retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
     // get conversion object
     if (obj.size() <= i || obj[i] == nullptr)
@@ -74,13 +74,13 @@ retrieve(const id_t& i, Data &&data, uint32_t tick, std::false_type) {
         );
 
     // return object
-    return cbObject<Obj, Id>(obj[i](std::move(data)), tick, i);
+    return cbObject<Obj, uint32_t>(obj[i](std::move(data)), tick, i);
 }
 
-template <typename Obj, typename Id, typename Data, typename IdSelf>
-typename handlersub<Obj, Id, Data, IdSelf>::callbackObjS_t handlersub<Obj, Id, Data, IdSelf>::
+template <typename Obj, typename Data, typename IdSelf>
+typename handlersub<Obj, Data, IdSelf>::callbackObjS_t handlersub<Obj, Data, IdSelf>::
 retrieve(const id_t& i, Data &&data, uint32_t tick, std::true_type) {
-    return cbObject<Obj, Id>(std::move(data), tick, i);
+    return cbObject<Obj, uint32_t>(std::move(data), tick, i);
 }
 
 template <typename T1, typename... Rest>

@@ -161,18 +161,18 @@ namespace dota {
      *
      * If Obj and Data have the same type, Data will be treated as if it was already parsed.
     */
-    template <typename Obj, typename Id, typename Data, typename IdSelf>
+    template <typename Obj, typename Data, typename IdSelf>
     class handlersub {
         public:
             /** Type for parent object each message of this type inherits from */
             typedef Obj obj_t;
             /** Type of the object id to manage relations */
-            typedef Id id_t;
+            typedef uint32_t id_t;
 
             /** Type for the parameter of the callback function */
-            typedef cbObject<Obj, Id>* callbackObj_t;
+            typedef cbObject<Obj, uint32_t>* callbackObj_t;
             /** Pointer-less type for the callback object */
-            typedef cbObject<Obj, Id> callbackObjS_t;
+            typedef cbObject<Obj, uint32_t> callbackObjS_t;
             /** Type for the callback signature */
             typedef delegate<void, callbackObj_t> delegate_t;
 
@@ -243,14 +243,14 @@ namespace dota {
             }
         private:
             /** Type for a list of registered callbacks */
-            typedef std::vector<std::vector<delegate_t>> cbmap_t;
+            typedef std::vector<std::vector<delegate_t>> cblist_t;
             /** Callback list */
-            cbmap_t cb;
+            cblist_t cb;
 
             /** Type for a list of registered objects */
-            typedef std::vector<obj_t (*)(Data&&)> objmap_t;
+            typedef std::vector<obj_t (*)(Data&&)> objlist_t;
             /** Object list */
-            objmap_t obj;
+            objlist_t obj;
 
             /** Called if the message needs to be parsed from the data */
             void forward(const id_t& i, Data &&data, uint32_t tick, std::false_type);
@@ -447,12 +447,12 @@ namespace dota {
 
     /** Type for our default handler */
     typedef handler<
-        handlersub< uint32_t, uint32_t, uint32_t, msgStatus >,
-        handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgDem >,
-        handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgUser >,
-        handlersub< ::google::protobuf::Message*, uint32_t, demMessage_t, msgNet >,
-        handlersub< entity*, uint32_t, entity*, msgEntity >,
-        handlersub< entity_delta*, uint32_t, entity_delta*, msgEntityDelta >
+        handlersub< uint32_t, uint32_t, msgStatus >,
+        handlersub< ::google::protobuf::Message*, demMessage_t, msgDem >,
+        handlersub< ::google::protobuf::Message*, demMessage_t, msgUser >,
+        handlersub< ::google::protobuf::Message*, demMessage_t, msgNet >,
+        handlersub< entity*, entity*, msgEntity >,
+        handlersub< entity_delta*, entity_delta*, msgEntityDelta >
     > handler_t;
 
     /// @}

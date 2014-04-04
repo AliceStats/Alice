@@ -29,6 +29,8 @@
 #include <string>
 #include <type_traits>
 
+#include <cassert>
+
 #include <boost/variant.hpp>
 
 #include <alice/exception.hpp>
@@ -192,12 +194,16 @@ namespace dota {
 
             /** Returns the type of this property */
             inline const type_t& getType() const {
+                assert(init);
+
                 return type;
             }
 
             /** Returns value as type T, throws if conversion fails */
             template <typename T>
             const T& as() {
+                assert(init);
+
                 try {
                     return boost::get<T>(value);
                 } catch (boost::bad_get &e) {
@@ -216,16 +222,21 @@ namespace dota {
 
             /** Returns name of this property based on it's sendprop */
             std::string getName() {
+                assert(init);
+
                 return *name;
             }
 
             /** Returns unique name from flattened sendtable */
             std::string getFlatName() {
+                assert(init);
                 return prop->getNetname()+*name;
             }
 
             /** Return value as string */
             std::string asString() {
+                assert(init);
+
                 // this has gotten a bit ugly using variant, but as this function should only be used to debug
                 // it's probably fine
 
@@ -238,6 +249,7 @@ namespace dota {
 
             /** Returns definition for this property */
             sendprop* getSendprop() {
+                assert(init);
                 return prop;
             }
 

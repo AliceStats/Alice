@@ -173,10 +173,10 @@ namespace dota {
         } while (msg.type != 13 && good());
 
         // parse it
-        auto full = handler.retrieve<msgDem::id>(msg.type, std::move(msg), msg.tick);
-        CDemoFullPacket* p = full.get<CDemoFullPacket>();
+        CDemoFullPacket p;
+        p.ParseFromArray(msg.msg, msg.size);
 
-        for (auto &tbl : p->string_table().tables()) {
+        for (auto &tbl : p.string_table().tables()) {
             auto it = stringtables.findKey(tbl.table_name());
             if (it == stringtables.end())
                 continue;
@@ -191,7 +191,7 @@ namespace dota {
         }
 
         // forward packets
-        const std::string &data = p->packet().data();
+        const std::string &data = p.packet().data();
         forwardMessageContainer<msgNet>(data.c_str(), data.size(), msg.tick);
 
         // asume 1 tick 2 / secs

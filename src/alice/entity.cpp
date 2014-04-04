@@ -137,15 +137,26 @@ namespace dota {
     }
 
     void entity::readHeader(uint32_t &id, bitstream &bstream, state_type &type) {
-        uint32_t tmp = bstream.read(6);
-        if (tmp & 0x30) {
-            const uint32_t x1 = (tmp >> 4) & 3;
-            const uint32_t x2 = (x1 == 3) ? 16 : 0;
+        // The header looks like this: [XY00001111222233333333333333333333] where everything > 0 is optional.
+        // The first 2 bits (X and Y) tell us how much (if any) to read other than the 6 initial bits:
+        // Y set     -> read 4
+        // X set     -> read 8
+        // X + Y set -> read 28
 
-            tmp = bstream.read(4 * x1 + x2) << 4 | (tmp & 0xF);
+        uint32_t nId = bstream.read(6);
+        switch (nId & 0x30) {
+            case 16:
+                nId = (nId & 15) | ( bstream.read(4) << 4);
+                break;
+            case 32:
+                nId = (nId & 15) | ( bstream.read(8) << 4);
+                break;
+            case 48:
+                nId = (nId & 15) | ( bstream.read(28) << 4);
+                break;
         }
 
-        id += tmp + 1;
+        id += nId + 1;
 
         // In Source the entity state is referred to as PVS (Potential Visible State) which
         // can have a number of different configurations.

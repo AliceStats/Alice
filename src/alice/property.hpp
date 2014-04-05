@@ -274,7 +274,7 @@ namespace dota {
             bool init;
 
             /** Private constructor, we only want our create function to instantize new properties */
-            property(sendprop* p) : type(p->getType()), prop(p) {
+            property(sendprop* p) : type(p->getType()), prop(p), init(true) {
 
             }
 

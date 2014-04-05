@@ -612,7 +612,11 @@ namespace dota {
                     buildHierarchy(dtTbl, excludes, props, base+"."+pr->getName());
                 }
             } else {
-                dt_prop.push_back({p.value, base+"."+pr->getName()});
+                // We force nName to be an lvalue to prevent memory corruption. This
+                // only happend using MSVC but it might happen with other compilers too.
+
+                std::string nName = base+"."+pr->getName();
+                dt_prop.push_back({p.value, nName});
             }
         }
     }

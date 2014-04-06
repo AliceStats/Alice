@@ -102,7 +102,7 @@ namespace dota {
         str << "Name: " << cls->networkName << " / Id: " << id << " / State: " << currentState << std::endl;
 
         for (auto &p : properties) {
-            str << "Type: ";
+            str << "Property: " << p.getName() << " / Type: ";
 
             switch (p.getType()) {
                 case sendprop::T_Int:
@@ -127,10 +127,10 @@ namespace dota {
                     str << " DataTable / Value: ";
                     break;
                 default:
-                    str << " Unkown" << std::endl;
+                    str << " Unkown / Value: " << std::endl;
             }
 
-            str << p.asString() << std::endl;
+            str  << p.asString() << std::endl;
         }
 
         return str.str();

@@ -112,9 +112,7 @@ namespace dota {
             typedef std::size_t size_type;
 
             /** Creates an empty bitstream */
-            bitstream() : data{}, pos{0}, size{0} {
-                generateMasks();
-            }
+            bitstream() : data{}, pos{0}, size{0} { }
 
             /** Creates a bitstream from a std::string */
             bitstream(const std::string &str) : data{}, pos{0}, size{str.size()*8} {
@@ -124,22 +122,16 @@ namespace dota {
                 // Reserve the memory in beforehand so we can just memcpy everything
                 data.resize((str.size() + 3) / 4 + 1);
                 memcpy(&data[0], str.c_str(), str.size());
-
-                // Generate bitmasks used
-                generateMasks();
             }
 
             /** Copy-Constructor */
-            bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} {
-                generateMasks();
-            }
+            bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} {}
 
             /** Move-Constructor */
             bitstream(bitstream&& b) : data{std::move(b.data)}, pos{b.pos}, size{b.size} {
                 b.data.clear();
                 b.pos = 0;
                 b.size = 0;
-                std::swap(masks, b.masks);
             }
 
             /** Destructor */
@@ -156,7 +148,6 @@ namespace dota {
                 std::swap(data, b.data);
                 std::swap(pos, b.pos);
                 std::swap(size, b.size);
-                std::swap(masks, b.masks);
             }
 
             /** Checkes whether there is still data left to be read. */
@@ -298,14 +289,16 @@ namespace dota {
              * This function reads 2 bits to determine the amount of skipped bits
              */
             void nSkipCoord() {
-                uint32_t intval   = read(1); // integer part
-                uint32_t fractval = read(1); // fraction part
-
-                if (intval || fractval) {
-                    seekForward(1); // skip sign bit
-
-                    if (intval)   seekForward( COORD_INTEGER_BITS );
-                    if (fractval) seekForward( COORD_FRACTION_BITS );
+                switch( read(2) ) {
+                    case 1:
+                        seekForward( COORD_INTEGER_BITS + 1 );
+                        break;
+                    case 2:
+                        seekForward( COORD_FRACTION_BITS + 1 );
+                        break;
+                    case 3:
+                        seekForward( COORD_INTEGER_BITS + COORD_FRACTION_BITS + 1 );
+                        break;
                 }
             }
 
@@ -376,19 +369,10 @@ namespace dota {
             /** Overall size of the data in bits */
             size_type size;
 
-            /** Bitmask for reading  */
-            uint32_t masks[(sizeof(word_t)*8) + 1];
+            /** Bitmask for reading */
+            static const uint64_t masks[64];
             /** Shift amount for reading */
-            uint32_t shift[(sizeof(word_t)*8) + 1];
-
-            /** Pre-Generate bitmasks to speed up performance */
-            void generateMasks() {
-                uint32_t bitSize = sizeof(word_t) * 8;
-                for (uint32_t i = 0; i < (bitSize + 1); ++i) {
-                    masks[i] = ((uint64_t)1 << i) - 1;
-                    shift[i] = i & (bitSize - 1);
-                }
-            }
+            static const uint64_t shift[64];
     };
 
     /// @}

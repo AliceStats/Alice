@@ -1,7 +1,7 @@
 /**
  * @file bitstream.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.2
+ * @version 1.3
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +20,8 @@
  *    limitations under the License.
  *
  * @par Source
- *    The source for most of the stuff represented in the bitstream is the
- *    public Source Engine SDK released by valve.
+ *    You can find most of the things implemented in this bitstream in the public
+ *    Source Engine SDK released by Valve.
  */
 
 #ifndef _DOTA_BITSTREAM_HPP_
@@ -36,7 +37,7 @@
 ///
 /// This requirement is verly likely not defined in the source engine. In our case however this is helpful
 /// towards mitigating problems from malicious replays by limiting the amount of data a single entity or
-/// stringtable update can possible pass to a bitstream.
+/// stringtable update can pass to a bitstream.
 #define DOTA_BITSTREAM_MAX_SIZE 65536
 
 /// Defines the underlying type used to represent the data
@@ -56,9 +57,9 @@
 #define VARINT32_MAX 5
 /// Maximum number of bytes to read for a 64 bit varint (64/8 + 2)
 #define VARINT64_MAX 10
-/// Number of bits to read for integer part for coord
+/// Number of bits to read for the integer part of a coord
 #define COORD_INTEGER_BITS 14
-/// Number of bits to read for fraction part of coord
+/// Number of bits to read for the fraction part of a coord
 #define COORD_FRACTION_BITS 5
 /// Coord demoniator
 #define COORD_DENOMINATOR (1<<(COORD_FRACTION_BITS))
@@ -158,7 +159,7 @@ namespace dota {
                 std::swap(masks, b.masks);
             }
 
-            /** Checked whether there is still data left to be read. */
+            /** Checkes whether there is still data left to be read. */
             inline bool good() const {
                 return pos < size;
             }
@@ -184,7 +185,7 @@ namespace dota {
             /**
              * Seek n bits forward.
              *
-             * If the resulting position would overflow, it is set to max.
+             * If the resulting position would overflow, it is set to the maximum one possible.
              */
             void seekForward(size_type n) {
                 if (n+pos < size)
@@ -199,7 +200,7 @@ namespace dota {
              * If the resulting position would underflow, it is set to 0.
              */
             void seekBackward(size_type n) {
-                if ((pos - n) > pos) // check for overflow
+                if ((pos - n) > pos)
                     pos = 0;
                 else
                     pos -= n;
@@ -229,7 +230,11 @@ namespace dota {
                 return ret;
             }
 
-            /** Read a normalized float from the stream. */
+            /**
+             * Read a normalized float from the stream.
+             *
+             * Reads one bit for the sign and NORMAL_FRACTION_BITS for the float.
+             */
             float nReadNormal() {
                 uint32_t sign = read(1);
                 float fraction = read( NORMAL_FRACTION_BITS );
@@ -261,8 +266,8 @@ namespace dota {
             /**
              * Reads a variable sized int32_t from the stream.
              *
-             * The signed version of the varint uses protobuf's zigzag encoding from for
-             * the sign.
+             * The signed version of the varint uses protobuf's zigzag encoding for
+             * the sign part.
              */
             int32_t nReadVarSInt32() {
                 uint32_t value = nReadVarUInt32();
@@ -307,8 +312,8 @@ namespace dota {
             /**
              * Reads coordinates, version optimized for multi player games.
              *
-             * Float Encoding:   [Inbound|IsInteger|IsSigned|Optional Int Part|Float Part]
-             * Integer Encoding: [Inbound|IsInteger|Optional IsSigned| Optinal Int part]
+             * Float Encoding:   [ Inbound | IsInteger |  IsSigned  | [Int Part] | Float Part ]
+             * Integer Encoding: [ Inbound | IsInteger | [IsSigned] | [Int part] ]
              */
             float nReadCoordMp(bool integral, bool lowPrecision);
 
@@ -322,7 +327,11 @@ namespace dota {
             /** Reads cell coordinate from their network representation. */
             float nReadCellCoord(size_type n, bool integral, bool lowPrecision);
 
-            /** Skips cell coordinate */
+            /**
+             * Skips cell coordinate.
+             *
+             * Can fully skip the coord based on the sendprop flags.
+             */
             void nSkipCellCoord(size_type n, bool integral, bool lowPrecision) {
                 if (!integral)
                     lowPrecision ? seekForward( n + 3 ) : seekForward( n + 5 );

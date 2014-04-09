@@ -1,7 +1,7 @@
 /**
  * @file property.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.1
+ * @version 1.2
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,11 +65,29 @@ namespace dota {
     // forward declaration
     class bitstream;
     class entity;
+    class property;
 
     /// @defgroup CORE Core
     /// @{
 
-    class property;
+    namespace detail {
+        /** Visitor to call to_string on a Boost.Variant. */
+        class propertyToString : public boost::static_visitor<> {
+            private:
+                /** String to fill */
+                std::string &toFill;
+            public:
+                /** Sets internal string as a reference to r */
+                propertyToString(std::string &r) : toFill(r) {}
+
+                /** Invoking this does the actual string conversion */
+                template <typename T>
+                void operator()(const T& t) const;
+        };
+
+        // Forward declaration
+        template <typename T> inline std::string to_string(const T& t);
+    }
 
     /** Underlying type for an IntProperty */
     typedef int32_t IntProperty;
@@ -96,64 +115,6 @@ namespace dota {
 
     /** Underlying type for a 64 bit Int Property */
     typedef uint64_t UInt64Property;
-
-    namespace detail {
-        template <typename T>
-        inline std::string to_string_helper(const T& t, std::true_type) {
-            return std::to_string(t);
-        }
-
-        template <typename T>
-        inline std::string to_string_helper(const T& t, std::false_type) {
-            return "unkown";
-        }
-
-        /** Helper converting a type T into a string */
-        template <typename T>
-        inline std::string to_string(const T& t) {
-            return to_string_helper(t, std::is_arithmetic<T>{});
-        }
-
-        template <>
-        inline std::string to_string(const std::array<float, 3>& t) {
-            std::stringstream s("");
-            s << "[" << t[0] << "|" << t[1] << "|" << t[2] << "]";
-            return s.str();
-        }
-
-        template <>
-        inline std::string to_string(const std::array<float, 2>& t) {
-            std::stringstream s("");
-            s << "[" << t[0] << "|" << t[1] << "]";
-            return s.str();
-        }
-
-        template <>
-        inline std::string to_string(const std::string& t) {
-            return t;
-        }
-
-        template <>
-        inline std::string to_string(const std::vector<property>& t) {
-            return "Vector Unimplemented";
-        }
-
-        /** Visitor to call to_string on a Boost.Variant. */
-        class propertyToString : public boost::static_visitor<> {
-            private:
-                /** String to fill */
-                std::string &toFill;
-            public:
-                /** Sets internal string as a reference to r */
-                propertyToString(std::string &r) : toFill(r) {}
-
-                /** Invoking this does the actual string conversion */
-                template <typename T>
-                void operator()(const T& t) const {
-                    toFill = to_string(t);
-                }
-        };
-    }
 
     /**
      * This is the actual property, consisting of it's data and definition.
@@ -234,7 +195,7 @@ namespace dota {
             }
 
             /** Return value as string */
-            std::string asString() {
+            std::string asString() const {
                 assert(init);
 
                 // this has gotten a bit ugly using variant, but as this function should only be used to debug
@@ -265,7 +226,7 @@ namespace dota {
             /** Type for this paticular property */
             type_t type;
             /** Value for this property */
-            value_type value;
+            mutable value_type value;
             /** Sendprop definition for the type */
             sendprop* prop;
             /** unique name for this property */
@@ -283,6 +244,62 @@ namespace dota {
                 this->name = name;
             }
     };
+
+    namespace detail {
+        template <typename T>
+        void propertyToString::operator()(const T& t) const {
+            toFill = to_string(t);
+        }
+
+        template <typename T>
+        inline std::string to_string_helper(const T& t, std::true_type) {
+            return std::to_string(t);
+        }
+
+        template <typename T>
+        inline std::string to_string_helper(const T& t, std::false_type) {
+            return "unkown";
+        }
+
+        /** Helper converting a type T into a string */
+        template <typename T>
+        inline std::string to_string(const T& t) {
+            return to_string_helper(t, std::is_arithmetic<T>{});
+        }
+
+        template <>
+        inline std::string to_string(const std::array<float, 3>& t) {
+            std::stringstream s("");
+            s << "[" << t[0] << "|" << t[1] << "|" << t[2] << "]";
+            return s.str();
+        }
+
+        template <>
+        inline std::string to_string(const std::array<float, 2>& t) {
+            std::stringstream s("");
+            s << "[" << t[0] << "|" << t[1] << "]";
+            return s.str();
+        }
+
+        template <>
+        inline std::string to_string(const std::string& t) {
+            return t;
+        }
+
+        template <>
+        inline std::string to_string(const std::vector<property>& t) {
+            std::stringstream s("");
+            s << "[";
+            for (std::size_t i = 0; i < t.size(); ++i) {
+                s << t[i].asString();
+                if (i+1 < t.size())
+                    s << "|";
+            }
+            s << "]";
+
+            return s.str();
+        }
+    }
 
     /// @}
 }

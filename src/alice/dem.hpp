@@ -48,9 +48,10 @@ namespace dota {
     /// Thrown when protobuf fails to parse a message
     CREATE_EXCEPTION( demParsingError,       "Parsing protouf message failed." )
     /// Thrown when the size of a single messages would cause a buffer overflow
-    CREATE_EXCEPTION( demMessageToBig,       "Messagesize is to big." )
+    CREATE_EXCEPTION( demMessageToBig,       "Size of messages exceeds buffer limit." )
 
     /// @}
+
     /// @defgroup CORE Core
     /// @{
 

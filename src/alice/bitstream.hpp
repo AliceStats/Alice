@@ -179,9 +179,9 @@ namespace dota {
              * If the resulting position would overflow, it is set to the maximum one possible.
              */
             void seekForward(size_type n) {
-                if (n+pos < size)
-                    pos += n;
-                else
+                pos += n;
+
+                if (pos > size)
                     pos = size;
             }
 

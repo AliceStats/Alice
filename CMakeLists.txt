@@ -289,6 +289,19 @@ IF ( BUILD_EXAMPLE )
     )
 
     INSTALL( TARGETS alice-performance RUNTIME DESTINATION bin )
+
+    ADD_EXECUTABLE ( alice-visualize
+        example/visualize.cpp
+    )
+
+    TARGET_LINK_LIBRARIES ( alice-visualize
+        alice-core-static
+        ${PROTOBUF_LIBRARY}
+    	${SNAPPY_LIBRARIES}
+    	${Boost_LIBRARIES}
+    )
+
+    INSTALL( TARGETS alice-visualize RUNTIME DESTINATION bin )
 ENDIF ( BUILD_EXAMPLE )
 
 #------------------------------------------------------------

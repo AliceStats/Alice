@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Guide to parsing Dota 2 replays">
+    <meta name="author" content="Robin Dietrich <me (at) invokr (dot) org>">
+
+    <title>A Comprehensive Guide to Parsing Dota 2 Replays</title>
+
+    <link rel="icon" type="image/jpeg" href="img/favicon.jpg" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/application.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-3">
+            <div class="fixed">
+                <h4>About</h4>
+                <p>Visual representation of replay messages, data generated with <a href="https://github.com/AliceStats/Alice">Alice</a>.</p>
+                <p>
+                    <ul class="list-unstyled">
+                        <li><span style="border: 0px; margin-right: 5px;" class="square c1"> </span> Dem-Message</li>
+                        <li><span style="border: 0px; margin-right: 5px;" class="square c2"></span>Net-Message</li>
+                        <li><span style="border: 0px; margin-right: 5px;" class="square c3"></span>User-Message</li>
+                        <li><span style="border: 0px; margin-right: 5px;" class="square c4"></span>Entity-Message</li>
+                    </ul>
+                </p>
+
+                <h4>Options</h4>
+                <p><button id="load">Load More</button></p>
+
+                <h4>Details</h4>
+                <div id="details">
+                    <p>Click on a square to get more information about the packet.</p>
+                    <p>A few messages also provide information about their content.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9" id="content">
+        </div>
+      </div>
+    </div>
+
+    <!-- Javascript -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var cnt = [];
+        var cur = 0;
+
+        var colors = {
+            msgDem: "c1",
+            msgNet: "c2",
+            msgUser: "c3"
+        };
+
+        function load1k() {
+            for (var i = cur; i < cur+5000; ++i) {
+                $("#content").append("<span title='"+cnt[i].n+"' data-id='"+i+"' class='square "+colors[cnt[i].t]+"'></span>");
+            }
+            cur += 5000;
+        }
+
+        $(document).ready(function() {
+            var jqxhr = $.getJSON( "data.json", function(data) {
+                cnt = data;
+                load1k();
+            });
+
+            $("#load").click(function() {
+                load1k();
+            });
+
+            $(document).on("click", ".square", function() {
+                var b = cnt[$(this).attr("data-id")];
+                $("#details").html(
+                    "<p><strong>Title</strong><br /> "+b.n+"</p>" +
+                    "<p><strong>Type</strong><br /> "+b.t+"</p>" +
+                    "<p><strong>Content</strong><br /> "+b.c+"</p>"
+                );
+            });
+        });
+    </script>
+  </body>
+</html>

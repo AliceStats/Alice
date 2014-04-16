@@ -1,0 +1,34 @@
+.square {
+  width: 15px;
+  height: 15px;
+  margin: 0 0 0 0;
+  display: block;
+  float: left;
+  border: 1px solid white;
+  padding: 0;
+}
+
+.c1 {
+    background-color: #556270;
+}
+
+.c2 {
+    background-color: #4ecdc4;
+}
+
+.c3 {
+    background-color: #c7f464;
+}
+
+.c4 {
+    background-color: #ff6b6b;
+}
+
+.fixed {
+    position: fixed;
+    width: 293px;
+}
+
+#content {
+    margin-top: 10px;
+}

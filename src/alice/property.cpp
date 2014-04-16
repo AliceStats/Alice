@@ -244,7 +244,7 @@ namespace dota {
 
             int64_t a = stream.read(32);
             int64_t b = stream.read(sbits);
-            int64_t val = (a << 32) | b;
+            int64_t val = (b << 32) | a;
 
             if (negate)
                 prop->set(-val);

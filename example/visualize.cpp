@@ -13,14 +13,30 @@ void visualize ## _type ## _subtype( handlerCbType( _type ) ) { \
 
 #define visualizePrint( _type, _subtype, _atype ) \
 void visualize ## _type ## _subtype( handlerCbType( _type ) t ) { \
-    std::string dbg = t->get<_atype>()->DebugString(); \
-    auto it = std::remove_if(std::begin(dbg), std::end(dbg),[](char c){return (c == '"' || c == '\\');}); \
-    dbg.erase(it, std::end(dbg)); \
+    std::string dbg = escapeJsonString(t->get<_atype>()->DebugString()); \
     std::cout << "{\"n\":\"" #_subtype << "\",\"t\":\"" << #_type << "\",\"c\":\"" << dbg <<"\"},"; \
 }
 
 #define visualizeRegister( _type, _subtype ) \
 handlerRegisterCallback(h, _type, _subtype, handler_visualize, visualize ## _type ## _subtype);
+
+std::string escapeJsonString(const std::string& input) {
+    std::ostringstream ss;
+    for (auto &iter : input) {
+        switch (iter) {
+            case '\\': ss << "\\\\"; break;
+            case '"': ss << "\\\""; break;
+            case '/': ss << "\\/"; break;
+            case '\b': ss << "\\b"; break;
+            case '\f': ss << "\\f"; break;
+            case '\n': ss << "\\n"; break;
+            case '\r': ss << "\\r"; break;
+            case '\t': ss << "\\t"; break;
+            default: ss << iter; break;
+        }
+    }
+    return ss.str();
+}
 
 /** This handler prints the json of the relationship / nesting between different message types. */
 class handler_visualize {

@@ -27,12 +27,15 @@
 #define DOTA_PYTHON  @BUILD_PYTHON@     // whether to build python binding
 #define DOTA_EXTRA   @BUILD_ADDON@      // whether to rely on addon functionallity
 #define DOTA_64BIT   @DOTA_64BIT@       // target architecture
-#define DOTA_DEBUG   @BUILD_DEBUG@      // whether to enable debugging
+#define DOTA_DEBUG   @DEBUG@            // whether to enable debugging
 
-#ifdef DOTA_DEBUG
-  #define D_(x) x
+#include <cstring>
+#define D_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+#if DOTA_DEBUG > 0
+  #define D_(x, y) if( DOTA_DEBUG >= y ) { x }
 #else
-  #define D_(x)
+  #define D_(x, y)
 #endif
 
 #endif /* _DOTA_CONFIG_HPP_ */

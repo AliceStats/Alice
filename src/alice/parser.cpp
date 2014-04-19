@@ -37,6 +37,7 @@ namespace dota {
         handlerRegisterCallback((&handler), msgNet, svc_UserMessage,  parser, handleUserMessage)
 
         if (set.parse_entities) {
+            D_( std::cout << "[parser] Registering entity callbacks"  << D_FILE << " " << __LINE__ << std::endl;, 1 )
             handlerRegisterCallback((&handler),  msgDem, DEM_ClassInfo,  parser, handleClasses)
             handlerRegisterCallback((&handler),  msgDem, DEM_SendTables, parser, handleSendTables)
 
@@ -45,12 +46,14 @@ namespace dota {
         }
 
         if (set.parse_stringtables) {
+            D_( std::cout << "[parser] Registering stringtable callbacks"  << D_FILE << " " << __LINE__ << std::endl;, 1 )
             handlerRegisterCallback((&handler), msgNet, svc_CreateStringTable, parser, handleCreateStringtable)
             handlerRegisterCallback((&handler), msgNet, svc_UpdateStringTable, parser, handleUpdateStringtable)
         }
 
         if (set.parse_entities) {
             // allocate memory for entities
+            D_( std::cout << "[parser] Allocating memory for " << DOTA_MAX_ENTITIES << " entities " << D_FILE << " " << __LINE__ << std::endl;, 1 )
             entities.resize(DOTA_MAX_ENTITIES);
 
             // callback handlers
@@ -136,8 +139,10 @@ namespace dota {
             #endif // _MSC_VER
         }
 
-        if (!stream->good())
+        if (!stream->good()) {
+            D_( std::cout << "[parser] Reached end of replay " << D_FILE << " " << __LINE__ << std::endl;, 1 )
             handler.forward<msgStatus>(REPLAY_FINISH, REPLAY_FINISH, tick);
+        }
     }
 
     void parser::handle() {
@@ -147,6 +152,7 @@ namespace dota {
         }
 
         // let handlers know we are done
+        D_( std::cout << "[parser] Reached end of replay " << D_FILE << " " << __LINE__ << std::endl;, 1 )
         handler.forward<msgStatus>(REPLAY_FINISH, REPLAY_FINISH, tick);
     }
 
@@ -323,6 +329,7 @@ namespace dota {
     }
 
     void parser::handleServerInfo(handlerCbType(msgNet) msg) {
+        D_( std::cout << "[parser] Received server info packet " << D_FILE << " " << __LINE__ << std::endl;, 1 )
         CSVCMsg_ServerInfo* m = msg->get<CSVCMsg_ServerInfo>();
         clist.reserve(m->max_classes());
         classBits = std::ceil(log2(m->max_classes()));
@@ -334,6 +341,10 @@ namespace dota {
 
         sendtable tbl(m->net_table_name(), m->needs_decoder());
         for (int32_t i = 0; i < m->props_size(); ++i) {
+            D_( std::cout
+                << "[parser] Adding sendtable prop " << m->props(i).var_name()
+                << " to table " << m->net_table_name() << " " << D_FILE << " " << __LINE__ << std::endl;, 2
+            )
             tbl.insert(new sendprop(m->props(i), m->net_table_name()));
         }
 
@@ -353,6 +364,7 @@ namespace dota {
             return;
 
         // add table to table list
+        D_( std::cout << "[parser] Creating stringtable " << m->name() << " " << D_FILE << " " << __LINE__ << std::endl;, 1 )
         stringtables.insert(stringtableMap::entry_type{m->name(), tableid, stringtable(m)});
     }
 
@@ -364,6 +376,7 @@ namespace dota {
         if (it == stringtables.endIndex())
             return;
 
+        D_( std::cout << "[parser] Updating stringtable " << it->value.getName() << " " << D_FILE << " " << __LINE__ << std::endl;, 3 )
         it->value.update(m);
     }
 
@@ -622,6 +635,8 @@ namespace dota {
     }
 
     void parser::registerTypes() {
+        D_( std::cout << "[parser] Registering packet types " << D_FILE << " " << __LINE__ << std::endl;, 1 )
+
         #define regDem( _type ) handlerRegisterObject((&handler), msgDem, DEM_ ## _type, CDemo ## _type)
         #define regNet( _type ) handlerRegisterObject((&handler), msgNet, net_ ## _type, CNETMsg_ ## _type)
         #define regSvc( _type ) handlerRegisterObject((&handler), msgNet, svc_ ## _type, CSVCMsg_ ## _type)

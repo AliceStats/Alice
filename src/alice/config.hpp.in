@@ -1,7 +1,7 @@
 /**
  * @file config.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +20,19 @@
  *    limitations under the License.
  */
 
-#ifndef _DOTA_VERSION_HPP_
-#define _DOTA_VERSION_HPP_
+#ifndef _DOTA_CONFIG_HPP_
+#define _DOTA_CONFIG_HPP_
 
 #define DOTA_VERSION "@GIT_SHA1@"       // sha1 hash of repository version
 #define DOTA_PYTHON  @BUILD_PYTHON@     // whether to build python binding
 #define DOTA_EXTRA   @BUILD_ADDON@      // whether to rely on addon functionallity
 #define DOTA_64BIT   @DOTA_64BIT@       // target architecture
+#define DOTA_DEBUG   @BUILD_DEBUG@      // whether to enable debugging
 
-#endif /* _DOTA_VERSION_HPP_ */
+#ifdef DOTA_DEBUG
+  #define D_(x) x
+#else
+  #define D_(x)
+#endif
+
+#endif /* _DOTA_CONFIG_HPP_ */

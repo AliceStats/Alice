@@ -27,6 +27,9 @@ OPTION (BUILD_EXAMPLE "Build example code" OFF)
 # Build unit tests
 OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF)
 
+# Enable debug output
+OPTION (DEBUG "Print useful information to cout, slows parser down a lot" 0)
+
 #------------------------------------------------------------
 # Version Info
 #------------------------------------------------------------

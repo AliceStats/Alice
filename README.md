@@ -136,6 +136,11 @@ directory:
 This will generate a bin folder containing the example, a lib folder containing shared and static versions of
 the library as well as an include folder with the nessecary headers needed to develop with Alice.
 
+If Alice segfaults it might be usefull to turn on debugging by adding `-DDEBUG=X` where X is a number between 1 and 5
+to the CMake options. If debugging is enabled Alice prints a lot of information to cout (> 300 MB) so it's recommended
+to pipe the output in a file and only investigate the last couple of lines. This does not replace using a debugger but
+it's helpfull in narrowing down certain kinds of errors.
+
 Building Alice on Windows
 -------------------------
 

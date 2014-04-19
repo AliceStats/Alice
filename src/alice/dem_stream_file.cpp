@@ -31,6 +31,7 @@ namespace dota {
     void dem_stream_file::open(std::string path) {
         // open stream
         stream.open(path.c_str(), std::ifstream::in | std::ifstream::binary);
+        D_( std::cout << "[dem_stream] Opening replay: " << path << " " << D_FILE << " " << __LINE__ << std::endl;, 1 )
 
         // check if it was successful
         if (!stream.is_open())
@@ -43,6 +44,8 @@ namespace dota {
         stream.seekg (0, std::ios::end);
         std::streampos fsize = stream.tellg() - fstart;
         stream.seekg(fstart);
+
+        D_( std::cout << "[dem_stream] Filesize: " << fsize << " " << D_FILE << " " << __LINE__ << std::endl;, 1 )
 
         if (fsize < sizeof(demHeader_t))
             BOOST_THROW_EXCEPTION((demFileTooSmall()
@@ -90,8 +93,11 @@ namespace dota {
         // skip messages if skip is set
         if (skip && skips.count(type)) {
             stream.seekg(size, std::ios::cur); // seek forward
+            D_( std::cout << "[dem_stream] Skipping Message: " << " " << type << D_FILE << " " << __LINE__ << std::endl;, 2 )
             return demMessage_t{false, 0, 0, nullptr, 0}; // return empty msg
         }
+
+        D_( std::cout << "[dem_stream] Reading Message: " << type << D_FILE << " " << __LINE__ << std::endl;, 3 )
 
         // read into char array and convert to string
         if (size > DOTA_DEM_BUFSIZE)
@@ -104,6 +110,7 @@ namespace dota {
 
         // Check if we need to uncompress
         if (compressed && snappy::IsValidCompressedBuffer(buffer, size)) {
+            D_( std::cout << "[dem_stream] Uncompressing Message: " << " " << type << D_FILE << " " << __LINE__ << std::endl;, 3 )
             std::size_t uSize;
 
             // Check if we can get the output length
@@ -156,8 +163,10 @@ namespace dota {
                 uint32_t tick = readVarInt();
                 uint32_t size = readVarInt();
 
-                if (type == 13)
+                if (type == 13) {
                     fpackcache.push_back(p);
+                    D_( std::cout << "[dem_stream] Adding fullpacket at position " << " " << p << D_FILE << " " << __LINE__ << std::endl;, 3 )
+                }
 
                 stream.seekg(size, std::ios::cur);
             } while (type != 0);

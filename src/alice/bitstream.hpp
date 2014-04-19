@@ -122,6 +122,8 @@ namespace dota {
                 // Reserve the memory in beforehand so we can just memcpy everything
                 data.resize((str.size() + 3) / 4 + 1);
                 memcpy(&data[0], str.c_str(), str.size());
+
+                D_( std::cout << "[bitstream] Reserving " << (str.size() + 3) / 4 + 1 << " bytes of memory " << D_FILE << " " << __LINE__ << std::endl;, 2 )
             }
 
             /** Copy-Constructor */
@@ -181,8 +183,10 @@ namespace dota {
             void seekForward(size_type n) {
                 pos += n;
 
-                if (pos > size)
+                if (pos > size) {
+                    D_( std::cout << "[bitstream] Overflowing by " << pos-size << " bytes " << D_FILE << " " << __LINE__ << std::endl;, 1 )
                     pos = size;
+                }
             }
 
             /**
@@ -191,10 +195,12 @@ namespace dota {
              * If the resulting position would underflow, it is set to 0.
              */
             void seekBackward(size_type n) {
-                if ((pos - n) > pos)
+                if ((pos - n) > pos) {
+                    D_( std::cout << "[bitstream] Underflowing " << D_FILE << " " << __LINE__ << std::endl;, 1 )
                     pos = 0;
-                else
+                } else {
                     pos -= n;
+                }
             }
 
             /**

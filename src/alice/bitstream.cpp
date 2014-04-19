@@ -146,6 +146,8 @@ namespace dota {
                 return ret;
         }
 
+        D_( std::cout << "[bitstream] Returning default coord " << D_FILE << " " << __LINE__ << std::endl;, 1 )
+
         return 0.0f;
     }
     float bitstream::nReadCoordMp(bool integral, bool lowPrecision) {
@@ -164,6 +166,8 @@ namespace dota {
                 int intval = (bits >> 1) + 1;
                 return (bits & 1) ? -intval : intval;
             }
+
+            D_( std::cout << "[bitstream] Returning default mp-coord " << D_FILE << " " << __LINE__ << std::endl;, 1 )
 
             return 0.0f;
         }

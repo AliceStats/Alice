@@ -23,6 +23,7 @@
 #include <set>
 #include <snappy.h>
 
+#include <alice/config.hpp>
 #include <alice/demo.pb.h>
 #include <alice/dem_stream_memory.hpp>
 
@@ -30,6 +31,7 @@ namespace dota {
     void dem_stream_memory::open(std::string path) {
         // open stream
         std::ifstream stream(path.c_str(), std::ifstream::in | std::ifstream::binary);
+        D_( std::cout << "[dem_stream] Opening replay: " << path << " " << D_FILE << " " << __LINE__ << std::endl;, 1 )
 
         // check if it was successful
         if (!stream.is_open())
@@ -42,6 +44,7 @@ namespace dota {
         stream.seekg (0, std::ios::end);
         size = stream.tellg() - fstart;
         stream.seekg(fstart);
+        D_( std::cout << "[dem_stream] Filesize: " << size << " " << D_FILE << " " << __LINE__ << std::endl;, 1 )
 
         if (size < sizeof(demHeader_t))
             BOOST_THROW_EXCEPTION((demFileTooSmall()
@@ -97,8 +100,11 @@ namespace dota {
         // skip messages if skip is set
         if (skip && skips.count(type)) {
             pos += size; // seek forward
+            D_( std::cout << "[dem_stream] Skipping Message: " << " " << type << D_FILE << " " << __LINE__ << std::endl;, 2 )
             return demMessage_t{false, 0, 0, nullptr, 0}; // return empty msg
         }
+
+        D_( std::cout << "[dem_stream] Reading Message: " << type << D_FILE << " " << __LINE__ << std::endl;, 3 )
 
         // read into char array and convert to string
         if (size > this->size)
@@ -112,6 +118,7 @@ namespace dota {
 
         // Check if we need to uncompress
         if (compressed && snappy::IsValidCompressedBuffer(buffer, size)) {
+            D_( std::cout << "[dem_stream] Uncompressing Message: " << " " << type << D_FILE << " " << __LINE__ << std::endl;, 3 )
             std::size_t uSize;
 
             // Check if we can get the output length
@@ -164,8 +171,10 @@ namespace dota {
                 uint32_t tick = readVarInt();
                 uint32_t size = readVarInt();
 
-                if (type == 13)
+                if (type == 13) {
                     fpackcache.push_back(p);
+                    D_( std::cout << "[dem_stream] Adding fullpacket at position " << " " << p << D_FILE << " " << __LINE__ << std::endl;, 3 )
+                }
 
                 pos += size;
             } while (type != 0);

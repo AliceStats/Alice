@@ -101,6 +101,7 @@ namespace dota {
              * Calling this function sets the maximum number of entities to the value provided.
              */
             inline void reserve(size_type num) const {
+                D_( std::cout << "[entity_list] Reserving memory for " << num << " classes " << D_FILE << " " << __LINE__ << std::endl;, 1 )
                 classes.reserve(num);
                 maxEntities = num;
             }
@@ -203,6 +204,7 @@ namespace dota {
                 : initialized(true), id(id), cls(&cls), flat(&flat), currentState(state_created)
             {
                 // Reserve memory for each possible property
+                D_( std::cout << "[entity] Reserving memory for " << flat.properties.size()+1 << " props " << D_FILE << " " << __LINE__ << std::endl;, 4 )
                 properties.resize(flat.properties.size()+1);
             }
 

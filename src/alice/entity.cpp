@@ -48,6 +48,7 @@ namespace dota {
 
         uint32_t fieldId = -1;
         while (readFieldId(bstream, fieldId)) {
+            D_( std::cout << "[entity] Read field: " << fieldId << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
             fields.push_back(fieldId);
         }
 
@@ -59,9 +60,11 @@ namespace dota {
                 );
 
             property &p = properties[it];
-            if (p.isInitialized())
+            if (p.isInitialized()) {
+                D_( std::cout << "[entity] Updating property at " << it << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
                 p.update(bstream);
-            else {
+            } else {
+                D_( std::cout << "[entity] Creating property at " << it << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
                 properties[it] = property::create(bstream, flat->properties[it].prop);
                 properties[it].setName(&flat->properties[it].name); // set hierarchial name of property
             }
@@ -82,6 +85,7 @@ namespace dota {
 
         uint32_t fieldId = -1;
         while (readFieldId(bstream, fieldId)) {
+            D_( std::cout << "[entity] Read field: " << fieldId << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
             fields.push_back(fieldId);
         }
 
@@ -92,6 +96,7 @@ namespace dota {
                     << (EArgT<2, std::size_t>::info(id))
                 );
 
+            D_( std::cout << "[entity] Skipping property at " << it << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
             property::skip(bstream, flat->properties[it].prop);
         }
     }
@@ -174,11 +179,14 @@ namespace dota {
 
         if (!bstream.read(1)) {
             if (bstream.read(1)) {
+                D_( std::cout << "[entity] Creating " << id << " " << D_FILE << " " << __LINE__ << std::endl;, 3 )
                 type = state_created;
             } else {
+                D_( std::cout << "[entity] Updating " << id << " " << D_FILE << " " << __LINE__ << std::endl;, 3 )
                 type = state_updated;
             }
         } else if (bstream.read(1)) {
+            D_( std::cout << "[entity] Deleting " << id << " " << D_FILE << " " << __LINE__ << std::endl;, 3 )
             type = state_deleted;
         } else {
             type = state_default;

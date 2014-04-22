@@ -1,7 +1,7 @@
 /**
  * @file stringtable.cpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +23,7 @@
 
 #include <cmath>
 
+#include <alice/config.hpp>
 #include <alice/bitstream.hpp>
 #include <alice/stringtable.hpp>
 
@@ -49,6 +51,8 @@ namespace dota {
         // key history for key deltas
         std::vector<std::string> keys;
 
+        D_( std::cout << "[stringtable] Updating " << name << " " << D_FILE << " " << __LINE__ << std::endl;, 2 )
+
         // read all the entries in the string table
         for (uint32_t i = 0; i < entries; ++i) {
             char key[STRINGTABLE_MAX_KEY_SIZE] = {'\0'};
@@ -58,6 +62,7 @@ namespace dota {
             if (increment) {
                 ++index;
             } else {
+                D_( std::cout << "[stringtable] Read stringtable index " << index << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
                 index = bstream.read(std::ceil(log2(maxEntries)));
             }
 
@@ -93,6 +98,7 @@ namespace dota {
                 if (keys.size() >= STRINGTABLE_KEY_HISTORY)
                     detail::pop_front(keys);
 
+                D_( std::cout << "[stringtable] Read stringtable key " << key << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
                 keys.push_back(std::string(key));
             }
 
@@ -114,6 +120,7 @@ namespace dota {
                         << (EArgT<1, uint32_t>::info(length))
                     );
 
+                D_( std::cout << "[stringtable] Read stringtable value " << value << " " << D_FILE << " " << __LINE__ << std::endl;, 4 )
                 bstream.readBits((char*)&value, valsize);
             }
 
@@ -128,6 +135,7 @@ namespace dota {
             } else if (hasValue && db.hasIndex(index)) {
                 db.set(index, std::move(v));
             } else {
+                D_( std::cout << "[stringtable] inserting anonymous stringtable value " << D_FILE << " " << __LINE__ << std::endl;, 2 )
                 db.insert(storage::entry_type{"anonymous", index, std::move(v)});
             }
         }

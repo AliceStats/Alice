@@ -656,6 +656,7 @@ namespace dota {
         regDem( CustomDataCallbacks )                                // 11
         regDem( UserCmd )                                            // 12
         regDem( FullPacket )                                         // 13
+        regDem( SaveGame )                                           // 14
 
         regNet( NOP )               // 0
         regNet( Disconnect )        // 1
@@ -770,6 +771,18 @@ namespace dota {
         regUsrDota( SendRoshanPopup )           // 112
         regUsrDota( SendGenericToolTip )        // 113
         regUsrDota( SendFinalGold )             // 114
+        regUsrDota( CustomMsg )                 // 115
+        regUsrDota( CoachHUDPing )              // 116
+        regUsrDota( ClientLoadGridNav )         // 117
+        regUsrDota( AbilityPing )               // 118
+        regUsrDota( ShowGenericPopup )          // 119
+        regUsrDota( VoteStart )                 // 120
+        regUsrDota( VoteUpdate )                // 121
+        regUsrDota( VoteEnd )                   // 122
+        regUsrDota( BoosterState )              // 123
+        regUsrDota( WillPurchaseAlert )         // 124
+        regUsrDota( TutorialMinimapPosition )   // 125
+        regUsrDota( PlayerMMR )                 // 126
 
         #undef regDem
         #undef regNet

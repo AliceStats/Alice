@@ -173,14 +173,14 @@ namespace dota {
              * This function can read a maximum of 32 bits at once. If the amount of data requested
              * exceeds the remaining size of the current chunk it wraps around to the next one.
              */
-            uint32_t read(size_type n);
+            uint32_t read(const size_type n);
 
             /**
              * Seek n bits forward.
              *
              * If the resulting position would overflow, it is set to the maximum one possible.
              */
-            void seekForward(size_type n) {
+            void seekForward(const size_type n) {
                 pos += n;
 
                 if (pos > size) {
@@ -194,7 +194,7 @@ namespace dota {
              *
              * If the resulting position would underflow, it is set to 0.
              */
-            void seekBackward(size_type n) {
+            void seekBackward(const size_type n) {
                 if ((pos - n) > pos) {
                     D_( std::cout << "[bitstream] Underflowing " << D_FILE << " " << __LINE__ << std::endl;, 1 )
                     pos = 0;
@@ -208,7 +208,7 @@ namespace dota {
              *
              * n corresponds to the number of bits in the sendprop.
              */
-            uint32_t nReadUInt(size_type n) {
+            uint32_t nReadUInt(const size_type n) {
                 return read(n);
             }
 
@@ -217,9 +217,9 @@ namespace dota {
              *
              * n corresponds to the number of bits in the sendprop.
              */
-            int32_t nReadSInt(size_type n) {
+            int32_t nReadSInt(const size_type n) {
                 int32_t ret = read(n);
-                uint32_t sign = 1 << (n - 1);
+                const uint32_t sign = 1 << (n - 1);
 
                 if (ret >= sign)
                     ret = ret - sign - sign;
@@ -233,9 +233,9 @@ namespace dota {
              * Reads one bit for the sign and NORMAL_FRACTION_BITS for the float.
              */
             float nReadNormal() {
-                uint32_t sign = read(1);
-                float fraction = read( NORMAL_FRACTION_BITS );
-                float ret = fraction * NORMAL_RESOLUTION;
+                const bool sign = read(1);
+                const float fraction = read( NORMAL_FRACTION_BITS );
+                const float ret = fraction * NORMAL_RESOLUTION;
 
                 if (sign)
                     return -ret;
@@ -267,13 +267,13 @@ namespace dota {
              * the sign part.
              */
             int32_t nReadVarSInt32() {
-                uint32_t value = nReadVarUInt32();
+                const uint32_t value = nReadVarUInt32();
                 return (value >> 1) ^ -static_cast<int32_t>(value & 1);
             }
 
             /** Reads a variable sized int64_t from the stream. */
             int64_t nReadVarSInt64() {
-                uint64_t value = nReadVarUInt64();
+                const uint64_t value = nReadVarUInt64();
                 return (value >> 1) ^ -static_cast<int64_t>(value & 1);
             }
 
@@ -314,24 +314,24 @@ namespace dota {
              * Float Encoding:   [ Inbound | IsInteger |  IsSigned  | [Int Part] | Float Part ]
              * Integer Encoding: [ Inbound | IsInteger | [IsSigned] | [Int part] ]
              */
-            float nReadCoordMp(bool integral, bool lowPrecision);
+            float nReadCoordMp(const bool integral, const bool lowPrecision);
 
             /**
              * Skips coordinates optimized towards multiplayer games.
              *
              * This function needs to read 2 - 3 bits in order to determine the amount required.
              */
-            void nSkipCoordMp(bool integral, bool lowPrecision);
+            void nSkipCoordMp(const bool integral, const bool lowPrecision);
 
             /** Reads cell coordinate from their network representation. */
-            float nReadCellCoord(size_type n, bool integral, bool lowPrecision);
+            float nReadCellCoord(size_type n, const bool integral, const bool lowPrecision);
 
             /**
              * Skips cell coordinate.
              *
              * Can fully skip the coord based on the sendprop flags.
              */
-            void nSkipCellCoord(size_type n, bool integral, bool lowPrecision) {
+            void nSkipCellCoord(size_type n, const bool integral, const bool lowPrecision) {
                 if (!integral)
                     lowPrecision ? seekForward( n + 3 ) : seekForward( n + 5 );
                 else
@@ -345,7 +345,7 @@ namespace dota {
              * n can be arbitrarily large in this context. The underlying read method throws in case an overflow
              * happens.
              */
-            void nReadString(char *buffer, size_type n);
+            void nReadString(char *buffer, const size_type n);
 
             /**
              * Skips over a 0 terminated string.
@@ -353,7 +353,7 @@ namespace dota {
              * This function will always read the full 8 bits per character until the null
              * terminator occours.
              */
-            void nSkipString(size_type n) {
+            void nSkipString(const size_type n) {
                 for (std::size_t i = 0; i < n; ++i) {
                     if (static_cast<char>(read(8)) == '\0')
                         return;
@@ -366,7 +366,7 @@ namespace dota {
              * The function reads in chunks of 8 bit until n is smaller than that
              * and appends the left over bits
              */
-            void readBits(char *buffer, size_type n);
+            void readBits(char *buffer, const size_type n);
         private:
             /** Data to read from */
             std::vector<word_t> data;

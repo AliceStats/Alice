@@ -98,8 +98,8 @@ namespace dota {
 
         // Read cell coordinate
         if (flags & SPROP_CELL_COORD || flags & SPROP_CELL_COORD_INTEGRAL || flags & SPROP_CELL_COORD_LOWPRECISION) {
-            bool lowprecision = flags & SPROP_CELL_COORD_LOWPRECISION;
-            bool integral     = flags & SPROP_CELL_COORD_INTEGRAL;
+            const bool lowprecision = flags & SPROP_CELL_COORD_LOWPRECISION;
+            const bool integral     = flags & SPROP_CELL_COORD_INTEGRAL;
 
             return stream.nReadCellCoord(pr->getBits(), integral, lowprecision);
         }
@@ -108,8 +108,8 @@ namespace dota {
         const uint32_t dividend = stream.read(pr->getBits());
         const uint32_t divisor = (1 << pr->getBits()) - 1;
 
-        float f = ((float) dividend) / divisor;
-        float range = pr->getHighVal() - pr->getLowVal();
+        const float f = ((float) dividend) / divisor;
+        const float range = pr->getHighVal() - pr->getLowVal();
         return f * range + pr->getLowVal();
     }
 
@@ -125,8 +125,8 @@ namespace dota {
 
         // Skip float coordinate optimized for multiplayer games
         if (flags & SPROP_COORD_MP) {
-            bool integral     = flags & SPROP_COORD_MP_INTEGRAL;
-            bool lowprecision = flags & SPROP_COORD_MP_LOWPRECISION;
+            const bool integral     = flags & SPROP_COORD_MP_INTEGRAL;
+            const bool lowprecision = flags & SPROP_COORD_MP_LOWPRECISION;
             stream.nSkipCoordMp(integral, lowprecision);
             return;
         }
@@ -145,8 +145,8 @@ namespace dota {
 
         // Skip cell coordinate
         if (flags & SPROP_CELL_COORD || flags & SPROP_CELL_COORD_INTEGRAL || flags & SPROP_CELL_COORD_LOWPRECISION) {
-            bool lowprecision = flags & SPROP_CELL_COORD_LOWPRECISION;
-            bool integral     = flags & SPROP_CELL_COORD_INTEGRAL;
+            const bool lowprecision = flags & SPROP_CELL_COORD_LOWPRECISION;
+            const bool integral     = flags & SPROP_CELL_COORD_INTEGRAL;
 
             stream.nSkipCellCoord(pr->getBits(), integral, lowprecision);
             return;
@@ -165,8 +165,7 @@ namespace dota {
 
         if (pr->getFlags() & SPROP_NORMAL) {
             const bool sign = stream.read(1);
-
-            float f = vec[0] * vec[0] + vec[1] * vec[1];
+            const float f = vec[0] * vec[0] + vec[1] * vec[1];
 
             if (f < 0) {
                 vec[2] = 0;
@@ -207,7 +206,7 @@ namespace dota {
 
     /** Reads a string from the stream, returns it's length */
     uint32_t readString(char *buf, bitstream &stream) {
-        uint32_t length = stream.read(9);
+        const uint32_t length = stream.read(9);
 
         if (length > PROPERTY_MAX_STRING_LENGTH)
             BOOST_THROW_EXCEPTION( propertyInvalidStringLength()
@@ -220,7 +219,7 @@ namespace dota {
 
     /** Skips a string from the stream */
     void skipString(bitstream &stream) {
-        uint32_t length = stream.read(9);
+        const uint32_t length = stream.read(9);
         stream.nSkipString(length);
     }
 
@@ -242,9 +241,9 @@ namespace dota {
                 negate = stream.read(1);
             }
 
-            int64_t a = stream.read(32);
-            int64_t b = stream.read(sbits);
-            int64_t val = (b << 32) | a;
+            const int64_t a = stream.read(32);
+            const int64_t b = stream.read(sbits);
+            const int64_t val = (b << 32) | a;
 
             if (negate)
                 prop->set(-val);

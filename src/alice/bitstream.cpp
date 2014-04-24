@@ -59,7 +59,7 @@ namespace dota {
         0x3c, 0x3d, 0x3e, 0x3f
     };
 
-    uint32_t bitstream::read(bitstream::size_type n) {
+    uint32_t bitstream::read(const bitstream::size_type n) {
         // make sure the data read fits the return type
         if (n > size-pos) // cant read more than what is left over
             BOOST_THROW_EXCEPTION(bitstreamOverflow()
@@ -73,10 +73,10 @@ namespace dota {
                 << (EArgT<2, size_type>::info(32))
             );
 
-        uint32_t bitSize = sizeof(word_t)*8;        // size of chunk in bits
-        uint32_t start   = pos / bitSize;           // current active chunk
-        uint32_t end     = (pos + n - 1) / bitSize; // next chunk if data needs to be wrapped
-        uint32_t s       = (pos % bitSize);         // shift amount
+        const uint32_t bitSize = sizeof(word_t)*8;        // size of chunk in bits
+        const uint32_t start   = pos / bitSize;           // current active chunk
+        const uint32_t end     = (pos + n - 1) / bitSize; // next chunk if data needs to be wrapped
+        const uint32_t s       = (pos % bitSize);         // shift amount
         uint32_t ret;                               // return value
 
         if (start == end) {
@@ -128,8 +128,8 @@ namespace dota {
         uint32_t fractval = read(1); // fraction part
 
         if ( intval || fractval ) {
-            float    ret  = 0.0f;    // return value
-            uint32_t sign = read(1); // signed / unsigned flag
+            float ret  = 0.0f; // return value
+            const bool sign = read(1); // signed / unsigned flag
 
             if (intval)
                 intval = read( COORD_INTEGER_BITS ) + 1;
@@ -150,20 +150,20 @@ namespace dota {
 
         return 0.0f;
     }
-    float bitstream::nReadCoordMp(bool integral, bool lowPrecision) {
+    float bitstream::nReadCoordMp(const bool integral, const bool lowPrecision) {
         // Read flags depending on type
-        uint32_t flags = integral ? read(3) : read(2);
-        uint32_t flag_inbound = 1;
-        uint32_t flag_intval  = 2;
-        uint32_t flag_sign    = 4;
+        const uint32_t flags = integral ? read(3) : read(2);
+        const uint32_t flag_inbound = 1;
+        const uint32_t flag_intval  = 2;
+        const uint32_t flag_sign    = 4;
 
         if (integral) {
             if (flags & flag_intval) {
-                uint32_t toRead = (flags & flag_inbound) ? COORD_INTEGER_BITS_MP+1 : COORD_INTEGER_BITS+1;
-                uint32_t bits = read(toRead);
+                const uint32_t toRead = (flags & flag_inbound) ? COORD_INTEGER_BITS_MP+1 : COORD_INTEGER_BITS+1;
+                const uint32_t bits = read(toRead);
 
                 // shift from [0..MAX-1] to [1..MAX], fist part of bits is the sign type
-                int intval = (bits >> 1) + 1;
+                const int intval = (bits >> 1) + 1;
                 return (bits & 1) ? -intval : intval;
             }
 
@@ -181,7 +181,7 @@ namespace dota {
         };
 
         // multiplication val
-        float multiply = mult[ (flags & flag_sign ? 1 : 0) + lowPrecision*2];
+        const float multiply = mult[ (flags & flag_sign ? 1 : 0) + lowPrecision*2];
 
         // bits to read depending on type
         static const unsigned char bits[8] = {
@@ -201,10 +201,10 @@ namespace dota {
             // Remap the integer part from [0,N] to [1,N+1] and paste
             //  it in front of the fractional parts.
 
-            uint32_t fracMp  = val >> COORD_INTEGER_BITS_MP;
+            const uint32_t fracMp  = val >> COORD_INTEGER_BITS_MP;
             uint32_t frac    = val >> COORD_INTEGER_BITS;
 
-            uint32_t maskMp  = ((1<<COORD_INTEGER_BITS_MP)-1);
+            const uint32_t maskMp  = ((1<<COORD_INTEGER_BITS_MP)-1);
             uint32_t mask    = ((1<<COORD_INTEGER_BITS)-1);
 
             uint32_t selectNotMp = (flags & flag_inbound) - 1;
@@ -217,10 +217,10 @@ namespace dota {
             mask &= selectNotMp;
             mask += maskMp;
 
-            uint32_t intpart      = (val & mask) + 1;
-            uint32_t intbitsLow   = intpart << COORD_FRACTION_BITS_MP_LOWPRECISION;
+            const uint32_t intpart      = (val & mask) + 1;
+            const uint32_t intbitsLow   = intpart << COORD_FRACTION_BITS_MP_LOWPRECISION;
             uint32_t intbits      = intpart << COORD_FRACTION_BITS;
-            uint32_t selectNotLow = static_cast<uint32_t>(lowPrecision) - 1;
+            const uint32_t selectNotLow = static_cast<uint32_t>(lowPrecision) - 1;
 
             intbits -= intbitsLow;
             intbits &= selectNotLow;
@@ -232,15 +232,14 @@ namespace dota {
         return static_cast<int32_t>(val) * multiply;
     }
 
-    void bitstream::nSkipCoordMp(bool integral, bool lowPrecision) {
+    void bitstream::nSkipCoordMp(const bool integral, const bool lowPrecision) {
         // Read flags depending on type
-        uint32_t flags = integral ? read(3) : read(2);
-        uint32_t flag_inbound = 1;
-        uint32_t flag_intval  = 2;
+        const uint32_t flags = integral ? read(3) : read(2);
+        const uint32_t flag_inbound = 1;
+        const uint32_t flag_intval  = 2;
 
         if (integral && (flags & flag_intval)) {
-            uint32_t toRead = (flags & flag_inbound) ? COORD_INTEGER_BITS_MP+1 : COORD_INTEGER_BITS+1;
-            seekForward(toRead);
+            seekForward( (flags & flag_inbound) ? COORD_INTEGER_BITS_MP+1 : COORD_INTEGER_BITS+1 );
             return;
         }
 
@@ -259,7 +258,7 @@ namespace dota {
         seekForward( bits[ (flags & (flag_inbound|flag_intval)) + lowPrecision*4] );
     }
 
-    float bitstream::nReadCellCoord(size_type n, bool integral, bool lowPrecision) {
+    float bitstream::nReadCellCoord(size_type n, const bool integral, const bool lowPrecision) {
         uint32_t val = read(n);
 
         if (integral) {
@@ -275,7 +274,7 @@ namespace dota {
         }
     }
 
-    void bitstream::nReadString(char *buffer, bitstream::size_type n) {
+    void bitstream::nReadString(char *buffer, const bitstream::size_type n) {
         for (std::size_t i = 0; i < n; ++i) {
             buffer[i] = static_cast<char>(read(8));
 
@@ -286,7 +285,7 @@ namespace dota {
         buffer[n - 1] = '\0';
     }
 
-    void bitstream::readBits(char *buffer, bitstream::size_type n) {
+    void bitstream::readBits(char *buffer, const bitstream::size_type n) {
         size_type remaining = n;
         size_type i = 0;
 

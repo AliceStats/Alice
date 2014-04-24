@@ -1,7 +1,7 @@
 /**
  * @file stringtable.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +26,8 @@
 
 #include <string>
 #include <unordered_map>
+
+#include <climits>
 
 #include <alice/netmessages.pb.h>
 #include <alice/exception.hpp>
@@ -126,10 +129,12 @@ namespace dota {
 
             /** Set value of key directly */
             inline void set(const std::string& key, std::string value) const {
-                if (db.findKey(key) == db.end())
-                    db.insert({key, (int32_t)db.size(), value});
-                else
+                if (db.findKey(key) == db.end()) {
+                    assert(db.size() < INT_MAX); // check that this does not overflow when casting to int
+                    db.insert({key, static_cast<int32_t>(db.size()), value});
+                } else {
                     db.set(key, std::move(value));
+                }
             }
 
             /** Get element value by key */

@@ -77,7 +77,7 @@ namespace dota {
         const uint32_t start   = pos / bitSize;           // current active chunk
         const uint32_t end     = (pos + n - 1) / bitSize; // next chunk if data needs to be wrapped
         const uint32_t s       = (pos % bitSize);         // shift amount
-        uint32_t ret;                               // return value
+        uint32_t ret;                                     // return value
 
         if (start == end) {
             ret = (data[start] >> shift[s]) & masks[n];
@@ -202,10 +202,10 @@ namespace dota {
             //  it in front of the fractional parts.
 
             const uint32_t fracMp  = val >> COORD_INTEGER_BITS_MP;
-            uint32_t frac    = val >> COORD_INTEGER_BITS;
+            uint32_t frac          = val >> COORD_INTEGER_BITS;
 
             const uint32_t maskMp  = ((1<<COORD_INTEGER_BITS_MP)-1);
-            uint32_t mask    = ((1<<COORD_INTEGER_BITS)-1);
+            uint32_t mask          = ((1<<COORD_INTEGER_BITS)-1);
 
             uint32_t selectNotMp = (flags & flag_inbound) - 1;
 
@@ -219,7 +219,7 @@ namespace dota {
 
             const uint32_t intpart      = (val & mask) + 1;
             const uint32_t intbitsLow   = intpart << COORD_FRACTION_BITS_MP_LOWPRECISION;
-            uint32_t intbits      = intpart << COORD_FRACTION_BITS;
+            uint32_t intbits            = intpart << COORD_FRACTION_BITS;
             const uint32_t selectNotLow = static_cast<uint32_t>(lowPrecision) - 1;
 
             intbits -= intbitsLow;

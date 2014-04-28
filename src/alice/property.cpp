@@ -82,14 +82,18 @@ namespace dota {
 
         // Read noscale float
         if (flags & SPROP_NOSCALE) {
-            // union to overlay both types
-            union { float f; uint32_t v; } u;
-            u.v = stream.read(32);
-
             // The solution below is also possible but breaks strict aliasing
             // float t = *( ( float * ) &u.v );
 
-            return u.f;
+            // Also possible but undefined behavior
+            // union { float f; uint32_t v; } u;
+            // u.v = stream.read(32);
+            // return u,f
+
+            uint32_t v = stream.read(32);
+            float f;
+            memcpy(&f, &v, 4);
+            return f;
         }
 
         // Read normalized float

@@ -70,6 +70,9 @@ namespace dota {
 
         /** List of entities to always skip. Not affected by subscription status. */
         const std::set<uint32_t> skip_entities;
+        
+        /** Whether to parse / handle event information. */
+        const bool parse_events;
     };
 }
 

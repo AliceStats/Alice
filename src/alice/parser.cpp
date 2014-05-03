@@ -28,6 +28,8 @@
 #include <alice/bitstream.hpp>
 #include <alice/parser.hpp>
 
+#include "event.hpp"
+
 namespace dota {
     parser::parser(const settings s, dem_stream *stream) : set(s), stream(stream), tick(0), msgs(0), sendtableId(-1),
         stringtableId(-1), delta(nullptr)
@@ -62,6 +64,10 @@ namespace dota {
 
         if (set.track_entities) {
             delta = new entity_delta;
+        }
+        
+        if (set.parse_events) {
+            handlerRegisterCallback((&handler), msgNet, svc_GameEventList, parser, handleEventList)
         }
 
         // Get unique / non-unique IDs for all messages
@@ -380,6 +386,26 @@ namespace dota {
         it->value.update(m);
     }
 
+    void parser::handleEventList(handlerCbType(msgNet) msg) {
+        CSVCMsg_GameEventList* event = msg->get<CSVCMsg_GameEventList>();
+        D_( std::cout 
+            << "[parser] Creating eventlist for " << event->descriptors_size() 
+            << " entries " << D_FILE << " " << __LINE__ << std::endl;, 1 
+        )
+        
+        for (auto &desc : event->descriptors()) {
+            event_descriptor d;
+            d.id = desc.eventid();
+            d.name = desc.name();
+            
+            for (auto &key : desc.keys()) {
+                d.props.push_back({key.type(), key.name()});
+            }
+            
+            elist.set(desc.eventid(), std::move(d));
+        }
+    }
+    
     bool parser::isSkipped(entity &e) {
         // get classid
         uint32_t eId = e.getClassId();

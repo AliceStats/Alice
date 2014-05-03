@@ -27,6 +27,7 @@
 
 #include <alice/dem.hpp>
 #include <alice/entity.hpp>
+#include <alice/event.hpp>
 #include <alice/handler.hpp>
 #include <alice/multiindex.hpp>
 #include <alice/sendtable.hpp>
@@ -141,6 +142,8 @@ namespace dota {
 
             /** List which includes the name's and id's of all possible entities. */
             entity_list clist;
+            /** List which contains the specifications for all events emitted */
+            event_list elist;
             /** Contains all active stringtables. */
             stringtableMap stringtables;
             /** Contains the sendtables. */
@@ -240,6 +243,13 @@ namespace dota {
                                 }
                                 continue;
                             } break;
+                            case svc_GameEventList: {
+                                if (set.parse_events) {
+                                    auto e = handler.retrieve<msgNet::id>(mType, demMessage_t{0, tick, mType, mMsg, mSize}, tick);
+                                    handleEventList(&e);
+                                    e.free();
+                                }
+                            } break;
                             case svc_UserMessage: {
                                 if (set.forward_user) {
                                     auto e = handler.retrieve<msgNet::id>(mType, demMessage_t{0, tick, mType, mMsg, mSize}, tick);
@@ -257,6 +267,7 @@ namespace dota {
                             case svc_CreateStringTable:
                             case svc_UpdateStringTable:
                             case svc_UserMessage:
+                            case svc_GameEventList:
                                 handler.forward<msgNet>(mType, demMessage_t{0, tick, mType, mMsg, mSize}, tick);
                                 continue;
                             default:
@@ -298,6 +309,9 @@ namespace dota {
 
             /** Handles updates to stringtables */
             void handleUpdateStringtable(handlerCbType(msgNet) msg);
+            
+            /** Handles the creation of the event list */
+            void handleEventList(handlerCbType(msgNet) msg);
 
             /** Check if an entity is skipped */
             bool isSkipped(entity &e);

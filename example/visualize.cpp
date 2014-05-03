@@ -334,7 +334,8 @@ int main(int argc, char **argv) {
             true,  // track_entities         - Yes, that's what we'll print out
             false, // forward entities       - Printing this would be way to much data
             false, // skip unused entities   - No, would be a bad visualization if all the entities were to be missing
-            {}     // blocked entities       - Let's not block any stuff for now
+            {},    // blocked entities       - Let's not block any stuff for now
+            false  // parse_events           - Nope, not implemented yet
         };
 
         // create a parser and open the replay.

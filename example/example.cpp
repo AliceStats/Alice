@@ -96,7 +96,8 @@ int main(int argc, char **argv) {
             false, // track_entities - Nope
             true,  // forward entities - Yes we listen to em
             true,  // skip unused - Yes cause we don't request them via the parser
-            {}     // blocked ones - All except the forwarded with skip_unused=true
+            {},    // blocked ones - All except the forwarded with skip_unused=true
+            false  // we dont handle events
         };
 
         // create a parser and open the replay

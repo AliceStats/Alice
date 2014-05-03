@@ -54,6 +54,7 @@ namespace dota {
 
     // forward declaration for bitstream
     class bitstream;
+    class parser;
 
     /// @defgroup CORE Core
     /// @{
@@ -170,6 +171,7 @@ namespace dota {
      * provide means to save the last properties. Changed properties are currently not marked as such.
      */
     class entity {
+        friend parser;
         public:
             /** Different possible entity states. */
             enum state {
@@ -191,22 +193,7 @@ namespace dota {
 
             entity() : initialized(false) {
 
-            }
-
-            /**
-             * Constructor filling the initial state.
-             *
-             * @param id The id of the entity
-             * @param cls Entity description according to it's type in the entity_list
-             * @param flat Flattened sendtable, containing the correct order of properties
-             */
-            entity(uint32_t id, const entity_list::value_type &cls, const flatsendtable& flat)
-                : initialized(true), id(id), cls(&cls), flat(&flat), currentState(state_created)
-            {
-                // Reserve memory for each possible property
-                D_( std::cout << "[entity] Reserving memory for " << flat.properties.size()+1 << " props " << D_FILE << " " << __LINE__ << std::endl;, 4 )
-                properties.resize(flat.properties.size()+1);
-            }
+            }            
 
             /** Default constructor */
             ~entity() = default;
@@ -214,19 +201,6 @@ namespace dota {
             /** Returns whether this entity has been initialized */
             bool isInitialized() {
                 return initialized;
-            }
-
-            /**
-             * Updates the entity with given values.
-             *
-             * @param id The id of the entity
-             * @param cls Entity description according to it's type in the entity_list
-             * @param flat Flattened sendtable, containing the correct order of properties
-             */
-            inline void update(uint32_t id, const entity_list::value_type &cls, const flatsendtable &flat) {
-                this->id = id;
-                this->cls = &cls;
-                this->flat = &flat;
             }
 
             /** Returns iterator pointing to the beginning of the property list, access is unordered */
@@ -328,6 +302,42 @@ namespace dota {
                 return currentState;
             }
 
+            /** Deletes all properties. */
+            inline void clear() {
+                properties.clear();
+            }
+
+            /** Prints a debug string containing all the properties and their values. */
+            std::string DebugString();            
+        protected:
+            /**
+             * Constructor filling the initial state.
+             *
+             * @param id The id of the entity
+             * @param cls Entity description according to it's type in the entity_list
+             * @param flat Flattened sendtable, containing the correct order of properties
+             */
+            entity(uint32_t id, const entity_list::value_type &cls, const flatsendtable& flat)
+                : initialized(true), id(id), cls(&cls), flat(&flat), currentState(state_created)
+            {
+                // Reserve memory for each possible property
+                D_( std::cout << "[entity] Reserving memory for " << flat.properties.size()+1 << " props " << D_FILE << " " << __LINE__ << std::endl;, 4 )
+                properties.resize(flat.properties.size()+1);
+            }
+
+            /**
+             * Updates the entity with given values.
+             *
+             * @param id The id of the entity
+             * @param cls Entity description according to it's type in the entity_list
+             * @param flat Flattened sendtable, containing the correct order of properties
+             */
+            inline void update(uint32_t id, const entity_list::value_type &cls, const flatsendtable &flat) {
+                this->id = id;
+                this->cls = &cls;
+                this->flat = &flat;
+            }
+
             /** Sets the entity state */
             inline void setState(state_type s) {
                 currentState = s;
@@ -337,18 +347,10 @@ namespace dota {
                     id = -1;
             }
 
-            /** Deletes all properties. */
-            inline void clear() {
-                properties.clear();
-            }
-
             /** Updates all the entities from the given bitstream. */
             void updateFromBitstream(bitstream& bstream, entity_delta* = nullptr);
             /** Skips each property in this entity */
             void skip(bitstream& bstream);
-
-            /** Prints a debug string containing all the properties and their values. */
-            std::string DebugString();
 
             /** Reads the entities header. */
             static void readHeader(uint32_t &id, bitstream &bstream, state_type &type);

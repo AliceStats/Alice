@@ -107,35 +107,37 @@ namespace dota {
         str << "Name: " << cls->networkName << " / Id: " << id << " / State: " << currentState << std::endl;
 
         for (auto &p : properties) {
-            str << "Property: " << p.getName() << " / Type: ";
+            if (p.isInitialized()) {
+                str << "Property: " << p.getName() << " / Type: ";
 
-            switch (p.getType()) {
-                case sendprop::T_Int:
-                    str << " Int / Value: ";
-                    break;
-                case sendprop::T_Float:
-                    str << " Float / Value: ";
-                    break;
-                case sendprop::T_Vector: {
-                    str << " Vector / Value: ";
-                } break;
-                case sendprop::T_VectorXY: {
-                    str << " VectorXY / Value: ";
-                } break;
-                case sendprop::T_String:
-                    str << " String / Value: ";
-                    break;
-                case sendprop::T_Array:
-                    str << " Array / Value: ";
-                    break;
-                case sendprop::T_DataTable:
-                    str << " DataTable / Value: ";
-                    break;
-                default:
-                    str << " Unkown / Value: " << std::endl;
+                switch (p.getType()) {
+                    case sendprop::T_Int:
+                        str << " Int / Value: ";
+                        break;
+                    case sendprop::T_Float:
+                        str << " Float / Value: ";
+                        break;
+                    case sendprop::T_Vector: {
+                        str << " Vector / Value: ";
+                    } break;
+                    case sendprop::T_VectorXY: {
+                        str << " VectorXY / Value: ";
+                    } break;
+                    case sendprop::T_String:
+                        str << " String / Value: ";
+                        break;
+                    case sendprop::T_Array:
+                        str << " Array / Value: ";
+                        break;
+                    case sendprop::T_DataTable:
+                        str << " DataTable / Value: ";
+                        break;
+                    default:
+                        str << " Unkown / Value: " << std::endl;
+                }
+
+                str  << p.asString() << std::endl;
             }
-
-            str  << p.asString() << std::endl;
         }
 
         return str.str();

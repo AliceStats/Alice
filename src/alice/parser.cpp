@@ -215,6 +215,16 @@ namespace dota {
     handler_t* parser::getHandler() {
         return &handler;
     }
+    
+    event_descriptor* parser::getEventDescriptor(uint32_t id) {
+        auto it = elist.find(id);
+        if (it == elist.end())
+            BOOST_THROW_EXCEPTION( eventUnkownDescriptor()
+                << (EArgT<1, uint32_t>::info(id))
+            );
+        
+        return &it->second;
+    }
 
     const flatsendtable& parser::getFlattable(const std::string &tbl) {
         auto it = flattables.find(tbl);

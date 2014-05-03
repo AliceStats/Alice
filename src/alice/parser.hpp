@@ -88,6 +88,9 @@ namespace dota {
 
             /** Returns pointer to handler, pointer is tied to lifetime of this object */
             handler_t* getHandler();
+            
+            /** Returns an event descriptor for the specified event id */
+            event_descriptor* getEventDescriptor(uint32_t id);
 
             /** Returns the flattable for the specified sendtable based on it's name. */
             const flatsendtable& getFlattable(const std::string &tbl);

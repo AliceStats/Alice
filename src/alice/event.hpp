@@ -29,6 +29,17 @@
 #include <string>
 
 namespace dota {   
+    /// @defgroup EXCEPTIONS Exceptions
+    /// @{
+
+    /// Thrown when an unkown event descriptor is being accessed
+    CREATE_EXCEPTION( eventUnkownDescriptor, "Trying to access unkown event descriptor." )
+
+    /// @}
+
+    /// @defgroup CORE Core
+    /// @{
+    
     /** Contains the names / types of event properties*/
     struct event_prop {
         /** Type of the property */
@@ -104,6 +115,8 @@ namespace dota {
             /** Contains a list of all possible events being emitted */
             mutable map_type events;
     };
+    
+    /// @}
 }
 
 #endif	/* _DOTA_EVENT_HPP_ */

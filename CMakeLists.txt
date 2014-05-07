@@ -225,6 +225,7 @@ SET ( ALICE_CORE_HEADERS
     src/alice/dem_stream_memory.hpp
     src/alice/delegate.hpp
     src/alice/entity.hpp
+    src/alice/event.hpp
     src/alice/exception.hpp
     src/alice/handler.hpp
     src/alice/handler_detail.hpp

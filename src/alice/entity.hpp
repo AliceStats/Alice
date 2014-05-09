@@ -191,12 +191,52 @@ namespace dota {
             /** Typedef for state enum */
             typedef state state_type;
 
+            /** Default constructor, sets initialization status to false */
             entity() : initialized(false) {
 
-            }            
+            }
 
-            /** Default constructor */
+            /** Allow copying */
+            entity(const entity& e) : initialized(e.initialized), id(e.id), cls(e.cls),
+                flat(e.flat), properties(e.properties), currentState(e.currentState),
+                stringIndex(e.stringIndex)
+            {
+                if (cls == nullptr || flat == nullptr)
+                    initialized = false;
+            }
+
+            /** Allow moving */
+            entity(entity&& e) : initialized(e.initialized), id(e.id), cls(e.cls),
+                flat(e.flat), properties(std::move(e.properties)),
+                currentState(e.currentState), stringIndex(std::move(e.stringIndex))
+            {
+                if (cls == nullptr || flat == nullptr)
+                    initialized = false;
+
+                e.initialized = false;
+                e.cls = nullptr;
+                e.flat = nullptr;
+            }
+
+            /** Default destructor */
             ~entity() = default;
+
+            /** Assignment operator */
+            entity& operator= (entity t) {
+                swap(t);
+                return *this;
+            }
+
+            /** Swap this entity with given one */
+            void swap(entity& b) {
+                std::swap(initialized, b.initialized);
+                std::swap(id, b.id);
+                std::swap(cls, b.cls);
+                std::swap(flat, b.flat);
+                std::swap(properties, b.properties);
+                std::swap(currentState, b.currentState);
+                std::swap(stringIndex, b.stringIndex);
+            }
 
             /** Returns whether this entity has been initialized */
             bool isInitialized() {
@@ -308,7 +348,7 @@ namespace dota {
             }
 
             /** Prints a debug string containing all the properties and their values. */
-            std::string DebugString();            
+            std::string DebugString();
         protected:
             /**
              * Constructor filling the initial state.

@@ -65,7 +65,7 @@ namespace dota {
         if (set.track_entities) {
             delta = new entity_delta;
         }
-        
+
         if (set.parse_events) {
             handlerRegisterCallback((&handler), msgNet, svc_GameEventList, parser, handleEventList)
         }
@@ -215,14 +215,14 @@ namespace dota {
     handler_t* parser::getHandler() {
         return &handler;
     }
-    
+
     event_descriptor* parser::getEventDescriptor(uint32_t id) {
         auto it = elist.find(id);
         if (it == elist.end())
             BOOST_THROW_EXCEPTION( eventUnkownDescriptor()
                 << (EArgT<1, uint32_t>::info(id))
             );
-        
+
         return &it->second;
     }
 
@@ -398,24 +398,24 @@ namespace dota {
 
     void parser::handleEventList(handlerCbType(msgNet) msg) {
         CSVCMsg_GameEventList* event = msg->get<CSVCMsg_GameEventList>();
-        D_( std::cout 
-            << "[parser] Creating eventlist for " << event->descriptors_size() 
-            << " entries " << D_FILE << " " << __LINE__ << std::endl;, 1 
+        D_( std::cout
+            << "[parser] Creating eventlist for " << event->descriptors_size()
+            << " entries " << D_FILE << " " << __LINE__ << std::endl;, 1
         )
-        
+
         for (auto &desc : event->descriptors()) {
             event_descriptor d;
             d.id = desc.eventid();
             d.name = desc.name();
-            
+
             for (auto &key : desc.keys()) {
                 d.props.push_back({key.type(), key.name()});
             }
-            
+
             elist.set(desc.eventid(), std::move(d));
         }
     }
-    
+
     bool parser::isSkipped(entity &e) {
         // get classid
         uint32_t eId = e.getClassId();
@@ -470,7 +470,6 @@ namespace dota {
                     if (!ent.isInitialized()) {
                         // create the entity
                         entities[eId] = entity(eId, eClass, f);
-                        ent = entities[eId];
                     } else {
                         // entity already exists, update it as overwritten
                         ent.update(eId, eClass, f);
@@ -513,7 +512,7 @@ namespace dota {
                             handler.forward<msgEntity>(ent.getClassId(), &ent, 0);
                         }
 
-                        entities[eId] = entity();
+                        entities.at(eId) = entity();
                     } else {
                         BOOST_THROW_EXCEPTION( aliceInvalidId()
                             << (EArgT<1, uint32_t>::info(eId))

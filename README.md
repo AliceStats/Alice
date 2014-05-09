@@ -12,7 +12,7 @@ Both flavours have the same dependencies:
 
  - [Protocol Buffers (2.5.0)](http://code.google.com/p/protobuf/)
  - [Snappy Compression (1.0.5+)](http://code.google.com/p/snappy/)
- - [Boost (1.53.0+, Header-Only)](http://www.boost.org/)
+ - [Boost (1.52.0+, Header-Only)](http://www.boost.org/)
  - [CMake (2.8.0+)](http://www.cmake.org/)
 
 Alice supports the following operating systems / compilers:
@@ -38,7 +38,7 @@ Alice provides access to the following data:
  - _entities_: in-game things like heroes, players, and creeps
  - _modifiers_: auras and effects on in-game entities
  - _user messages_: many different things, including spectator clicks, global chat messages, overhead
-   events (like last-hit gold, and much more), particle systems, etc.*
+   events (like last-hit gold, and much more), particle systems, etc.
  - _game events_: lower-level messages like Dota TV control (directed camera commands, for example),
    combat log messages, etc.
 
@@ -55,7 +55,7 @@ Performance
 -----------
 
 Alice is heavily optimized and can parse the majority of replays in less than one second. A standard 45 Minute public
-Replay parses in about 750ms.
+Replay parses in about 500ms.
 
 The following settings are available to further tweak the parsing process with the recommended settings in brackets:
 
@@ -67,14 +67,14 @@ The following settings are available to further tweak the parsing process with t
  - parse_entities: Whether to parse entities, required for hero positioning and items (`true`)
  - track_entities: Whether to send specific information about which fields have been modified in an update (`false`)
  - forward_entities: Forward entities like other messages. Might not be required if you have a good parsing setup (`true`)
- - skip_unsubscribed_entities: Skips all non-forwarded entities, increases performance by 10-20% (`true`)
+ - skip_unsubscribed_entities: Skips all non-forwarded entities, increases performance by 20-30% (`true`)
 
 Longer replays often have more messages than their shorter counterparts in the same skill-bracket.
 Games with in different skill-brackets and different game modes have more / less messages depending on factors such as
 spectator commentary and interaction based messages.
 
 The performance example includes three sample configurations, the following graph shows the differences based on the amount
-of messages parsed. These replays measured are captains-mode games from the TI3 Qualifiers.
+of messages parsed. The replays used are captains-mode games from the TI3 Qualifiers.
 
 ![Image](https://raw.github.com/AliceStats/Alice/master/doc/performance/graph.png)
 
@@ -146,7 +146,7 @@ Building Alice on Windows
 
 See the accompanied build-windows.md for instructions on how to build Alice with MSVC.
 
-Please keep in mind that, though Windows is supported, some performance optimizations are not available in Visual Studio
+Please keep in mind that, though Windows is supported, some performance optimizations are not available with the MSVC
 and are ignored regardless of their state.
 
 

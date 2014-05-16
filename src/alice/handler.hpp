@@ -203,12 +203,12 @@ namespace dota {
              * so this function should not be overused.
              */
             void removeCallback(const id_t& i, delegate_t&& d) {
-                /*for (auto it = cb[i].begin(); it != cb[i].end(); ++it) {
+                for (auto it = cb[i].begin(); it != cb[i].end(); ++it) {
                     if (*it == d) {
                         cb[i].erase(it);
                         break;
                     }
-                }*/
+                }
             }
 
             /** Register a new object type for the specified ID */

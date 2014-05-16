@@ -44,15 +44,6 @@ namespace dota {
             /** Default destructor */
             ~delegate() = default;
 
-            /** Move constructor, zero's old object and function pointer */
-            delegate(delegate&& d) {
-                pObj = d.pObj;
-                pFunc = d.pFunc;
-
-                d.pObj = nullptr;
-                d.pFunc = nullptr;
-            }
-
             /** Compares two delegates with each other */
             bool operator== (delegate &d1) {
                 return (d1.pObj == pObj && d1.pFunc == pFunc);

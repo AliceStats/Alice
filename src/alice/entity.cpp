@@ -73,7 +73,7 @@ namespace dota {
         // check if we should keep track of changes
         if (delta != nullptr) {
             delta->entity_fields.clear();
-            delta->entity_fields.reserve(fields.size());
+            delta->entity_fields.resize(fields.size());
             memcpy( &delta->entity_fields[0], &fields[0], fields.size()*sizeof(uint32_t) );
         }
     }

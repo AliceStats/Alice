@@ -146,7 +146,7 @@ Building Alice on Windows
 
 See the accompanied build-windows.md for instructions on how to build Alice with MSVC.
 
-Please keep in mind that, though Windows is supported, some performance optimizations are not available with the MSVC
+Please keep in mind that, though Windows is supported, some performance optimizations are not available with MSVC
 and are ignored regardless of their state.
 
 

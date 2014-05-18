@@ -315,6 +315,18 @@ namespace dota {
                 }
             }
 
+            /** Returns the index of the specified property in the flattable */
+            inline int32_t getPropIndex(const std::string& needle) {
+                buildIndex();
+
+                auto it = stringIndex.find(needle);
+                if (it == stringIndex.end()) {
+                    return -1;
+                } else {
+                    return it->second;
+                }
+            }
+
             /** Checks if a property exists by name */
             template <typename T>
             inline T hasProp(const std::string& needle) {
@@ -335,6 +347,11 @@ namespace dota {
             /** Returns the network name referenced in the entity description. */
             inline const std::string& getClassName() const {
                 return cls->networkName;
+            }
+
+            /** Returns the flattened sendtable for this entity */
+            inline const flatsendtable* getRecvTable() const {
+                return flat;
             }
 
             /** Returns the last entity state. */

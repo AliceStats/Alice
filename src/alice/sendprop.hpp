@@ -1,7 +1,7 @@
 /**
  * @file sendprop.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,8 +67,6 @@
 #define SPROP_ENCODED_AGAINST_TICKCOUNT (1<<19)
 
 #include <string>
-#include <memory>
-#include <utility>
 
 #include <alice/netmessages.pb.h>
 #include <alice/exception.hpp>
@@ -115,6 +114,12 @@ namespace dota {
             {
 
             }
+
+            /** Default copy constructor */
+            sendprop(const sendprop&) = default;
+
+            /** Default destructor */
+            ~sendprop() = default;
 
             /** Returns own type */
             inline const type& getType() const {

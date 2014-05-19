@@ -1,7 +1,7 @@
 /**
  * @file sendtable.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,8 +25,6 @@
 #define _DOTA_SENDTABLE_HPP_
 
 #include <string>
-#include <memory>
-#include <utility>
 #include <vector>
 
 #include <alice/multiindex.hpp>
@@ -72,7 +71,7 @@ namespace dota {
      * Definition for a single sendtable, provides means to generate a network representation (flattable of it).
      *
      * The sendtable includes a number of property definitions. In order to read entities relating to this sendtable,
-     * a flattable is nessecary.
+     * a flat- / recvtable is nessecary.
      */
     class sendtable {
         public:
@@ -90,9 +89,11 @@ namespace dota {
 
             }
 
-            ~sendtable() {
+            /** Default copy constructor */
+            sendtable(const sendtable&) = default;
 
-            }
+            /** Default destructor */
+            ~sendtable() = default;
 
             /** Dealocates memory for all sendproperties */
             inline void free() const {

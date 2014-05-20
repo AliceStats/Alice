@@ -61,7 +61,7 @@ namespace dota {
             /** Type for a map of sendtables. */
             typedef multiindex<std::string, int32_t, sendtable> sendtableMap;
             /** Type for a map of flattables. */
-            typedef std::unordered_map<std::string, flatsendtable> flatMap;
+            typedef std::vector<flatsendtable> flatMap;
             /** Type for a list of entities. */
             typedef std::vector<entity> entityMap;
 
@@ -88,12 +88,12 @@ namespace dota {
 
             /** Returns pointer to handler, pointer is tied to lifetime of this object */
             handler_t* getHandler();
-            
+
             /** Returns an event descriptor for the specified event id */
             event_descriptor* getEventDescriptor(uint32_t id);
 
             /** Returns the flattable for the specified sendtable based on it's name. */
-            const flatsendtable& getFlattable(const std::string &tbl);
+            const flatsendtable& getFlattable(const uint32_t);
 
             /** Returns entity class id for a specific definition */
             uint32_t getEntityIdFor(std::string name);
@@ -312,7 +312,7 @@ namespace dota {
 
             /** Handles updates to stringtables */
             void handleUpdateStringtable(handlerCbType(msgNet) msg);
-            
+
             /** Handles the creation of the event list */
             void handleEventList(handlerCbType(msgNet) msg);
 

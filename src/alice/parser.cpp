@@ -226,14 +226,13 @@ namespace dota {
         return &it->second;
     }
 
-    const flatsendtable& parser::getFlattable(const std::string &tbl) {
-        auto it = flattables.find(tbl);
-        if (it == flattables.end())
+    const flatsendtable& parser::getFlattable(const uint32_t tbl) {
+        if (flattables.size() <= tbl)
             BOOST_THROW_EXCEPTION( sendtableUnkownTable()
-                << EArg<1>::info(tbl)
+                << (EArgT<1, uint32_t>::info(tbl))
             );
 
-        return it->second;
+        return flattables[tbl];
     }
 
     uint32_t parser::getEntityIdFor(std::string name) {
@@ -465,7 +464,7 @@ namespace dota {
                     stream.seekForward(10);
 
                     const entity_list::value_type &eClass = clist.get(classId);
-                    const flatsendtable &f = getFlattable(eClass.name);
+                    const flatsendtable &f = getFlattable(classId);
 
                     if (!ent.isInitialized()) {
                         // create the entity
@@ -567,6 +566,7 @@ namespace dota {
         }
 
         // Building flattables
+        uint32_t index = 0;
         for (auto it = sendtables.beginIndex(); it != sendtables.endIndex(); ++it) {
             auto table = *it;
 
@@ -601,7 +601,7 @@ namespace dota {
             }
 
             // insert stuff into flat table
-            flattables.emplace(table.key, flatsendtable{table.key, std::move(props)});
+            flattables.push_back(flatsendtable{table.key, std::move(props)});
         }
     }
 

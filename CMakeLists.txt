@@ -323,6 +323,19 @@ IF ( BUILD_ADDON )
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
     )
+
+    ADD_EXECUTABLE ( alice-gen-entities
+        tools/gen-entities/main.cpp
+    )
+
+    TARGET_LINK_LIBRARIES ( alice-gen-entities
+        alice-core-static
+        ${PROTOBUF_LIBRARY}
+    	${SNAPPY_LIBRARIES}
+    	${Boost_LIBRARIES}
+    )
+
+    INSTALL( TARGETS alice-gen-entities RUNTIME DESTINATION bin )
 ENDIF ( BUILD_ADDON )
 
 #------------------------------------------------------------

@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +28,7 @@
 #include <exception>
 
 #include <boost/exception/all.hpp>
+#include <alice/config.hpp>
 
 /**
  * This file provides convinience templates / macros for boost.exception.
@@ -72,5 +74,18 @@ namespace dota {
     /// @}
 }
 
+/// If Alice is compiled using emscripten, we want to disable
+/// all exceptions to a) gain performance and b) reduce code size by 1/4th.
+/// Instead of throwing we just quit the application and tell it what should have
+/// been thrown.
+#if DOTA_EMSCRIPTEN
+    #undef BOOST_THROW_EXCEPTION
+    #define BOOST_THROW_EXCEPTION(x) \
+    { \
+        std::cout << "Exception thrown in line " << __FILE__ << " : " << __LINE__ << std::endl; \
+        std::cout << boost::diagnostic_information(x) << std::endl; \
+        exit(1); \
+    }
+#endif // DOTA_EMSCRIPTEN
 
 #endif	/* _DOTA_EXCEPTION_HPP_ */

@@ -23,11 +23,12 @@
 #ifndef _DOTA_CONFIG_HPP_
 #define _DOTA_CONFIG_HPP_
 
-#define DOTA_VERSION "@GIT_SHA1@"       // sha1 hash of repository version
-#define DOTA_PYTHON  @BUILD_PYTHON@     // whether to build python binding
-#define DOTA_EXTRA   @BUILD_ADDON@      // whether to rely on addon functionallity
-#define DOTA_64BIT   @DOTA_64BIT@       // target architecture
-#define DOTA_DEBUG   @DEBUG@            // whether to enable debugging
+#define DOTA_VERSION "@GIT_SHA1@"          // sha1 hash of repository version
+#define DOTA_PYTHON  @BUILD_PYTHON@        // whether to build python binding
+#define DOTA_EXTRA   @BUILD_ADDON@         // whether to rely on addon functionallity
+#define DOTA_64BIT   @DOTA_64BIT@          // target architecture
+#define DOTA_DEBUG   @DEBUG@               // whether to enable debugging
+#define DOTA_EMSCRIPTEN @BUILD_EMSCRIPTEN@ // whether alice is being build for emscripten
 
 #include <cstring>
 #define D_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)

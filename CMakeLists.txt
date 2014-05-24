@@ -14,6 +14,7 @@ MESSAGE ( STATUS "Libs extension is '${SUFFIXLIB}'. Bins extension is '${SUFFIXB
 MESSAGE ( STATUS "Installation prefix directory is " ${CMAKE_INSTALL_PREFIX} )
 MESSAGE ( STATUS "Host system is " ${CMAKE_HOST_SYSTEM} " with processor " ${CMAKE_HOST_SYSTEM_PROCESSOR} )
 MESSAGE ( STATUS "Target system is " ${CMAKE_SYSTEM} " with processor " ${CMAKE_SYSTEM_PROCESSOR} )
+MESSAGE ( STATUS "Compiler identified as " ${CMAKE_CXX_COMPILER_ID} )
 
 # Whether to build alice-addon
 OPTION (BUILD_ADDON "Build addon library (optional but useful)" OFF)
@@ -29,6 +30,9 @@ OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF)
 
 # Enable debug output
 OPTION (DEBUG "Print useful information to cout, slows parser down a lot" 0)
+
+# Enable emscripten support
+OPTION (BUILD_EMSCRIPTEN "Enables emscripten support" 0)
 
 #------------------------------------------------------------
 # Version Info
@@ -57,12 +61,13 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # use default msvc flags
 endif()
 
-# Check for 64 bit
-if ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-    SET (DOTA_64BIT "1")
-else ( )
-    SET (DOTA_64BIT "0")
-endif ( )
+# Check for 64 bit, ignore when using emscripten
+SET ( DOTA_64BIT "0" )
+IF ( NOT BUILD_EMSCRIPTEN )
+    IF ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+        SET (DOTA_64BIT "1")
+    ENDIF ( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+ENDIF ( NOT BUILD_EMSCRIPTEN )
 
 #------------------------------------------------------------
 # Generate configuration
@@ -78,7 +83,9 @@ CONFIGURE_FILE (
 # Include And Configure Libraries Used
 #------------------------------------------------------------
 
-IF ( UNIX )
+IF ( DOTA_EMSCRIPTEN )
+    # Include emscripten deps, etc.
+ELSEIF ( UNIX )
     # Protocol Buffers
     find_package( Protobuf REQUIRED )
     include_directories( ${PROTOBUF_INCLUDE_DIR} )
@@ -98,7 +105,7 @@ IF ( UNIX )
     ENDIF ( BUILD_TEST )
 
     include_directories( ${Boost_INCLUDE_DIRS} )
-ELSE ( UNIX )
+ELSE ( )
     # Protobuf
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/vsprojects/Release )
         SET ( CMAKE_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/ )
@@ -131,7 +138,7 @@ ELSE ( UNIX )
     ENDIF ( BUILD_TEST )
 
     include_directories( ${Boost_INCLUDE_DIRS} )
-ENDIF ( UNIX )
+ENDIF ( )
 
 include_directories( ${CMAKE_SOURCE_DIR}/src )
 

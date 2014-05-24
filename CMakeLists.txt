@@ -306,6 +306,19 @@ IF ( BUILD_EXAMPLE )
     )
 
     INSTALL( TARGETS alice-visualize RUNTIME DESTINATION bin )
+
+    ADD_EXECUTABLE ( alice-chat
+        example/chat.cpp
+    )
+
+    TARGET_LINK_LIBRARIES ( alice-chat
+        alice-core-static
+        ${PROTOBUF_LIBRARY}
+    	${SNAPPY_LIBRARIES}
+    	${Boost_LIBRARIES}
+    )
+
+    INSTALL( TARGETS alice-chat RUNTIME DESTINATION bin )
 ENDIF ( BUILD_EXAMPLE )
 
 #------------------------------------------------------------

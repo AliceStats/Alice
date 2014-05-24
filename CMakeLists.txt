@@ -83,8 +83,45 @@ CONFIGURE_FILE (
 # Include And Configure Libraries Used
 #------------------------------------------------------------
 
-IF ( DOTA_EMSCRIPTEN )
-    # Include emscripten deps, etc.
+IF ( BUILD_EMSCRIPTEN )
+    MESSAGE ( STATUS "Building Alice using emscripten, please see the build-emscripten.md for further information" )
+    
+    # Some compiler options
+    SET ( CMAKE_CXX_FLAGS "-O2 -std=c++0x -Wno-warn-absolute-paths -Wall -Wno-sign-compare -Wno-unused-variable -s TOTAL_MEMORY=100000000" )
+    
+    # Include Protobuf
+    IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/libprotobuf.so )
+        SET ( PROTOBUF_LIBRARY ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/libprotobuf.so )
+    ELSE ( )
+        MESSAGE ( error "Can't find protobuf" )
+    ENDIF ( )
+    
+    MESSAGE ( STATUS "Treating libprotobuf.so under deps/ as LLVM-Bytecode" )
+    
+    # Try to find protoc
+    IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/protoc )
+        SET ( PROTOC ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/protoc )
+        MESSAGE ( STATUS "Using protoc under deps/" )
+    ELSEIF ( EXISTS /usr/bin/protoc )
+        SET ( PROTOC /usr/bin/protoc )
+        MESSAGE ( STATUS "Using protoc under /usr/bin/" )
+    ELSE ( )
+        MESSAGE ( error "Can't find protoc" )
+    ENDIF ( )
+    
+    # Include Snappy
+    IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/.libs/libsnappy.so )
+        SET ( SNAPPY_LIBRARIES ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/.libs/libsnappy.so )
+    ELSE ( )
+        MESSAGE ( error "Can't find snappy" )
+    ENDIF ( )
+    
+    MESSAGE ( STATUS "Treating libsnappy.so under deps/ as LLVM-Bytecode" )
+    
+    # Include dirs under /deps/, just assume boost is there
+    include_directories ( ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src )
+    include_directories ( ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1 )
+    include_directories ( ${CMAKE_SOURCE_DIR}/deps/boost-1.55.0 )
 ELSEIF ( UNIX )
     # Protocol Buffers
     find_package( Protobuf REQUIRED )
@@ -188,9 +225,9 @@ ADD_LIBRARY ( alice-core-shared SHARED $<TARGET_OBJECTS:alice-core>)
 ADD_LIBRARY ( alice-core-static STATIC $<TARGET_OBJECTS:alice-core>)
 
 TARGET_LINK_LIBRARIES ( alice-core-shared
-	${PROTOBUF_LIBRARY}
-	${SNAPPY_LIBRARIES}
-	${Boost_LIBRARIES}
+    ${PROTOBUF_LIBRARY}
+    ${SNAPPY_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 
 # alice-addon

@@ -21,6 +21,7 @@
  */
 
 #include <iostream>
+#include <boost/crc.hpp>
 #include <alice/alice.hpp>
 
 #include "tinyformat.hpp"
@@ -36,19 +37,49 @@ class handler_entities {
         handler_t* h;
         /** Whether the handler got all the relevant information */
         bool finished;
+        /** Sendtables checksum for version identification */
+        uint32_t ver_crc;
     public:
         /** Constructor, takes the handler */
-        handler_entities(parser* p) : p(p), h(p->getHandler()), finished(false) {
+        handler_entities(parser* p) : p(p), h(p->getHandler()), finished(false), ver_crc(0) {
+            // Subscribe to the sendtables
+            handlerRegisterCallback(h, msgDem, DEM_SendTables, handler_entities, handleSendTable)
+
             // Subscribe to REPLAY_FLATTABLES so we can register our entity stuff
             handlerRegisterCallback(h, msgStatus, REPLAY_FLATTABLES, handler_entities, handleReady)
         }
 
+        /** handle send table to compute crc32 of it */
+        void handleSendTable(handlerCbType(msgNet) msg) {
+            CSVCMsg_SendTable* m = msg->get<CSVCMsg_SendTable>();
+
+            // Serialize it back into a string to compute the crc
+            std::string m2;
+            m->SerializeToString(&m2);
+
+            // save our crc
+            boost::crc_32_type crc32;
+            crc32.process_bytes(m2.data(), m2.length());
+            ver_crc = crc32.checksum();
+        }
+
         /** Callback when stringtables are available */
         void handleReady(handlerCbType(msgStatus) msg) {
+            // iterate and dump all entities
+            auto ft = p->getFlattables();
+            for (auto &tbl : ft) {
+                // class name -> tbl.name
+                for (auto &p : tbl.properties) {
+                    // property -> p.name
+                    // add property to class and generate versioning information
+                }
+            }
+
             // just force the program to exit
             finished = true;
         }
 
+        /** Returns true once we are done parsing */
         bool isFinished() {
             return finished;
         }
@@ -63,7 +94,7 @@ int main(int argc, char **argv) {
     try {
         // settings for the parser
         // see the examples for a description of the indivdual fields
-        settings s{ false, false, false, false, true, { }, true, false, false, true, {}, false };
+        settings s{ true, false, false, false, true, { }, true, false, false, true, {}, false };
 
         // create a parser and open the replay
         parser p(s, new dem_stream_file);

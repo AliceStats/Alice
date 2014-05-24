@@ -295,7 +295,7 @@ namespace dota {
             inline T prop(uint32_t index) {
                 if (properties.size() <= index) {
                     BOOST_THROW_EXCEPTION(entityUnkownProperty()
-                        << EArg<1>::info(index)
+                        << (EArgT<1, uint32_t>::info(index))
                     );
                 } else {
                     return properties[index].as<T>();

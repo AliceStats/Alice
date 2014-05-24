@@ -111,7 +111,7 @@ namespace dota {
 
     // forward declaration
     class entity;
-    class entity_delta;
+    struct entity_delta;
 
     /// @defgroup CORE Core
     /// @{

@@ -150,6 +150,13 @@ Please keep in mind that, though Windows is supported, some performance optimiza
 and are ignored regardless of their state.
 
 
+Running Alice in your Browser
+-----------------------------
+
+Alice can be compiled using [Emscripten](https://github.com/kripken/emscripten). 
+
+See the accompanied build-emscripten.md for instructions on how to proceed.
+
 Using Alice
 -----------
 

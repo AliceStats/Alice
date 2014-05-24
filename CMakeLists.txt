@@ -88,6 +88,7 @@ IF ( BUILD_EMSCRIPTEN )
     
     # Some compiler options
     SET ( CMAKE_CXX_FLAGS "-O2 -std=c++0x -Wno-warn-absolute-paths -Wall -Wno-sign-compare -Wno-unused-variable -s TOTAL_MEMORY=100000000" )
+    SET ( CMAKE_EXECUTABLE_SUFFIX ".html" )
     
     # Include Protobuf
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/libprotobuf.so )
@@ -224,6 +225,12 @@ ADD_LIBRARY ( alice-core OBJECT ${ALICE_CORE_SOURCES} ${PROTO_SOURCES} ${SNAPPY_
 ADD_LIBRARY ( alice-core-shared SHARED $<TARGET_OBJECTS:alice-core>)
 ADD_LIBRARY ( alice-core-static STATIC $<TARGET_OBJECTS:alice-core>)
 
+IF ( BUILD_EMSCRIPTEN )
+    SET ( ALICE_LIB "alice-core-shared" )
+ELSE ( ) 
+    SET ( ALICE_LIB "alice-core-static" )
+ENDIF ( )
+
 TARGET_LINK_LIBRARIES ( alice-core-shared
     ${PROTOBUF_LIBRARY}
     ${SNAPPY_LIBRARIES}
@@ -317,7 +324,7 @@ IF ( BUILD_EXAMPLE )
     )
 
     TARGET_LINK_LIBRARIES ( alice-example
-        alice-core-static
+        ${ALICE_LIB}
         ${PROTOBUF_LIBRARY}
     	${SNAPPY_LIBRARIES}
     	${Boost_LIBRARIES}
@@ -330,7 +337,7 @@ IF ( BUILD_EXAMPLE )
     )
 
     TARGET_LINK_LIBRARIES ( alice-performance
-        alice-core-static
+        ${ALICE_LIB}
         ${PROTOBUF_LIBRARY}
     	${SNAPPY_LIBRARIES}
     	${Boost_LIBRARIES}
@@ -343,7 +350,7 @@ IF ( BUILD_EXAMPLE )
     )
 
     TARGET_LINK_LIBRARIES ( alice-visualize
-        alice-core-static
+        ${ALICE_LIB}
         ${PROTOBUF_LIBRARY}
     	${SNAPPY_LIBRARIES}
     	${Boost_LIBRARIES}
@@ -356,7 +363,7 @@ IF ( BUILD_EXAMPLE )
     )
 
     TARGET_LINK_LIBRARIES ( alice-chat
-        alice-core-static
+        ${ALICE_LIB}
         ${PROTOBUF_LIBRARY}
     	${SNAPPY_LIBRARIES}
     	${Boost_LIBRARIES}

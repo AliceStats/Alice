@@ -76,8 +76,8 @@ namespace dota {
 
 /// If Alice is compiled using emscripten, we want to disable
 /// all exceptions to a) gain performance and b) reduce code size by 1/4th.
-/// Instead of throwing we just quit the application and tell it what should have
-/// been thrown.
+/// Instead of throwing we quit the application and tell the user what
+/// would have been thrown.
 #if DOTA_EMSCRIPTEN
     #undef BOOST_THROW_EXCEPTION
     #define BOOST_THROW_EXCEPTION(x) \

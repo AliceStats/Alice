@@ -1,8 +1,6 @@
 Building Alice using Emscripten
 ===============================
 
-Building Alice using Emscripten is considered to be stable yet you are advised to proceed with caution.
-
 Required dependencies
 ---------------------
 
@@ -40,7 +38,7 @@ Building Alice
 Run the following commands:
 
  - `mkdir build && cd build`
- - `CC=emcc CXX=em++ cmake .. -DBUILD_EMSCRIPTEN=1 -DBUILD_ADDON=! -DBUILD_EXAMPLE=1`
+ - `CC=emcc CXX=em++ cmake .. -DBUILD_EMSCRIPTEN=1 -DBUILD_ADDON=1 -DBUILD_EXAMPLE=1`
  - `make`
 
 This will generate the examples and the Alice library as LLVM-Bytecode. 
@@ -48,8 +46,8 @@ This will generate the examples and the Alice library as LLVM-Bytecode.
 Running the examples
 --------------------
 
-Thought the examples compile, you will get an error about being unable to load the replay you pass as an argument
-because Emscriptens File I/O library is not automatically embedded in the resulting Javascript.
+Thought the examples compile, you will get an error about being unable to load the replay when you try to run them.
+This happens Emscripten's File I/O abstration library is not automatically embedded in the generated Javascript.
 
 In order to run the examples you will have to edit the html generated to include the Filesystem Api.
 There are some examples on the [Emscripten Wiki](https://github.com/kripken/emscripten/wiki/Filesystem-Guide).

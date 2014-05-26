@@ -85,20 +85,20 @@ CONFIGURE_FILE (
 
 IF ( BUILD_EMSCRIPTEN )
     MESSAGE ( STATUS "Building Alice using emscripten, please see the build-emscripten.md for further information" )
-    
+
     # Some compiler options
     SET ( CMAKE_CXX_FLAGS "-O2 -std=c++0x -Wno-warn-absolute-paths -Wall -Wno-sign-compare -Wno-unused-variable -s TOTAL_MEMORY=100000000" )
     SET ( CMAKE_EXECUTABLE_SUFFIX ".html" )
-    
+
     # Include Protobuf
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/libprotobuf.so )
         SET ( PROTOBUF_LIBRARY ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/libprotobuf.so )
     ELSE ( )
         MESSAGE ( error "Can't find protobuf" )
     ENDIF ( )
-    
+
     MESSAGE ( STATUS "Treating libprotobuf.so under deps/ as LLVM-Bytecode" )
-    
+
     # Try to find protoc
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/protoc )
         SET ( PROTOC ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src/.libs/protoc )
@@ -109,16 +109,16 @@ IF ( BUILD_EMSCRIPTEN )
     ELSE ( )
         MESSAGE ( error "Can't find protoc" )
     ENDIF ( )
-    
+
     # Include Snappy
     IF ( EXISTS ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/.libs/libsnappy.so )
         SET ( SNAPPY_LIBRARIES ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1/.libs/libsnappy.so )
     ELSE ( )
         MESSAGE ( error "Can't find snappy" )
     ENDIF ( )
-    
+
     MESSAGE ( STATUS "Treating libsnappy.so under deps/ as LLVM-Bytecode" )
-    
+
     # Include dirs under /deps/, just assume boost is there
     include_directories ( ${CMAKE_SOURCE_DIR}/deps/protobuf-2.5.0/src )
     include_directories ( ${CMAKE_SOURCE_DIR}/deps/snappy-1.1.1 )
@@ -227,7 +227,7 @@ ADD_LIBRARY ( alice-core-static STATIC $<TARGET_OBJECTS:alice-core>)
 
 IF ( BUILD_EMSCRIPTEN )
     SET ( ALICE_LIB "alice-core-shared" )
-ELSE ( ) 
+ELSE ( )
     SET ( ALICE_LIB "alice-core-static" )
 ENDIF ( )
 
@@ -370,6 +370,19 @@ IF ( BUILD_EXAMPLE )
     )
 
     INSTALL( TARGETS alice-chat RUNTIME DESTINATION bin )
+
+    ADD_EXECUTABLE ( alice-verify
+        example/verify.cpp
+    )
+
+    TARGET_LINK_LIBRARIES ( alice-verify
+        ${ALICE_LIB}
+        ${PROTOBUF_LIBRARY}
+    	${SNAPPY_LIBRARIES}
+    	${Boost_LIBRARIES}
+    )
+
+    INSTALL( TARGETS alice-verify RUNTIME DESTINATION bin )
 ENDIF ( BUILD_EXAMPLE )
 
 #------------------------------------------------------------

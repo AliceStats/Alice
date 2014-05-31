@@ -1,7 +1,9 @@
 #include <iostream>
 #include <exception>
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <dirent.h>
+#include <alice/config.hpp>
 #include <alice/alice.hpp>
 
 using namespace dota;
@@ -35,30 +37,43 @@ int main(int argc, char **argv) {
             if (e.substr(0,1).compare(".") == 0)
                 continue;
 
-            if (e.substr(e.size()-3) == "dem")
+            if (boost::algorithm::ends_with(e, ".dem"))
                 entries.push_back(std::move(e));
+
+            #if DOTA_BZIP2
+            if (boost::algorithm::ends_with(e, ".bz2"))
+                entries.push_back(std::move(e));
+            #endif // DOTA_BZIP2
         }
 
         closedir(dir);
 
-        std::cout << "Found the following replays: " << std::endl;
-        for (auto &e : entries) {
-            std::cout << " - " << e << std::endl;
-        }
-
         // Parse replays
         for (auto &rep : entries) {
-            std::string replay = std::string(argv[1])+"/"+rep;
-            std::cout << "Parsing " << replay << ": ";
+            try {
+                std::string replay = std::string(argv[1])+"/"+rep;
 
+                parser *p;
 
-            uint64_t c = getZTime();
-            parser p(s, new dem_stream_file);
-            p.open(replay);
-            p.handle();
-            uint64_t c2 = getZTime();
+                #if DOTA_BZIP2
+                if (boost::algorithm::ends_with(replay, ".bz2")) {
+                    p = new parser(s, new dem_stream_bzip2);
+                } else
+                #endif // DOTA_BZIP2
+                {
+                    p = new parser(s, new dem_stream_file);
+                }
 
-            std::cout << ((c2 - c) / 1000) << " ms" << std::endl;
+                p->open(replay);
+                p->handle();
+
+                delete p;
+                std::cout << rep << ": OK" << std::endl;
+            } catch (boost::exception &e) {
+                std::cout << boost::diagnostic_information(e) << std::endl;
+            } catch (std::exception &e) {
+                std::cout << e.what() << std::endl;
+            }
         }
 
         std::cout << "Done" << std::endl;

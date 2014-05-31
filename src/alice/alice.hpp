@@ -28,6 +28,7 @@
 #include <alice/bitstream.hpp>
 #include <alice/delegate.hpp>
 #include <alice/dem.hpp>
+#include <alice/dem_stream_bzip2.hpp>
 #include <alice/dem_stream_file.hpp>
 #include <alice/dem_stream_memory.hpp>
 #include <alice/entity.hpp>

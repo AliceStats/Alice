@@ -31,6 +31,9 @@ OPTION (BUILD_TEST "Build unit tests, requires Boost.Test library" OFF)
 # Enable debug output
 OPTION (DEBUG "Print useful information to cout, slows parser down a lot" 0)
 
+# Enable bzip2 decompression via boost.iostreams
+OPTION (BZIP2 "Enables bzip2 decompression via boost.iostream" 0)
+
 # Enable emscripten support
 OPTION (BUILD_EMSCRIPTEN "Enables emscripten support" 0)
 
@@ -137,11 +140,15 @@ ELSEIF ( UNIX )
 
     # Boost headers / librarys
     IF ( BUILD_TEST )
-        find_package (Boost COMPONENTS system unit_test_framework REQUIRED)
-    ELSE ( BUILD_TEST )
-        find_package ( Boost REQUIRED )
-    ENDIF ( BUILD_TEST )
+        SET ( BOOST_COMPONENTS system unit_test_framework )
+    ENDIF ( )
 
+    IF ( BZIP2 )
+        SET ( BOOST_COMPONENTS ${BOOST_COMPONENTS} iostreams )
+        find_package ( BZip2 )
+    ENDIF ( )
+
+    find_package (Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
     include_directories( ${Boost_INCLUDE_DIRS} )
 ELSE ( )
     # Protobuf
@@ -212,6 +219,7 @@ SET ( ALICE_CORE_SOURCES
     src/alice/parser.cpp
     src/alice/property.cpp
     src/alice/stringtable.cpp
+    src/alice/dem_stream_bzip2.cpp
     src/alice/dem_stream_file.cpp
     src/alice/dem_stream_memory.cpp
 )
@@ -225,6 +233,7 @@ ADD_LIBRARY ( alice-core OBJECT ${ALICE_CORE_SOURCES} ${PROTO_SOURCES} ${SNAPPY_
 ADD_LIBRARY ( alice-core-shared SHARED $<TARGET_OBJECTS:alice-core>)
 ADD_LIBRARY ( alice-core-static STATIC $<TARGET_OBJECTS:alice-core>)
 
+# default library to link against
 IF ( BUILD_EMSCRIPTEN )
     SET ( ALICE_LIB "alice-core-shared" )
 ELSE ( )
@@ -235,6 +244,7 @@ TARGET_LINK_LIBRARIES ( alice-core-shared
     ${PROTOBUF_LIBRARY}
     ${SNAPPY_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${BZIP2_LIBRARIES}
 )
 
 # alice-addon
@@ -272,6 +282,7 @@ SET ( ALICE_CORE_HEADERS
     src/alice/bitstream.hpp
     src/alice/config.hpp
     src/alice/dem.hpp
+    src/alice/dem_stream_bzip2.hpp
     src/alice/dem_stream_file.hpp
     src/alice/dem_stream_memory.hpp
     src/alice/delegate.hpp
@@ -380,6 +391,7 @@ IF ( BUILD_EXAMPLE )
         ${PROTOBUF_LIBRARY}
     	${SNAPPY_LIBRARIES}
     	${Boost_LIBRARIES}
+    	${BZIP2_LIBRARIES}
     )
 
     INSTALL( TARGETS alice-verify RUNTIME DESTINATION bin )

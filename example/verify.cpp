@@ -1,16 +1,62 @@
 #include <iostream>
 #include <exception>
+#include <thread>
+#include <queue>
+#include <mutex>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <dirent.h>
 #include <alice/config.hpp>
 #include <alice/alice.hpp>
 
 using namespace dota;
 
+/** Simple thread pool, handle's a fixed-size list of tasks */
+class threadpool {
+    public:
+        /** Add a new task to the pool */
+        void addTask(std::function<void()>&& t) {
+            tasks.push(std::move(t));
+        }
+
+        /** Handle all tasks */
+        void work(uint32_t nThreads) {
+            // add work to each thread
+            for (uint32_t i = 0; i < nThreads; ++i) {
+                workers.push_back(std::thread([&](){
+                    while (true) {
+                        std::unique_lock<std::mutex> lock(task_lock);
+                        if (tasks.empty())
+                            break;
+
+                        std::function<void()> job = tasks.front();
+                        tasks.pop();
+                        lock.unlock();
+                        job();
+                    }
+
+                }));
+            }
+
+            // join all threads
+            for (uint32_t i = 0; i < nThreads; ++i) {
+                workers[i].join();
+            }
+        }
+    private:
+        /** List of workers */
+        std::vector<std::thread> workers;
+        /** Task queue */
+        std::queue<std::function<void()>> tasks;
+        /** Synchronisation for queue */
+        std::mutex task_lock;
+};
+
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        std::cerr << "Usage: verify <replay folder>" << std::endl;
+    if (argc != 3) {
+        std::cerr << "Usage: verify <replay folder> <threads>" << std::endl;
         return 1;
     }
 
@@ -49,32 +95,37 @@ int main(int argc, char **argv) {
         closedir(dir);
 
         // Parse replays
+        threadpool pool;
+        uint32_t nThreads = boost::lexical_cast<uint32_t>(argv[2]);
         for (auto &rep : entries) {
-            try {
-                std::string replay = std::string(argv[1])+"/"+rep;
+            std::string replay = std::string(argv[1])+"/"+rep;
+            pool.addTask([=](){
+                try {
+                    parser *p;
 
-                parser *p;
+                    #if DOTA_BZIP2
+                    if (boost::algorithm::ends_with(replay, ".bz2")) {
+                        p = new parser(s, new dem_stream_bzip2);
+                    } else
+                    #endif // DOTA_BZIP2
+                    {
+                        p = new parser(s, new dem_stream_file);
+                    }
 
-                #if DOTA_BZIP2
-                if (boost::algorithm::ends_with(replay, ".bz2")) {
-                    p = new parser(s, new dem_stream_bzip2);
-                } else
-                #endif // DOTA_BZIP2
-                {
-                    p = new parser(s, new dem_stream_file);
+                    p->open(replay);
+                    p->handle();
+
+                    delete p;
+                    std::cout << rep << ": OK" << std::endl;
+                } catch (boost::exception &e) {
+                    std::cout << boost::diagnostic_information(e) << std::endl;
+                } catch (std::exception &e) {
+                    std::cout << e.what() << std::endl;
                 }
-
-                p->open(replay);
-                p->handle();
-
-                delete p;
-                std::cout << rep << ": OK" << std::endl;
-            } catch (boost::exception &e) {
-                std::cout << boost::diagnostic_information(e) << std::endl;
-            } catch (std::exception &e) {
-                std::cout << e.what() << std::endl;
-            }
+            });
         }
+
+        pool.work(nThreads);
 
         std::cout << "Done" << std::endl;
     } catch (boost::exception &e) {

@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <string>
 #include <utility>
+#include <mutex>
 
 #include <boost/functional/hash.hpp>
 

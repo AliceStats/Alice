@@ -43,7 +43,10 @@ namespace dota {
 
     void entity::updateFromBitstream(bitstream& bstream, entity_delta* delta) {
         // use this static vector so we don't realocate memory all the time
+        static std::mutex fieldLock;
         static std::vector<uint32_t> fields(1000, 0);
+
+        std::unique_lock<std::mutex> lock(fieldLock);
         fields.clear();
 
         uint32_t fieldId = -1;

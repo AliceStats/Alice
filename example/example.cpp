@@ -91,12 +91,14 @@ int main(int argc, char **argv) {
             false, // forward_net_internal - Same as above. In addition, these are never ever required. Ever. Almost.
             false, // forward_user - We don't use them so we can skip them. Contains stuff like the combat log and chat.
             true,  // parse_stringtables - We need baseline instance
-            {"ActiveModifiers", "CooldownNames", "ModifierNames", "CombatLogNames" }, // blocked stringtables - Names say all
+            std::set<std::string>{
+                 "ActiveModifiers", "CooldownNames", "ModifierNames", "CombatLogNames" 
+            }, // blocked stringtables - Names say all
             true,  // parse_entities - Yes we need them
             false, // track_entities - Nope
             true,  // forward entities - Yes we listen to em
             true,  // skip unused - Yes cause we don't request them via the parser
-            {},    // blocked ones - All except the forwarded with skip_unused=true
+            std::set<uint32_t>{}, // blocked ones - All except the forwarded with skip_unused=true
             false  // we dont handle events
         };
 

@@ -17,21 +17,21 @@ int main(int argc, char **argv) {
         // This is the least performant configuration.
         // It should be used when you are developing an application that needs all possible information available.
         settings s_full {
-            true, true, true, true, true, {}, true, true, true, false, {}, true
+            true, true, true, true, true, std::set<std::string>{}, true, true, true, false, std::set<uint32_t>{}, true
         };
 
         // This configuration skips stuff which you most likely don't care about.
         settings s_minimal {
             false, true, false, true, true,
-            {"ParticleEffectNames", "EconItems", "lightstyles", "ResponseKeys", "downloadables", "InfoPanel",
+            std::set<std::string>{"ParticleEffectNames", "EconItems", "lightstyles", "ResponseKeys", "downloadables", "InfoPanel",
              "userinfo", "server_query_info", "Scenes", "dynamicmodel", "VguiScreen", "ExtraParticleFilesTable",
              "EffectDispatch", "GameRulesCreation", "Materials"
-            }, true, false, true, true, {}, false
+            }, true, false, true, true, std::set<uint32_t>{}, false
         };
 
         // Verify file integrity
         settings s_verify {
-            false, false, false, false, true, {}, true, false, false, true, {}, false
+            false, false, false, false, true, std::set<std::string>{}, true, false, false, true, std::set<uint32_t>{}, false
         };
 
         // Read all replays into our vector

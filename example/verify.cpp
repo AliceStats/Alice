@@ -7,7 +7,10 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
+
 #include <alice/config.hpp>
 #include <alice/alice.hpp>
 
@@ -63,7 +66,7 @@ int main(int argc, char **argv) {
     try {
         // Settings, we activate everything to verify that all information can be parsed
         settings s {
-            true, true, true, true, true, {}, true, true, true, false, {}, true
+            true, true, true, true, true, std::set<std::string>{}, true, true, true, false, std::set<uint32_t>{}, true
         };
 
         // Read all replays into the list
@@ -101,6 +104,15 @@ int main(int argc, char **argv) {
             std::string replay = std::string(argv[1])+"/"+rep;
             pool.addTask([=](){
                 try {
+                    // check file size for 0 sized downloads
+                    struct stat fstat;
+                    stat( replay.c_str(), &fstat );
+                    
+                    if (fstat.st_size < 200) {
+                        std::cout << rep << ": Unavailable" << std::endl;
+                        return;
+                    }
+                    
                     parser *p;
 
                     #if DOTA_BZIP2

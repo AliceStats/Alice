@@ -18,6 +18,10 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
+ *
+ * This program generates a static representation of the entities in a single
+ * replay. It makes it possible to conditionally skip generating a flattable by
+ * hashing the sendtable.
  */
 
 #include <iostream>
@@ -28,7 +32,7 @@
 
 using namespace dota;
 
-/** This handler prints the coordinates of a hero dieing to the console. */
+/** Generates header files from the send-/recv tables. */
 class handler_entities {
     private:
         /** Pointer to the parser */
@@ -65,18 +69,33 @@ class handler_entities {
 
         /** Callback when stringtables are available */
         void handleReady(handlerCbType(msgStatus) msg) {
+            // Macros:
+            // - NET_ClassBegin(classname)
+            // - NET_Property()
+            // - NET_ClassEnd()
+
+            // header
+            std::stringstream out("");
+            out << "#ifndef _ALICE_ENT_" << ver_crc << "_HPP_" << std::endl;
+            out << "#define _ALICE_ENT_" << ver_crc << "_HPP_" << std::endl;
+
             // iterate and dump all entities
             auto ft = p->getFlattables();
             for (auto &tbl : ft) {
-                // class name -> tbl.name
+                out << std::endl;
+                out << "NET_ClassBegin(" << tbl.name << ")" << std::endl;
                 for (auto &p : tbl.properties) {
-                    // property -> p.name
-                    // add property to class and generate versioning information
+                    out << "\tNET_Property(" << p.name << ")" << std::endl;
                 }
+                out << "NET_ClassEnd()" << std::endl;
             }
+
+            out << "#endif" << std::endl;
 
             // just force the program to exit
             finished = true;
+
+            std::cout << out.str() << std::endl;
         }
 
         /** Returns true once we are done parsing */

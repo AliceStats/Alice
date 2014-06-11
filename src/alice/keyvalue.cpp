@@ -185,6 +185,57 @@ namespace dota {
     }
 
     keyvalue::value_type keyvalue::parse_binary() {
+        // Some utility functions to work on key types
+        static auto readString = [&](){
+            std::string key("");
+            for (int j = 0; j < PKV_SIZE && src[i] != '\0'; ++j) {
+                key += src[i++];
+            }
+            ++i;
+            return key;
+        };
 
+        int32_t type = 0;
+        while (true) {
+            type = src[i++]; // type of packed value
+
+            // got to the end
+            if (type == PKV_MAX)
+                break;
+
+            std::string key = readString();
+
+            switch (type) {
+                case PKV_NODE:
+                    // create new node for key
+                    // parse_binary should work recursive for this as there
+                    // is no end delimiter
+                    break:
+                case PKV_STRING:
+                    // read string like the key
+                    break:
+                case PKV_INT:
+                    // read 4 bytes
+                    break:
+                case PKV_FLOAT:
+                    // read sizeof(float) bytes
+                    break:
+                case PKV_PTR:
+                    // read a normal int, treat as pointer
+                    // calculate our offset? Different alignment of our tree
+                    break:
+                case PKV_WSTRING:
+                    // read 2 bytes for string length
+                    // read string
+                    break:
+                case PKV_COLOR:
+                    // I think this is just 4 bytes?
+                    break:
+                case PKV_UINT64:
+                    // read 8 bytes
+                    break:
+            }
+
+        } while (type != PKV_MAX);
     }
 }

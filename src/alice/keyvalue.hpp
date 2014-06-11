@@ -30,6 +30,9 @@
 #include <alice/exception.hpp>
 #include <alice/tree.hpp>
 
+/// Maximum size of a packed kv key
+#define PKV_KEY_SIZE 1024
+
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions
     /// @{
@@ -106,6 +109,19 @@ namespace dota {
 
                 // same as EXPECT_KEY but for value content
                 EXPECT_VALUE_VALUE = 4
+            };
+
+            /** Different types of values packed */
+        	enum pkv {
+                PKV_NODE = 0,
+                PKV_STRING,
+                PKV_INT,
+                PKV_FLOAT,
+                PKV_PTR,
+                PKV_WSTRING,
+                PKV_COLOR,
+                PKV_UINT64,
+                PKV_MAX       // Marks the end of the structure
             };
     };
 

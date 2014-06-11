@@ -210,6 +210,7 @@ SET ( PROTO_SOURCES
     src/alice/dota_usermessages.pb.cc
     src/alice/netmessages.pb.cc
     src/alice/networkbasetypes.pb.cc
+    src/alice/network_connection.pb.cc
     src/alice/usermessages.pb.cc
 )
 
@@ -274,6 +275,7 @@ SET ( PROTO_HEADERS
     src/alice/dota_usermessages.pb.h
     src/alice/netmessages.pb.h
     src/alice/networkbasetypes.pb.h
+    src/alice/network_connection.pb.h
     src/alice/usermessages.pb.h
 )
 

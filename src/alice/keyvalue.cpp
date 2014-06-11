@@ -29,7 +29,7 @@
 #include <alice/keyvalue.hpp>
 
 namespace dota {
-    keyvalue::keyvalue(std::string s, bool isPath) : src(""), path(""), col(0), row(0), kv("", "") {
+    keyvalue::keyvalue(std::string s, bool isPath, bool isBinary) : src(""), path(""), col(0), row(0), kv("", ""), packed(isBinary) {
         if (isPath) {
             path = std::move(s);
 
@@ -52,6 +52,10 @@ namespace dota {
     }
 
     keyvalue::value_type keyvalue::parse() {
+        return packed ? parse_binary() : parse_text();
+    }
+
+    keyvalue::value_type keyvalue::parse_text() {
         std::string key   = "";             // key
         std::string value = "";             // value
         bool waitNl = false;                // whether we are waiting for the next line to continue parsing
@@ -178,5 +182,9 @@ namespace dota {
         // delete stuff
         src.clear();
         return kv;
+    }
+
+    keyvalue::value_type keyvalue::parse_binary() {
+
     }
 }

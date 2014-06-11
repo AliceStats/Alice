@@ -64,8 +64,9 @@ namespace dota {
              *
              * @param s String or path depending on isPath
              * @param isPath Treats first argument as path if true
+             * @param isBinary Treats data as binary
              */
-            keyvalue(std::string s, bool isPath = false);
+            keyvalue(std::string s, bool isPath = false, bool isBinary = false);
 
             /**
              * Parses contents and returns them as value_type.
@@ -86,6 +87,13 @@ namespace dota {
             uint32_t row;
             /** Contains parsed structure */
             value_type kv;
+            /** Whether the structure has been packed */
+            bool packed;
+
+            /** Parse a normal KV */
+            value_type parse_text();
+            /** Parse a binary KV */
+            value_type parse_binary();
 
             /** The different possible parser states */
             enum class state {

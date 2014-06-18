@@ -88,8 +88,13 @@ namespace dota {
                             << (EArgT<1, uint32_t>::info(sLength))
                         );
 
-                    keys[sIndex].copy(key, sLength, 0);
-                    bstream.nReadString(key + sLength, STRINGTABLE_MAX_KEY_SIZE - sLength);
+                    if (keys.size() <= sIndex) {
+                        D_( std::cout << "[stringtable] Ignoring invalid history index. " << " " << D_FILE << " " << __LINE__ << std::endl;, 1 )
+                        bstream.nReadString(reinterpret_cast<char*>(&key), STRINGTABLE_MAX_KEY_SIZE);
+                    } else {
+                        keys[sIndex].copy(key, sLength, 0);
+                        bstream.nReadString(key + sLength, STRINGTABLE_MAX_KEY_SIZE - sLength);
+                    }
                 } else {
                     bstream.nReadString(reinterpret_cast<char*>(&key), STRINGTABLE_MAX_KEY_SIZE);
                 }

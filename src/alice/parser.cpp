@@ -725,6 +725,7 @@ namespace dota {
         regSvc( GameEventList )     // 30
         regSvc( GetCvarValue )      // 31
         regSvc( PacketReliable )    // 32
+        regSvc( FullFrameSplit )    // 33
 
         regUsr( AchievementEvent )  // 1
         regUsr( CloseCaption )      // 2
@@ -755,6 +756,7 @@ namespace dota {
         regUsr( VoiceMask )         // 28
         regUsr( VoiceSubtitle )     // 29
         regUsr( SendAudio )         // 30
+        regUsr( CameraTransition )  // 31
 
         //regUsrDota( AddUnitToSelection )      // 64
         regUsrDota( AIDebugLine )               // 65
@@ -789,7 +791,7 @@ namespace dota {
         //regUsrDota( CharacterSpeakConcept )   // 95
         regUsrDota( SwapVerify )                // 96
         regUsrDota( WorldLine )                 // 97
-        regUsrDota( TournamentDrop )            // 98
+        //regUsrDota( TournamentDrop )            // 98
         regUsrDota( ItemAlert )                 // 99
         regUsrDota( HalloweenDrops )            // 100
         regUsrDota( ChatWheel )                 // 101
@@ -818,6 +820,8 @@ namespace dota {
         regUsrDota( WillPurchaseAlert )         // 124
         regUsrDota( TutorialMinimapPosition )   // 125
         regUsrDota( PlayerMMR )                 // 126
+        regUsrDota( AbilitySteal )              // 127
+        regUsrDota( CourierKilledAlert )        // 128
 
         #undef regDem
         #undef regNet

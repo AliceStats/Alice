@@ -1,7 +1,7 @@
 /**
  * @file keyvalue.cpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +26,8 @@
 
 #include <set>
 #include <fstream>
+
+#include <boost/lexical_cast.hpp>
 
 #include <alice/keyvalue.hpp>
 
@@ -184,58 +187,79 @@ namespace dota {
         return kv;
     }
 
-    keyvalue::value_type keyvalue::parse_binary() {
+    keyvalue::value_type keyvalue::parse_binary(value_type* node) {
         // Some utility functions to work on key types
-        static auto readString = [&](){
+        auto readString = [&](){
             std::string key("");
-            for (int j = 0; j < PKV_SIZE && src[i] != '\0'; ++j) {
-                key += src[i++];
+            for (int j = 0; j < PKV_KEY_SIZE && src[col] != '\0'; ++j) {
+                key += src[col++];
             }
-            ++i;
+            ++col;
             return key;
         };
 
-        int32_t type = 0;
+        // we abuse col as the read indicator
+        int32_t type = src[col++];
         while (true) {
-            type = src[i++]; // type of packed value
-
-            // got to the end
+            // check if we are finished
             if (type == PKV_MAX)
                 break;
 
+            // read key
             std::string key = readString();
+
+            // use kv as root node
+            if (node == nullptr)
+                node = &kv;
 
             switch (type) {
                 case PKV_NODE:
-                    // create new node for key
-                    // parse_binary should work recursive for this as there
-                    // is no end delimiter
-                    break:
-                case PKV_STRING:
-                    // read string like the key
-                    break:
-                case PKV_INT:
-                    // read 4 bytes
-                    break:
-                case PKV_FLOAT:
-                    // read sizeof(float) bytes
-                    break:
+                    node->add(key, value_type::node_type(key, ""));
+                    parse_binary(&node->child(key));
+                    break;
+
+                case PKV_STRING: {
+                    node->add(key, value_type::node_type(key, readString()));
+                } break;
+
+                case PKV_INT: {
+                    // 32 bit signed integer
+                    int32_t &i2 = *(int32_t *)(&src[col]);
+                    node->add(key, value_type::node_type(key, boost::lexical_cast<std::string>(i2)));
+                    col += 4;
+                } break;
+
+                case PKV_FLOAT: {
+                    // float
+                    float &f = *(float *)(&src[col]);
+                    node->add(key, value_type::node_type(key, boost::lexical_cast<std::string>(f)));
+                    col += sizeof(float);
+                } break;
+
+                case PKV_UINT64: {
+                    uint64_t &i2 = *(uint64_t *)(&src[col]);
+                    node->add(key, value_type::node_type(key, boost::lexical_cast<std::string>(i2)));
+                    col += 8;
+                }   break;
+
                 case PKV_PTR:
-                    // read a normal int, treat as pointer
-                    // calculate our offset? Different alignment of our tree
-                    break:
+                    break;
                 case PKV_WSTRING:
                     // read 2 bytes for string length
                     // read string
-                    break:
+                    break;
                 case PKV_COLOR:
-                    // I think this is just 4 bytes?
-                    break:
-                case PKV_UINT64:
-                    // read 8 bytes
-                    break:
+                    // I think this is just 4 bytes? ARGB or RGBA?
+                    col += 4;
+                    break;
+                default:
+                    // Happens, let's just ignore it
+                    break;
             }
 
+            type = src[col++]; // type of packed value
         } while (type != PKV_MAX);
+
+        return kv;
     }
 }

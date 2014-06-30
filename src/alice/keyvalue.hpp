@@ -1,7 +1,7 @@
 /**
  * @file keyvalue.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,6 +52,9 @@ namespace dota {
 
     /// Thrown when the parser expects a key but find an object
     CREATE_EXCEPTION( kvStartOfObject,        "Unexpected start of object" )
+
+    /// Thrown when the parser expects a key but find an object
+    CREATE_EXCEPTION( kvBinaryError,          "Start of binary kv does not point to node" )
 
     /// @}
     /// @defgroup ADDON Addon
@@ -96,7 +100,7 @@ namespace dota {
             /** Parse a normal KV */
             value_type parse_text();
             /** Parse a binary KV */
-            value_type parse_binary();
+            value_type parse_binary(value_type *n = nullptr);
 
             /** The different possible parser states */
             enum class state {
@@ -121,7 +125,7 @@ namespace dota {
                 PKV_WSTRING,
                 PKV_COLOR,
                 PKV_UINT64,
-                PKV_MAX       // Marks the end of the structure
+                PKV_MAX = 11      // Marks the end of the structure
             };
     };
 

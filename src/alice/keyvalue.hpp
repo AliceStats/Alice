@@ -1,7 +1,7 @@
 /**
  * @file keyvalue.hpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +30,9 @@
 #include <string>
 #include <alice/exception.hpp>
 #include <alice/tree.hpp>
+
+/// Maximum size of a packed kv key
+#define PKV_KEY_SIZE 1024
 
 namespace dota {
     /// @defgroup EXCEPTIONS Exceptions
@@ -49,6 +53,9 @@ namespace dota {
     /// Thrown when the parser expects a key but find an object
     CREATE_EXCEPTION( kvStartOfObject,        "Unexpected start of object" )
 
+    /// Thrown when the parser expects a key but find an object
+    CREATE_EXCEPTION( kvBinaryError,          "Start of binary kv does not point to node" )
+
     /// @}
     /// @defgroup ADDON Addon
     /// @{
@@ -64,8 +71,9 @@ namespace dota {
              *
              * @param s String or path depending on isPath
              * @param isPath Treats first argument as path if true
+             * @param isBinary Treats data as binary
              */
-            keyvalue(std::string s, bool isPath = false);
+            keyvalue(std::string s, bool isPath = false, bool isBinary = false);
 
             /**
              * Parses contents and returns them as value_type.
@@ -86,6 +94,13 @@ namespace dota {
             uint32_t row;
             /** Contains parsed structure */
             value_type kv;
+            /** Whether the structure has been packed */
+            bool packed;
+
+            /** Parse a normal KV */
+            value_type parse_text();
+            /** Parse a binary KV */
+            value_type parse_binary(value_type *n = nullptr);
 
             /** The different possible parser states */
             enum class state {
@@ -98,6 +113,19 @@ namespace dota {
 
                 // same as EXPECT_KEY but for value content
                 EXPECT_VALUE_VALUE = 4
+            };
+
+            /** Different types of values packed */
+        	enum pkv {
+                PKV_NODE = 0,
+                PKV_STRING,
+                PKV_INT,
+                PKV_FLOAT,
+                PKV_PTR,
+                PKV_WSTRING,
+                PKV_COLOR,
+                PKV_UINT64,
+                PKV_MAX = 11      // Marks the end of the structure
             };
     };
 

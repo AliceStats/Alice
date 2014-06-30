@@ -1,7 +1,7 @@
 /**
  * @file keyvalue.cpp
  * @author Robin Dietrich <me (at) invokr (dot) org>
- * @version 1.0
+ * @version 1.1
  *
  * @par License
  *    Alice Replay Parser
@@ -12,6 +12,7 @@
  *    You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,10 +27,12 @@
 #include <set>
 #include <fstream>
 
+#include <boost/lexical_cast.hpp>
+
 #include <alice/keyvalue.hpp>
 
 namespace dota {
-    keyvalue::keyvalue(std::string s, bool isPath) : src(""), path(""), col(0), row(0), kv("", "") {
+    keyvalue::keyvalue(std::string s, bool isPath, bool isBinary) : src(""), path(""), col(0), row(0), kv("", ""), packed(isBinary) {
         if (isPath) {
             path = std::move(s);
 
@@ -52,6 +55,10 @@ namespace dota {
     }
 
     keyvalue::value_type keyvalue::parse() {
+        return packed ? parse_binary() : parse_text();
+    }
+
+    keyvalue::value_type keyvalue::parse_text() {
         std::string key   = "";             // key
         std::string value = "";             // value
         bool waitNl = false;                // whether we are waiting for the next line to continue parsing
@@ -177,6 +184,82 @@ namespace dota {
 
         // delete stuff
         src.clear();
+        return kv;
+    }
+
+    keyvalue::value_type keyvalue::parse_binary(value_type* node) {
+        // Some utility functions to work on key types
+        auto readString = [&](){
+            std::string key("");
+            for (int j = 0; j < PKV_KEY_SIZE && src[col] != '\0'; ++j) {
+                key += src[col++];
+            }
+            ++col;
+            return key;
+        };
+
+        // we abuse col as the read indicator
+        int32_t type = src[col++];
+        while (true) {
+            // check if we are finished
+            if (type == PKV_MAX)
+                break;
+
+            // read key
+            std::string key = readString();
+
+            // use kv as root node
+            if (node == nullptr)
+                node = &kv;
+
+            switch (type) {
+                case PKV_NODE:
+                    node->add(key, value_type::node_type(key, ""));
+                    parse_binary(&node->child(key));
+                    break;
+
+                case PKV_STRING: {
+                    node->add(key, value_type::node_type(key, readString()));
+                } break;
+
+                case PKV_INT: {
+                    // 32 bit signed integer
+                    int32_t &i2 = *(int32_t *)(&src[col]);
+                    node->add(key, value_type::node_type(key, boost::lexical_cast<std::string>(i2)));
+                    col += 4;
+                } break;
+
+                case PKV_FLOAT: {
+                    // float
+                    float &f = *(float *)(&src[col]);
+                    node->add(key, value_type::node_type(key, boost::lexical_cast<std::string>(f)));
+                    col += sizeof(float);
+                } break;
+
+                case PKV_UINT64: {
+                    uint64_t &i2 = *(uint64_t *)(&src[col]);
+                    node->add(key, value_type::node_type(key, boost::lexical_cast<std::string>(i2)));
+                    col += 8;
+                }   break;
+
+                case PKV_PTR:
+                    break;
+                case PKV_WSTRING:
+                    // read 2 bytes for string length
+                    // read string
+                    break;
+                case PKV_COLOR:
+                    // I think this is just 4 bytes? ARGB or RGBA?
+                    col += 4;
+                    break;
+                default:
+                    // Happens, let's just ignore it
+                    break;
+            }
+
+            type = src[col++]; // type of packed value
+        } while (type != PKV_MAX);
+
         return kv;
     }
 }

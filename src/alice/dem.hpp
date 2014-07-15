@@ -99,9 +99,6 @@ namespace dota {
             /** Don't allow copying of streams */
             dem_stream(const dem_stream&) = delete;
 
-            /** Default move constructor */
-            dem_stream(dem_stream&&) = default;
-
             /** Whether there are still messages left to be read */
             virtual bool good() = 0;
 

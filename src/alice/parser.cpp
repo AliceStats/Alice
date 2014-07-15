@@ -248,19 +248,19 @@ namespace dota {
         return 0;
     }
 
-    typename parser::entityMap& parser::getEntities() {
+    parser::entityMap& parser::getEntities() {
         return entities;
     }
 
-    typename parser::stringtableMap& parser::getStringtables() {
+    parser::stringtableMap& parser::getStringtables() {
         return stringtables;
     }
 
-    typename parser::flatMap& parser::getFlattables() {
+    parser::flatMap& parser::getFlattables() {
         return flattables;
     }
 
-    typename parser::sendtableMap& parser::getSendtables() {
+    parser::sendtableMap& parser::getSendtables() {
         return sendtables;
     }
 

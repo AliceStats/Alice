@@ -762,7 +762,7 @@ namespace dota {
         regUsrDota( AIDebugLine )               // 65
         regUsrDota( ChatEvent )                 // 66
         regUsrDota( CombatHeroPositions )       // 67
-        regUsrDota( CombatLogData )             // 68
+        //regUsrDota( CombatLogData )             // 68
         regUsrDota( CombatLogShowDeath )        // 70
         regUsrDota( CreateLinearProjectile )    // 71
         regUsrDota( DestroyLinearProjectile )   // 72
@@ -822,6 +822,10 @@ namespace dota {
         regUsrDota( PlayerMMR )                 // 126
         regUsrDota( AbilitySteal )              // 127
         regUsrDota( CourierKilledAlert )        // 128
+        regUsrDota( EnemyItemAlert )            // 129
+        regUsrDota( StatsMatchDetails )         // 130
+        regUsrDota( MiniTaunt )                 // 131
+        regUsrDota( BuyBackStateAlert )         // 132
 
         #undef regDem
         #undef regNet

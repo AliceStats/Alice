@@ -173,7 +173,7 @@ class handler_visualize {
         visualizeDefine( msgUser, DOTA_UM_SendGenericToolTip )
         visualizePrint( msgUser, DOTA_UM_SendFinalGold, CDOTAUserMsg_SendFinalGold )
     public:
-        handler_visualize(parser* p) : p(p), h(p->getHandler()) {
+        handler_visualize(parser* p) : h(p->getHandler()) {
             // register DEM
             visualizeRegister( msgDem, DEM_FileHeader);
             visualizeRegister( msgDem, DEM_FileInfo);
@@ -307,8 +307,6 @@ class handler_visualize {
             visualizeRegister( msgUser, DOTA_UM_SendFinalGold )
         }
     private:
-        /** Pointer to replay parser */
-        parser* p;
         /** Pointer to callback handler */
         handler_t* h;
 };
@@ -327,12 +325,12 @@ int main(int argc, char **argv) {
             true,  // forward_net_internal   - Same as above.
             true,  // forward_user           - Yes
             true,  // parse_stringtables     - Yes
-            {},
+            std::set<std::string>{},
             true,  // parse_entities         - We don't need the content but the changes
             true,  // track_entities         - Yes, that's what we'll print out
             false, // forward entities       - Printing this would be way to much data
             false, // skip unused entities   - No, would be a bad visualization if all the entities were to be missing
-            {},    // blocked entities       - Let's not block any stuff for now
+            std::set<uint32_t>{},
             false  // parse_events           - Nope, not implemented yet
         };
 

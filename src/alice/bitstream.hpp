@@ -127,10 +127,10 @@ namespace dota {
             }
 
             /** Copy-Constructor */
-            bitstream(const bitstream& b) : data{b.data}, pos{b.pos}, size{b.size} {}
+            bitstream(const bitstream& b) : data(b.data), pos(b.pos), size(b.size) {}
 
             /** Move-Constructor */
-            bitstream(bitstream&& b) : data{std::move(b.data)}, pos{b.pos}, size{b.size} {
+            bitstream(bitstream&& b) : data(std::move(b.data)), pos(b.pos), size(b.size) {
                 b.data.clear();
                 b.pos = 0;
                 b.size = 0;

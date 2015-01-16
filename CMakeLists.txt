@@ -206,11 +206,14 @@ SET ( PROTO_SOURCES
     src/alice/ai_activity.pb.cc
     src/alice/demo.pb.cc
     src/alice/dota_commonmessages.pb.cc
+    src/alice/dota_gcmessages_common.pb.cc
     src/alice/dota_modifiers.pb.cc
     src/alice/dota_usermessages.pb.cc
+    src/alice/gcsdk_gcmessages.pb.cc
     src/alice/netmessages.pb.cc
     src/alice/networkbasetypes.pb.cc
     src/alice/network_connection.pb.cc
+    src/alice/steammessages.pb.cc
     src/alice/usermessages.pb.cc
 )
 
@@ -271,12 +274,15 @@ SET ( PROTO_HEADERS
     src/alice/ai_activity.pb.h
     src/alice/demo.pb.h
     src/alice/dota_commonmessages.pb.h
+    src/alice/dota_gcmessages_common.pb.h
     src/alice/dota_modifiers.pb.h
     src/alice/dota_usermessages.pb.h
+    src/alice/gcsdk_gcmessages.pb.h
     src/alice/netmessages.pb.h
     src/alice/networkbasetypes.pb.h
     src/alice/network_connection.pb.h
     src/alice/usermessages.pb.h
+    src/alice/steammessages.pb.h
 )
 
 SET ( ALICE_CORE_HEADERS

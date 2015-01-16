@@ -159,6 +159,17 @@ namespace dota {
                 return it->value;
             }
 
+            /** Get key by index */
+            inline storage::key_type getKey(const int32_t& index) const {
+                auto it = db.findIndex(index);
+                if (it == db.endIndex())
+                    BOOST_THROW_EXCEPTION( stringtableUnkownIndex()
+                        << (EArgT<1, int32_t>::info(index))
+                    );
+
+                return it->key;
+            }
+
             /** Returns name of this stringtable */
             inline const std::string& getName() const {
                 return name;

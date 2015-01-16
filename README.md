@@ -54,15 +54,15 @@ in the following manner:
 Performance
 -----------
 
-Alice is heavily optimized and can parse the majority of replays in less than one second. A standard 45 Minute public
-Replay parses in about 500ms.
+Alice is heavily optimized and can parse the majority of replays in less than a second. A standard 45 minute public
+replay takes about 500ms.
 
-The following settings are available to further tweak the parsing process with the recommended settings in brackets:
+The following settings are available to further tweak the parsing process (with the recommended settings in brackets):
 
- - forward_dem: Allows the User to receive base-level messages such as raw packet contents (`false`)
- - forward_net: Allows the User to receive network messages (`true`)
- - forward_net_internal: Forwards internal messages e.g. Packet containters and raw packet contents (`false`)
- - forward_user: Whether to receive user messages, required `forward_net` (`true`)
+ - forward_dem: Allows the user to receive base-level messages such as raw packet contents (`false`)
+ - forward_net: Allows the user to receive network messages (`true`)
+ - forward_net_internal: Forwards internal messages e.g. packet-containers and raw packet contents (`false`)
+ - forward_user: Whether to receive user messages, requires `forward_net` (`true`)
  - parse_stringtables: Whether to parse stringtables, required when using entities (`true`)
  - parse_entities: Whether to parse entities, required for hero positioning and items (`true`)
  - track_entities: Whether to send specific information about which fields have been modified in an update (`false`)
@@ -74,14 +74,15 @@ Games with in different skill-brackets and different game modes have more / less
 spectator commentary and interaction based messages.
 
 The performance example includes three sample configurations, the following graph shows the differences based on the amount
-of messages parsed. The replays used are captains-mode games from the TI3 Qualifiers.
+of messages parsed. The replays used are captains-mode games from the TI3 Qualifiers. 
+The x-axis represents the amount of messages parsed, the y-access the time required in milliseconds.
 
 ![Image](https://raw.github.com/AliceStats/Alice/master/doc/performance/graph.png)
 
 Memory Usage
 ------------
 
-Alice was designed to allocate a fixed amount of memory during it's initialization stage in order to prevent slow
+Alice was designed to allocate a fixed amount of memory during its initialization stage in order to prevent slow
 reallocations and memory fragmentation. How much memory is allocated mainly depends on the combination of the
 following two factors:
 
@@ -124,7 +125,7 @@ Taking into account a stack-size of roughly ~6 MB, the overall memory usage will
 Building Alice on Unix
 ----------------------
 
-Alice utilizes CMake as its build system. To build Alice on Linux or OS X issue the following commands in the top-level
+Alice utilizes CMake as its build system. To build Alice on Linux or OS X, issue the following commands in the top-level
 directory:
 
     mkdir build
@@ -134,11 +135,11 @@ directory:
     make install
 
 This will generate a bin folder containing the example, a lib folder containing shared and static versions of
-the library as well as an include folder with the nessecary headers needed to develop with Alice.
+the library, as well as an include folder with the nessecary headers required to develop with Alice.
 
-If Alice segfaults it might be usefull to turn on debugging by adding `-DDEBUG=X` where X is a number between 1 and 5
-to the CMake options. If debugging is enabled Alice prints a lot of information to cout (> 300 MB) so it's recommended
-to pipe the output in a file and only investigate the last couple of lines. This does not replace using a debugger but
+If Alice segfaults it might be usefull to turn on debugging by adding `-DDEBUG=X`, where X is a number between 1 and 5,
+to the CMake options. If debugging is enabled, Alice prints a lot of information to cout (> 300 MB). It's recommended
+to pipe the output in a file and only investigate the last couple of lines. This does not replace a debugger but
 it's helpfull in narrowing down certain kinds of errors.
 
 Building Alice on Windows
@@ -169,6 +170,6 @@ You can use the [Devkit](https://github.com/AliceStats/DevKit) to get a quick ov
 Thanks
 ------
 
-Thanks to [edith](https://github.com/dschleck/edith) and [skadistats](https://github.com/skadistats/)!
+Thanks to [edith](https://github.com/dschleck/edith)!
 
-Come join us over in #dota2replay on QuakeNet.
+Join us over in #dota2replay on QuakeNet if you have any questions.

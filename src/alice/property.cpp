@@ -37,7 +37,7 @@ namespace dota {
 
         // Read a variable size integer
         if (flags & SPROP_ENCODED_AGAINST_TICKCOUNT) {
-            if (flags & SPROP_ENCODED_AGAINST_TICKCOUNT)
+            if (flags & SPROP_UNSIGNED)
                 p->set(stream.nReadVarUInt32());
             else
                 p->set(stream.nReadVarSInt32());

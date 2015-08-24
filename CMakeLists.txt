@@ -42,7 +42,7 @@ OPTION (BUILD_EMSCRIPTEN "Enables emscripten support" 0)
 #------------------------------------------------------------
 
 IF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
-    # Getting the correct SHA-1 only works on windows
+    # Getting the correct SHA-1 only works on linux
     INCLUDE ( GetGitRevisionDescription )
     GET_GIT_HEAD_REVISION ( GIT_REFSPEC GIT_SHA1 )
     MESSAGE ( STATUS "Git Revision is " ${GIT_SHA1}  )
@@ -390,19 +390,22 @@ IF ( BUILD_EXAMPLE )
 
     INSTALL( TARGETS alice-chat RUNTIME DESTINATION bin )
 
-    ADD_EXECUTABLE ( alice-verify
-        example/verify.cpp
-    )
+    IF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+        ADD_EXECUTABLE ( alice-verify
+            example/verify.cpp
+        )
 
-    TARGET_LINK_LIBRARIES ( alice-verify
-        ${ALICE_LIB}
-        ${PROTOBUF_LIBRARY}
-    	${SNAPPY_LIBRARIES}
-    	${Boost_LIBRARIES}
-    	${BZIP2_LIBRARIES}
-    )
+        TARGET_LINK_LIBRARIES ( alice-verify
+            ${ALICE_LIB}
+            ${PROTOBUF_LIBRARY}
+        	${SNAPPY_LIBRARIES}
+        	${Boost_LIBRARIES}
+        	${BZIP2_LIBRARIES}
+            pthread
+        )
 
-    INSTALL( TARGETS alice-verify RUNTIME DESTINATION bin )
+        INSTALL( TARGETS alice-verify RUNTIME DESTINATION bin )
+    ENDIF ( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 ENDIF ( BUILD_EXAMPLE )
 
 #------------------------------------------------------------

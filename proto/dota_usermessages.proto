@@ -83,6 +83,8 @@ enum EDotaUserMessages {
 	DOTA_UM_BeastChat = 139;
 	DOTA_UM_SpectatorPlayerUnitOrders = 140;
 	DOTA_UM_CompendiumState = 141;
+	DOTA_UM_ProjectionAbility = 142;
+	DOTA_UM_ProjectionEvent = 143;
 }
 
 enum DOTA_CHAT_MESSAGE {
@@ -295,6 +297,31 @@ enum EHeroStatType {
 	k_EHeroStatType_CullingBladeHeroBuffAverage = 2020;
 }
 
+enum EPlayerVoiceListenState {
+	kPVLS_None = 0;
+	kPVLS_DeniedChatBanned = 1;
+	kPVLS_DeniedPartner = 2;
+	kPVLS_DeniedHLTVTalkerNotSpectator = 3;
+	kPVLS_DeniedHLTVNoTalkerPlayerID = 4;
+	kPVLS_DeniedHLTVTalkerNotBroadcaster = 5;
+	kPVLS_DeniedTeamSpectator = 6;
+	kPVLS_DeniedStudent = 8;
+	kPVLS_Denied = 64;
+	kPVLS_AllowHLTVTalkerIsBroadcaster = 65;
+	kPVLS_AllowCoBroadcaster = 66;
+	kPVLS_AllowAllChat = 67;
+	kPVLS_AllowStudentToCoach = 68;
+	kPVLS_AllowFellowStudent = 69;
+	kPVLS_AllowTalkerIsCoach = 70;
+	kPVLS_AllowCoachHearTeam = 71;
+	kPVLS_AllowSameTeam = 72;
+	kPVLS_AllowShowcase = 73;
+}
+
+enum EProjectionEvent {
+	ePE_FirstBlood = 0;
+}
+
 message CDOTAUserMsg_AIDebugLine {
 	optional string message = 1;
 }
@@ -316,6 +343,8 @@ message CDOTAUserMsg_ChatEvent {
 	optional sint32 playerid_4 = 6 [default = -1];
 	optional sint32 playerid_5 = 7 [default = -1];
 	optional sint32 playerid_6 = 8 [default = -1];
+	optional uint32 value2 = 9;
+	optional uint32 value3 = 10;
 }
 
 message CDOTAUserMsg_CombatLogShowDeath {
@@ -984,5 +1013,21 @@ message CDOTAUserMsg_CompendiumStatePlayer {
 
 message CDOTAUserMsg_CompendiumState {
 	repeated .CDOTAUserMsg_CompendiumStatePlayer compendium_players = 1;
+}
+
+message CDOTAUserMsg_ProjectionAbility {
+	optional uint32 ability_id = 1;
+	optional int32 caster_ent_index = 2;
+	optional int32 caster_team = 3;
+	optional bool channel_end = 4;
+	optional .CMsgVector origin = 5;
+	optional bool track_caster_only = 6;
+	optional float end_time = 7;
+	optional int32 victim_ent_index = 8;
+}
+
+message CDOTAUserMsg_ProjectionEvent {
+	optional .EProjectionEvent event_id = 1 [default = ePE_FirstBlood];
+	optional uint32 team = 2;
 }
 
